@@ -393,60 +393,7 @@
       background: rgba(192, 57, 43, 0.08);
     }
 
-    .sidebar-footer {
-      padding-top: 16px;
-      border-top: 1px solid rgba(0, 0, 0, 0.06);
-      margin-top: 8px;
-    }
-
-    .workspace-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 8px;
-      border-radius: 6px;
-      font-size: 11px;
-      color: var(--sidebar-text);
-    }
-
-    .workspace-avatar {
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
-      background: linear-gradient(135deg, #7dd3fc 0%, #a78bfa 50%, #f472b6 100%);
-      flex-shrink: 0;
-    }
-
-    .workspace-name {
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .workspace-nav {
-      display: flex;
-      gap: 2px;
-    }
-
-    .workspace-nav button {
-      width: 20px;
-      height: 20px;
-      border: none;
-      background: transparent;
-      color: var(--sidebar-muted);
-      cursor: pointer;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-    }
-
-    .workspace-nav button:hover {
-      background: var(--sidebar-active);
-      color: var(--sidebar-text);
-    }
+    /* workspace footer removed */
 
     /* ——— Main / document area ——— */
     .main {
@@ -1353,6 +1300,139 @@
       display: flex;
       align-items: center;
     }
+
+    /* ——— Draft chat ——— */
+    .draft-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      background: transparent;
+    }
+
+    .draft-chat {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      width: 600px;
+      max-width: calc(100vw - 48px);
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 16px 60px rgba(0, 0, 0, 0.14), 0 0 0 1px rgba(0,0,0,0.05);
+      padding: 20px 24px;
+      z-index: 1201;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .draft-chat.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .draft-chat-label {
+      font-size: 12px;
+      color: #999;
+      font-weight: 400;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .draft-chat-textarea {
+      width: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: var(--font);
+      font-size: 15px;
+      color: #1a1a1a;
+      resize: none;
+      line-height: 1.5;
+      min-height: 24px;
+      max-height: 160px;
+      overflow-y: auto;
+      display: block;
+    }
+
+    .draft-chat-textarea::placeholder {
+      color: #C0BDB8;
+    }
+
+    .draft-chat-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #F0EDE6;
+    }
+
+    .draft-chat-hint {
+      font-size: 11px;
+      color: #C0BDB8;
+    }
+
+    .draft-chat-btn {
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-family: var(--font);
+      font-weight: 400;
+      cursor: pointer;
+      transition: background 0.15s ease, opacity 0.15s ease;
+    }
+
+    .draft-chat-btn:hover {
+      background: #333;
+    }
+
+    .draft-chat-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    /* Loading state */
+    .draft-loading {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 0 8px;
+    }
+
+    .draft-loading.visible {
+      display: flex;
+    }
+
+    .draft-dots {
+      display: flex;
+      gap: 5px;
+    }
+
+    .draft-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #C0BDB8;
+      animation: draftPulse 1.2s ease-in-out infinite;
+    }
+
+    .draft-dot:nth-child(2) { animation-delay: 0.2s; }
+    .draft-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes draftPulse {
+      0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    .draft-loading-text {
+      font-size: 13px;
+      color: #999;
+    }
   </style>
 </head>
 <body>
@@ -1384,21 +1464,10 @@
       </div>
     </div>
 
-    <button type="button" class="btn-new-note" id="btnNewNote">New note</button>
+    <button type="button" class="btn-new-note" id="btnNewNote">+ Nueva nota</button>
 
     <nav class="doc-list" id="docList"></nav>
     <div id="searchEmpty">No encontramos nada</div>
-
-    <div class="sidebar-footer">
-      <div class="workspace-bar">
-        <div class="workspace-avatar"></div>
-        <span class="workspace-name">My workspace</span>
-        <div class="workspace-nav">
-          <button type="button" aria-label="Anterior">‹</button>
-          <button type="button" aria-label="Siguiente">›</button>
-        </div>
-      </div>
-    </div>
   </aside>
 
   <!-- Floating button to reveal hidden sidebar -->
@@ -1534,6 +1603,27 @@
     ¿Convertir en cita?
     <button type="button" class="quote-toast-btn quote-toast-yes" id="quoteToastYes">Sí</button>
     <button type="button" class="quote-toast-btn quote-toast-no" id="quoteToastNo">No</button>
+  </div>
+
+  <!-- Draft chat -->
+  <div class="draft-backdrop" id="draftBackdrop" style="display:none"></div>
+  <div class="draft-chat" id="draftChat">
+    <span class="draft-chat-label">¿De qué querés escribir hoy? (en inglés)</span>
+    <div class="draft-input-area" id="draftInputArea">
+      <textarea class="draft-chat-textarea" id="draftTextarea" placeholder="Ej: Escribí sobre el futuro de los data centers..." rows="1" autocomplete="off"></textarea>
+    </div>
+    <div class="draft-loading" id="draftLoading">
+      <div class="draft-dots">
+        <div class="draft-dot"></div>
+        <div class="draft-dot"></div>
+        <div class="draft-dot"></div>
+      </div>
+      <span class="draft-loading-text">Armando tu draft…</span>
+    </div>
+    <div class="draft-chat-footer" id="draftFooter">
+      <span class="draft-chat-hint">Esc para cancelar</span>
+      <button type="button" class="draft-chat-btn" id="draftGenerateBtn">Generar draft →</button>
+    </div>
   </div>
 
   <div class="format-toolbar" id="formatToolbar">
@@ -1905,8 +1995,8 @@
       }
     });
 
-    document.getElementById('btnNewNote').addEventListener('click', createDoc);
-    document.getElementById('emptyCreateBtn').addEventListener('click', createDoc);
+    document.getElementById('btnNewNote').addEventListener('click', openDraftChat);
+    document.getElementById('emptyCreateBtn').addEventListener('click', openDraftChat);
 
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', updateSearchFilter);
@@ -2585,11 +2675,154 @@
       window.open('https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F' + encodeURIComponent(MOCK_SHARE_LINK), '_blank');
     });
 
+    // ——— Draft chat ———
+    const draftBackdrop = document.getElementById('draftBackdrop');
+    const draftChat = document.getElementById('draftChat');
+    const draftTextarea = document.getElementById('draftTextarea');
+    const draftGenerateBtn = document.getElementById('draftGenerateBtn');
+    const draftLoading = document.getElementById('draftLoading');
+    const draftInputArea = document.getElementById('draftInputArea');
+    const draftFooter = document.getElementById('draftFooter');
+    let draftPreviousId = null;
+
+    function openDraftChat() {
+      draftPreviousId = currentId;
+      draftTextarea.value = '';
+      draftLoading.classList.remove('visible');
+      draftInputArea.style.display = '';
+      draftGenerateBtn.disabled = false;
+      draftGenerateBtn.textContent = 'Generar draft →';
+      draftBackdrop.style.display = '';
+      requestAnimationFrame(() => {
+        draftChat.classList.add('visible');
+        draftTextarea.focus();
+      });
+    }
+
+    function closeDraftChat() {
+      draftChat.classList.remove('visible');
+      draftBackdrop.style.display = 'none';
+    }
+
+    // Auto-resize textarea
+    draftTextarea.addEventListener('input', () => {
+      draftTextarea.style.height = 'auto';
+      draftTextarea.style.height = Math.min(draftTextarea.scrollHeight, 160) + 'px';
+    });
+
+    draftTextarea.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        triggerGenerate();
+      } else if (e.key === 'Escape') {
+        closeDraftChat();
+      }
+    });
+
+    draftGenerateBtn.addEventListener('click', triggerGenerate);
+    draftBackdrop.addEventListener('click', closeDraftChat);
+
+    function triggerGenerate() {
+      const topic = draftTextarea.value.trim();
+      if (!topic) { draftTextarea.focus(); return; }
+
+      // Switch to loading state
+      draftInputArea.style.display = 'none';
+      draftFooter.style.display = 'none';
+      draftLoading.classList.add('visible');
+
+      setTimeout(() => {
+        const draft = generateDraft(topic);
+        closeDraftChat();
+        draftFooter.style.display = '';
+
+        // Create the doc with generated content
+        const id = 'doc-' + Date.now();
+        const doc = {
+          id,
+          title: draft.title,
+          body: draft.body,
+          updatedAt: new Date().toISOString()
+        };
+        documents.unshift(doc);
+        saveDocuments();
+        currentId = id;
+        showDoc(id);
+        renderDocList();
+
+        // Place cursor at end of body
+        requestAnimationFrame(() => {
+          editorBody.focus();
+          const range = document.createRange();
+          range.selectNodeContents(editorBody);
+          range.collapse(false);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        });
+      }, 800);
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function generateDraft(topic) {
+      const t = topic.toLowerCase();
+
+      // Tech / data centers / AI
+      if (/data.?center|tecnolog|inteligencia artificial|\bai\b|machine learning|cloud|servidor|infraestructura/.test(t)) {
+        return {
+          title: capitalize(topic),
+          body: `<h1>¿Qué son los data centers modernos?</h1><p>Los data centers han evolucionado de simples salas de servidores a infraestructuras críticas que sostienen la economía digital global.</p><h1>Tendencias actuales</h1><ul><li>Hiperscalabilidad y arquitecturas distribuidas</li><li>Edge computing y procesamiento en tiempo real</li><li>Energía renovable y eficiencia energética (PUE)</li><li>Refrigeración líquida como estándar</li></ul><h1>El rol de la IA</h1><p>La inteligencia artificial está transformando la operación de los data centers, desde la optimización del consumo energético hasta la detección predictiva de fallas.</p><ul><li>Automatización de operaciones (AIOps)</li><li>Optimización térmica en tiempo real</li><li>Predicción de demanda de capacidad</li></ul><h1>Impacto y desafíos</h1><ul><li>Huella de carbono y sostenibilidad</li><li>Demanda creciente por servicios de IA generativa</li><li>Soberanía de datos y regulaciones locales</li></ul><h1>Conclusión</h1><p>El futuro de los data centers estará definido por la eficiencia energética, la IA y la descentralización geográfica.</p>`
+        };
+      }
+
+      // Business / startup / empresa
+      if (/negocio|startup|empresa|emprendimiento|producto|mercado|cliente|revenue|ventas|b2b|b2c/.test(t)) {
+        return {
+          title: capitalize(topic),
+          body: `<h1>El problema</h1><p>Identificar el dolor real del cliente es el punto de partida de cualquier negocio exitoso. Sin un problema claro, no hay mercado.</p><h1>La solución</h1><ul><li>Propuesta de valor diferenciada</li><li>MVP y validación temprana</li><li>Iteración basada en feedback real</li></ul><h1>Mercado objetivo</h1><ul><li>TAM / SAM / SOM — dimensionamiento del mercado</li><li>Perfil del cliente ideal (ICP)</li><li>Canales de adquisición principales</li></ul><h1>Modelo de negocio</h1><ul><li>Fuentes de revenue</li><li>Unit economics — LTV vs CAC</li><li>Estructura de costos</li></ul><h1>Próximos pasos</h1><ul><li>Validar hipótesis con 10 entrevistas de cliente</li><li>Definir métricas de éxito del MVP</li><li>Identificar primeros early adopters</li></ul>`
+        };
+      }
+
+      // Meeting / reunión / resumen
+      if (/reuni[oó]n|meeting|resumen|agenda|minuta|call|sync|standup|follow.?up/.test(t)) {
+        return {
+          title: capitalize(topic),
+          body: `<h1>Asistentes</h1><ul><li>—</li><li>—</li><li>—</li></ul><h1>Objetivo de la reunión</h1><p>Describir brevemente el propósito principal de este encuentro.</p><h1>Puntos tratados</h1><ul><li>Tema 1 — resumen y decisión tomada</li><li>Tema 2 — resumen y decisión tomada</li><li>Tema 3 — resumen y decisión tomada</li></ul><h1>Decisiones clave</h1><ul><li>Decisión 1</li><li>Decisión 2</li></ul><h1>Próximos pasos</h1><ul><li>[ ] Tarea — Responsable — Fecha límite</li><li>[ ] Tarea — Responsable — Fecha límite</li><li>[ ] Tarea — Responsable — Fecha límite</li></ul><h1>Próxima reunión</h1><p>Fecha / hora / formato: —</p>`
+        };
+      }
+
+      // Article / opinion / analysis
+      if (/art[ií]culo|opini[oó]n|an[aá]lisis|ensayo|columna|reflexi[oó]n|perspectiva|argumento/.test(t)) {
+        return {
+          title: capitalize(topic),
+          body: `<h1>Introducción</h1><p>Presentar el tema central y por qué importa ahora. Enganchar al lector con una pregunta o afirmación provocadora.</p><h1>Contexto</h1><p>¿Qué está pasando en este espacio? ¿Cuál es el estado actual de la situación?</p><ul><li>Dato o evidencia relevante</li><li>Tendencia o cambio reciente</li><li>Voz de un experto o referencia</li></ul><h1>El argumento central</h1><p>Desarrollar la tesis principal con claridad. Usar ejemplos concretos y evidencia.</p><ul><li>Punto de apoyo 1</li><li>Punto de apoyo 2</li><li>Contraargumento y respuesta</li></ul><h1>Implicancias</h1><p>¿Qué significa esto para el lector? ¿Qué debería cambiar o considerar?</p><h1>Conclusión</h1><p>Cerrar con una idea que quede resonando. Llamado a la acción o pregunta abierta.</p>`
+        };
+      }
+
+      // Essay / research / investigación
+      if (/investigaci[oó]n|research|estudio|ciencia|tesis|academic|informe|reporte/.test(t)) {
+        return {
+          title: capitalize(topic),
+          body: `<h1>Resumen ejecutivo</h1><p>Síntesis de los hallazgos principales en 2-3 oraciones.</p><h1>Antecedentes</h1><p>Contexto histórico y estado del arte en el tema investigado.</p><ul><li>Estudios previos relevantes</li><li>Gaps en el conocimiento actual</li></ul><h1>Metodología</h1><ul><li>Enfoque y tipo de investigación</li><li>Fuentes y corpus analizado</li><li>Limitaciones del estudio</li></ul><h1>Hallazgos principales</h1><ul><li>Hallazgo 1 — descripción y evidencia</li><li>Hallazgo 2 — descripción y evidencia</li><li>Hallazgo 3 — descripción y evidencia</li></ul><h1>Conclusiones</h1><p>Síntesis interpretativa y contribución al campo.</p><h1>Referencias</h1><ul><li>—</li></ul>`
+        };
+      }
+
+      // Generic fallback
+      const titleCap = capitalize(topic);
+      return {
+        title: titleCap,
+        body: `<h1>Introducción</h1><p>Punto de partida: ¿qué es ${topic} y por qué vale la pena escribir sobre esto ahora?</p><h1>Puntos principales</h1><ul><li>Idea clave 1 — desarrollar con detalle y ejemplos</li><li>Idea clave 2 — desarrollar con detalle y ejemplos</li><li>Idea clave 3 — desarrollar con detalle y ejemplos</li></ul><h1>Análisis</h1><p>¿Qué patrones o tensiones emergen? ¿Cuál es la lectura más interesante de este tema?</p><ul><li>Perspectiva A</li><li>Perspectiva B — contrapunto</li></ul><h1>Implicancias</h1><p>¿A quién le importa esto y por qué? ¿Qué cambia si esta idea es correcta?</p><h1>Conclusión</h1><p>Cierre con la idea más importante que el lector se debe llevar.</p>`
+      };
+    }
+
     // ——— Global keyboard shortcuts ———
     document.addEventListener('keydown', (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
         e.preventDefault();
-        createDoc();
+        openDraftChat();
       } else if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
         e.preventDefault();
         const si = document.getElementById('searchInput');
