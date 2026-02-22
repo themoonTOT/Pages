@@ -1,0 +1,2610 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pages</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-cream: #F2EFE9;
+      --sidebar-bg: #ECEAE4;
+      --sidebar-text: #1a1a1a;
+      --sidebar-muted: #6b6b6b;
+      --sidebar-active: rgba(0, 0, 0, 0.06);
+      --editor-max: 620px;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-serif: 'Lora', Georgia, serif;
+      --chip-bg: rgba(0, 0, 0, 0.05);
+      --chip-border: rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font);
+      font-weight: 400;
+      font-size: 13px;
+      background: var(--bg-cream);
+      color: #4a4a4a;
+      min-height: 100vh;
+      display: flex;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ——— Top bar (transparent, floating) ——— */
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 52px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 24px;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .top-bar-inner {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      pointer-events: auto;
+    }
+
+    .top-bar button,
+    .top-bar .top-bar-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: #4a4a4a;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.15s ease;
+    }
+
+    .top-bar button:hover,
+    .top-bar .top-bar-btn:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    .top-bar .btn-share {
+      width: auto;
+      padding: 6px 12px;
+      gap: 6px;
+      background: #1C1C1E;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 400;
+      border-radius: 8px;
+      margin-left: 4px;
+    }
+
+    .top-bar .btn-share:hover {
+      background: #2C2C2E;
+    }
+
+    .top-bar .btn-share svg {
+      opacity: 0.8;
+    }
+
+    /* ——— Sidebar (beige) ——— */
+    .sidebar {
+      width: 240px;
+      min-width: 240px;
+      background: var(--sidebar-bg);
+      color: var(--sidebar-text);
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 16px 12px 12px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .btn-toggle-sidebar {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      color: var(--sidebar-muted);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease, color 0.15s ease;
+      flex-shrink: 0;
+    }
+    .btn-toggle-sidebar:hover {
+      background: var(--sidebar-active);
+      color: var(--sidebar-text);
+    }
+
+    /* Floating re-open button when sidebar is hidden */
+    .sidebar-reveal-btn {
+      position: fixed;
+      left: 16px;
+      top: 14px;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: rgba(255,255,255,0.85);
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.06);
+      color: #4a4a4a;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, visibility 0.2s;
+      backdrop-filter: blur(4px);
+    }
+    body.sidebar-hidden .sidebar-reveal-btn {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .window-chrome {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2px 6px 10px;
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .window-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+    }
+
+    .window-dot.red { background: #ff5f57; }
+    .window-dot.yellow { background: #febc2e; }
+    .window-dot.green { background: #28c840; }
+
+    .window-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .search-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .search-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 36px;
+      padding: 0 12px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: 8px;
+      color: var(--sidebar-muted);
+      font-size: 12px;
+    }
+
+    .search-wrap svg {
+      flex-shrink: 0;
+      opacity: 0.5;
+    }
+
+    .search-wrap input {
+      flex: 1;
+      border: none;
+      background: none;
+      outline: none;
+      font-size: 12px;
+      color: var(--sidebar-text);
+    }
+
+    .search-wrap input::placeholder {
+      color: var(--sidebar-muted);
+    }
+
+    .search-shortcut {
+      font-size: 11px;
+      color: var(--sidebar-muted);
+    }
+
+    .btn-new-doc-icon {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: 8px;
+      color: var(--sidebar-text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease;
+    }
+
+    .btn-new-note {
+      width: 100%;
+      padding: 8px 14px;
+      margin-bottom: 12px;
+      background: #1C1C1E;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 400;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-new-note:hover {
+      background: #2C2C2E;
+    }
+
+    .doc-list {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .doc-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .doc-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .doc-list::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.12);
+      border-radius: 2px;
+    }
+
+    .doc-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      position: relative;
+      margin-bottom: 2px;
+      border-left: 2px solid transparent;
+    }
+
+    .doc-item:hover {
+      background: var(--sidebar-active);
+    }
+
+    .doc-item.active {
+      background: rgba(0, 0, 0, 0.09);
+      border-left-color: #999;
+    }
+
+    .doc-item.shake {
+      animation: shake 0.35s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-4px); }
+      40% { transform: translateX(4px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(3px); }
+    }
+
+    .doc-item-icon {
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+
+    .doc-item-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .doc-item-title {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--sidebar-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
+
+    .doc-item-title.untitled {
+      font-style: italic;
+      color: var(--sidebar-muted);
+    }
+
+    .doc-item-preview {
+      font-size: 11px;
+      color: #aaa;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+      margin-top: 1px;
+    }
+
+    .doc-item-preview.empty {
+      font-style: italic;
+      color: #bbb;
+    }
+
+    .doc-item-actions {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .doc-item:hover .doc-item-actions {
+      opacity: 1;
+    }
+
+    .btn-delete-doc {
+      background: none;
+      border: none;
+      color: var(--sidebar-muted);
+      cursor: pointer;
+      padding: 2px 4px;
+      font-size: 15px;
+      line-height: 1;
+      border-radius: 4px;
+    }
+
+    .btn-delete-doc:hover {
+      color: #c0392b;
+      background: rgba(192, 57, 43, 0.08);
+    }
+
+    .sidebar-footer {
+      padding-top: 16px;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      margin-top: 8px;
+    }
+
+    .workspace-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--sidebar-text);
+    }
+
+    .workspace-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #7dd3fc 0%, #a78bfa 50%, #f472b6 100%);
+      flex-shrink: 0;
+    }
+
+    .workspace-name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .workspace-nav {
+      display: flex;
+      gap: 2px;
+    }
+
+    .workspace-nav button {
+      width: 20px;
+      height: 20px;
+      border: none;
+      background: transparent;
+      color: var(--sidebar-muted);
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    .workspace-nav button:hover {
+      background: var(--sidebar-active);
+      color: var(--sidebar-text);
+    }
+
+    /* ——— Main / document area ——— */
+    .main {
+      flex: 1;
+      margin-left: 240px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 72px 24px 120px;
+      transition: margin-left 0.3s ease;
+    }
+    body.focus-mode .main {
+      margin-left: 0;
+    }
+    body.sidebar-hidden .sidebar {
+      transform: translateX(-100%);
+      pointer-events: none;
+    }
+    body.sidebar-hidden .main {
+      margin-left: 0;
+    }
+
+    .editor-wrap {
+      width: 100%;
+      max-width: var(--editor-max);
+    }
+
+    .editor-title {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1.3;
+      color: #1a1a1a;
+      border: none;
+      background: transparent;
+      width: 100%;
+      outline: none;
+      resize: none;
+      overflow: hidden;
+      min-height: 1.3em;
+      margin-bottom: 16px;
+    }
+
+    .editor-title::placeholder {
+      color: #999;
+    }
+
+    .editor-title, .editor-body {
+      caret-color: #000;
+    }
+
+    .editor-body {
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.75;
+      color: #3a3a3a;
+      border: none;
+      background: transparent;
+      width: 100%;
+      min-height: 50vh;
+      outline: none;
+      overflow: visible;
+    }
+
+    .editor-body:focus {
+      outline: none;
+    }
+
+    .editor-body h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin: 1.5em 0 0.4em;
+      line-height: 1.4;
+    }
+
+    .editor-body h1::before {
+      content: "# ";
+      color: #bbb;
+      font-weight: 700;
+    }
+
+    .editor-body h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin: 1.25em 0 0.35em;
+      line-height: 1.4;
+    }
+
+    .editor-body h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin: 1em 0 0.3em;
+      line-height: 1.45;
+    }
+
+    .editor-body ul {
+      margin: 0.6em 0;
+      padding-left: 1.5em;
+      list-style-type: disc;
+    }
+
+    .editor-body ul li {
+      margin: 0.25em 0;
+      font-size: 14px;
+      font-weight: 300;
+      color: #3a3a3a;
+    }
+
+    .editor-body ul ul {
+      list-style-type: circle;
+      margin: 0.25em 0 0.25em 0.5em;
+    }
+
+    .editor-body ul ul li {
+      font-size: 12px;
+      color: #555;
+    }
+
+    .editor-body ol {
+      margin: 0.6em 0;
+      padding-left: 1.5em;
+    }
+
+    .editor-body ol li {
+      margin: 0.25em 0;
+      font-size: 14px;
+      font-weight: 300;
+      color: #3a3a3a;
+    }
+
+    .editor-body p {
+      margin: 0.5em 0;
+      font-size: 14px;
+      font-weight: 300;
+      color: #3a3a3a;
+    }
+
+    .editor-body:empty::before {
+      content: attr(data-placeholder);
+      color: #999;
+    }
+
+    .format-toolbar { display: none !important; }
+
+    /* ——— Floating chat ——— */
+    .floating-chat-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: transparent;
+      pointer-events: none;
+    }
+
+    .floating-chat-backdrop.visible {
+      pointer-events: auto;
+    }
+
+    .floating-chat {
+      position: fixed;
+      /* left/top set dynamically by JS */
+      width: calc(100% - 300px);
+      max-width: 560px;
+      min-width: 320px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.13), 0 0 0 1px rgba(0,0,0,0.05);
+      padding: 12px 16px;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.96) translateY(6px);
+      transform-origin: top center;
+      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+    }
+
+    .floating-chat.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1) translateY(0);
+    }
+
+    /* Arrow pointing toward the selection */
+    .floating-chat::before {
+      content: '';
+      position: absolute;
+      left: var(--arrow-left, 50%);
+      transform: translateX(-50%);
+      width: 12px;
+      height: 7px;
+      background: #fff;
+      filter: drop-shadow(0 -1px 1px rgba(0,0,0,0.06));
+      transition: left 0.1s ease;
+    }
+
+    .floating-chat.arrow-up::before {
+      top: -7px;
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    }
+
+    .floating-chat.arrow-down::before {
+      top: auto;
+      bottom: -7px;
+      clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+    }
+
+    .floating-chat-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-family: var(--font);
+      font-size: 13.5px;
+      color: var(--sidebar-text);
+      padding: 4px 0;
+      min-width: 0;
+    }
+
+    .floating-chat-input::placeholder {
+      color: #bbb;
+    }
+
+    .floating-chat-sep {
+      width: 1px;
+      height: 20px;
+      background: #ececec;
+      margin: 0 10px;
+      flex-shrink: 0;
+    }
+
+    .floating-chat-mood-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .floating-chat-mood-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: #E8EAFF;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      color: #6B7FD4;
+    }
+
+    .floating-chat-mood-btn:hover {
+      background: #dfe2fc;
+    }
+
+    .floating-chat-mood-btn svg {
+      width: 10px;
+      height: 10px;
+      opacity: 0.8;
+    }
+
+    .floating-chat-mood-dropdown {
+      position: absolute;
+      bottom: 100%;
+      right: 0;
+      margin-bottom: 6px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+      padding: 6px 0;
+      min-width: 160px;
+      display: none;
+      z-index: 10;
+    }
+
+    .floating-chat-mood-dropdown.visible {
+      display: block;
+    }
+
+    .floating-chat-mood-option {
+      display: block;
+      width: 100%;
+      padding: 8px 14px;
+      border: none;
+      background: none;
+      font-family: var(--font);
+      font-size: 13px;
+      color: #1a1a1a;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.1s ease;
+    }
+
+    .floating-chat-mood-option:hover {
+      background: #f5f5f5;
+    }
+
+    /* ——— Selection highlight while editing ——— */
+    .selection-highlight {
+      background: rgba(107, 127, 212, 0.14);
+      border-radius: 3px;
+      box-shadow: inset 0 0 0 1.5px rgba(107, 127, 212, 0.30);
+      color: inherit;
+      padding: 1px 0;
+    }
+
+    /* ——— Share modal ——— */
+    .share-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 1100;
+      background: rgba(0, 0, 0, 0.18);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, visibility 0.2s;
+      backdrop-filter: blur(2px);
+    }
+
+    .share-backdrop.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .share-panel {
+      position: fixed;
+      top: 52px;
+      right: 16px;
+      width: 320px;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.14), 0 0 0 1px rgba(0, 0, 0, 0.04);
+      z-index: 1101;
+      padding: 20px;
+      transform: translateY(-8px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    }
+
+    .share-panel.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .share-panel-section {
+      margin-bottom: 20px;
+    }
+
+    .share-panel-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .share-section-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+
+    .share-people-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .share-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7dd3fc 0%, #a78bfa 50%, #f472b6 100%);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: #fff;
+    }
+
+    .share-person-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .share-person-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a1a1a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .share-person-email {
+      font-size: 11px;
+      color: #999;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .share-access-chip {
+      font-size: 11px;
+      color: #666;
+      background: #f0f0f0;
+      padding: 3px 8px;
+      border-radius: 20px;
+      flex-shrink: 0;
+    }
+
+    .share-invite-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f7f7f7;
+      border-radius: 10px;
+      padding: 8px 12px;
+    }
+
+    .share-invite-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-family: var(--font);
+      font-size: 13px;
+      color: #1a1a1a;
+      min-width: 0;
+    }
+
+    .share-invite-input::placeholder {
+      color: #bbb;
+    }
+
+    .share-invite-btn {
+      flex-shrink: 0;
+      border: none;
+      background: #1C1C1E;
+      color: #fff;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .share-invite-btn:hover {
+      background: #2C2C2E;
+    }
+
+    .share-divider {
+      height: 1px;
+      background: #f0f0f0;
+      margin: 16px 0;
+    }
+
+    .share-link-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f7f7f7;
+      border-radius: 10px;
+      padding: 8px 12px;
+    }
+
+    .share-link-url {
+      flex: 1;
+      font-size: 12px;
+      color: #999;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .share-link-copy {
+      flex-shrink: 0;
+      border: none;
+      background: none;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 500;
+      color: #6B7FD4;
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: color 0.15s ease;
+    }
+
+    .share-link-copy:hover {
+      color: #5a6bc4;
+    }
+
+    .share-social-grid {
+      display: flex;
+      gap: 10px;
+    }
+
+    .share-social-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      padding: 12px 8px;
+      border: 1.5px solid #f0f0f0;
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+      text-decoration: none;
+    }
+
+    .share-social-btn:hover {
+      border-color: #e0e0e0;
+      background: #fafafa;
+    }
+
+    .share-social-btn span {
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 500;
+      color: #666;
+    }
+
+    .share-social-btn svg {
+      display: block;
+    }
+
+    .share-panel-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: none;
+      color: #bbb;
+      cursor: pointer;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: color 0.15s ease, background 0.15s ease;
+      line-height: 1;
+    }
+
+    .share-panel-close:hover {
+      color: #555;
+      background: #f0f0f0;
+    }
+
+    .share-copied-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: #1C1C1E;
+      color: #fff;
+      font-size: 13px;
+      padding: 8px 18px;
+      border-radius: 20px;
+      z-index: 1200;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+      pointer-events: none;
+    }
+
+    .share-copied-toast.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ——— 1. Inline diff ——— */
+    .diff-old {
+      background: #FFEBEB;
+      color: #c0392b;
+      text-decoration: line-through;
+      border-radius: 2px;
+      padding: 1px 0;
+    }
+    .diff-new {
+      background: #EBFFEF;
+      color: #27ae60;
+      border-radius: 2px;
+      padding: 1px 0;
+    }
+    .diff-actions {
+      position: fixed;
+      display: flex;
+      gap: 6px;
+      z-index: 1050;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(4px);
+      transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    }
+    .diff-actions.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .diff-btn {
+      border: none;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05);
+      padding: 5px 12px;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.12s ease;
+    }
+    .diff-btn:hover { background: #f8f8f8; }
+    .diff-btn-accept { color: #2D9B5A; }
+    .diff-btn-reject { color: #D04040; }
+
+    /* ——— 2. Focus mode ——— */
+    .top-bar-inner {
+      transition: opacity 0.3s ease;
+    }
+    body.focus-mode .sidebar { opacity: 0; pointer-events: none; }
+    body.focus-mode .top-bar-inner { opacity: 0; pointer-events: none; }
+    .focus-hint {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #ccc;
+      font-family: var(--font);
+      font-weight: 300;
+      pointer-events: none;
+      z-index: 900;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .focus-hint.visible { opacity: 1; }
+
+    /* ——— 3. Slash command menu ——— */
+    .slash-menu {
+      position: fixed;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.05);
+      width: 220px;
+      padding: 6px 0;
+      z-index: 1050;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(4px);
+      transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    }
+    .slash-menu.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .slash-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 14px;
+      cursor: pointer;
+      transition: background 0.1s ease;
+    }
+    .slash-item:hover, .slash-item.active {
+      background: #f5f5f5;
+    }
+    .slash-item-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #555;
+      flex-shrink: 0;
+    }
+    .slash-item-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+    .slash-item-desc {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 1px;
+    }
+
+    /* ——— 4. Word count ——— */
+    .word-count {
+      position: fixed;
+      bottom: 24px;
+      right: 32px;
+      font-size: 11px;
+      font-weight: 300;
+      color: #C8C4BC;
+      font-family: var(--font);
+      pointer-events: none;
+      z-index: 90;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .word-count.visible { opacity: 1; }
+
+    /* ——— 5. Versions chip & dropdown ——— */
+    .versions-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--sidebar-muted);
+      background: var(--chip-bg);
+      border: 1px solid var(--chip-border);
+      border-radius: 20px;
+      padding: 3px 9px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s ease;
+      position: relative;
+    }
+    .versions-chip:hover { background: rgba(0,0,0,0.08); }
+    .versions-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      min-width: 200px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05);
+      padding: 6px 0;
+      z-index: 500;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(4px);
+      transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    }
+    .versions-dropdown.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .version-item {
+      display: block;
+      padding: 8px 14px;
+      font-size: 12px;
+      color: #1a1a1a;
+      cursor: pointer;
+      transition: background 0.1s ease;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-family: var(--font);
+    }
+    .version-item:hover { background: #f5f5f5; }
+    .version-item-time {
+      font-size: 11px;
+      color: #aaa;
+      display: block;
+    }
+    .editor-meta {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    /* ——— 6. Quote paste toast ——— */
+    .quote-toast {
+      position: fixed;
+      top: 60px;
+      right: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #1a1a1a;
+      font-family: var(--font);
+      z-index: 1050;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px);
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    }
+    .quote-toast.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .quote-toast-btn {
+      border: none;
+      background: none;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .quote-toast-yes { color: #6B7FD4; }
+    .quote-toast-yes:hover { background: #f0f0ff; }
+    .quote-toast-no { color: #aaa; }
+    .quote-toast-no:hover { background: #f5f5f5; }
+    .editor-body blockquote {
+      border-left: 3px solid #C8C4BC;
+      padding-left: 16px;
+      margin: 0.8em 0;
+      font-style: italic;
+      color: #666;
+    }
+
+    /* ——— Saved indicator ——— */
+    #savedIndicator {
+      font-size: 11px;
+      font-weight: 400;
+      color: transparent;
+      transition: color 0.2s ease;
+      pointer-events: none;
+      margin-left: 8px;
+    }
+
+    #savedIndicator.visible {
+      color: #4caf50;
+    }
+
+    /* ——— Empty state ——— */
+    #emptyState {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 12px;
+      color: #bbb;
+    }
+
+    #emptyState.visible {
+      display: flex;
+    }
+
+    .empty-state-icon {
+      opacity: 0.3;
+    }
+
+    .empty-state-text {
+      font-size: 15px;
+      color: #aaa;
+      font-weight: 300;
+    }
+
+    .empty-create-btn {
+      color: #5B8AF0;
+      background: none;
+      border: none;
+      font-size: 13px;
+      font-family: var(--font);
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    .empty-create-btn:hover {
+      text-decoration: underline;
+    }
+
+    /* ——— Search empty ——— */
+    #searchEmpty {
+      display: none;
+      font-size: 12px;
+      color: #bbb;
+      text-align: center;
+      padding: 16px 8px;
+    }
+
+    #searchEmpty.visible {
+      display: block;
+    }
+
+    /* ——— Editor meta saved indicator ——— */
+    .editor-meta-row {
+      display: flex;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <header class="top-bar">
+    <div class="top-bar-inner">
+      <button type="button" class="btn-share" title="Compartir">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Share
+      </button>
+    </div>
+  </header>
+
+  <aside class="sidebar">
+    <div class="window-chrome">
+      <div class="window-dots">
+        <span class="window-dot red"></span>
+        <span class="window-dot yellow"></span>
+        <span class="window-dot green"></span>
+      </div>
+      <button type="button" class="btn-toggle-sidebar" id="btnToggleSidebar" title="Ocultar sidebar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+      </button>
+    </div>
+    <div class="search-row">
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="Search" autocomplete="off">
+        <span class="search-shortcut">⌘K</span>
+      </div>
+    </div>
+
+    <button type="button" class="btn-new-note" id="btnNewNote">New note</button>
+
+    <nav class="doc-list" id="docList"></nav>
+    <div id="searchEmpty">No encontramos nada</div>
+
+    <div class="sidebar-footer">
+      <div class="workspace-bar">
+        <div class="workspace-avatar"></div>
+        <span class="workspace-name">My workspace</span>
+        <div class="workspace-nav">
+          <button type="button" aria-label="Anterior">‹</button>
+          <button type="button" aria-label="Siguiente">›</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Floating button to reveal hidden sidebar -->
+  <button type="button" class="sidebar-reveal-btn" id="sidebarRevealBtn" title="Mostrar sidebar">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+  </button>
+
+  <main class="main">
+    <div id="emptyState">
+      <svg class="empty-state-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span class="empty-state-text">Todavía no tenés notas</span>
+      <button type="button" class="empty-create-btn" id="emptyCreateBtn">Crear primera nota</button>
+    </div>
+    <div class="editor-wrap">
+      <div class="editor-title" id="editorTitle" contenteditable="true" data-placeholder="Sin título"></div>
+      <div style="display:flex;align-items:center;margin-bottom:16px;margin-top:-8px;">
+        <span id="savedIndicator"></span>
+      </div>
+      <div class="editor-body" id="editorBody" contenteditable="true" data-placeholder="Escribí algo…"></div>
+    </div>
+  </main>
+
+  <!-- Share panel -->
+  <div class="share-backdrop" id="shareBackdrop"></div>
+  <div class="share-panel" id="sharePanel">
+    <button type="button" class="share-panel-close" id="shareClose" title="Cerrar">×</button>
+
+    <div class="share-panel-section">
+      <div class="share-section-label">Shared with</div>
+      <div class="share-people-row">
+        <div class="share-avatar">T</div>
+        <div class="share-person-info">
+          <div class="share-person-name">Toto</div>
+          <div class="share-person-email" id="shareOwnerEmail">you@example.com</div>
+        </div>
+        <span class="share-access-chip">Owner</span>
+      </div>
+      <div class="share-invite-row">
+        <input type="email" class="share-invite-input" id="shareInviteInput" placeholder="Invite by email…" autocomplete="off">
+        <button type="button" class="share-invite-btn" id="shareInviteBtn">Invite</button>
+      </div>
+    </div>
+
+    <div class="share-divider"></div>
+
+    <div class="share-panel-section">
+      <div class="share-section-label">Share link</div>
+      <div class="share-link-row">
+        <span class="share-link-url" id="shareLinkUrl">pages.app/note/—</span>
+        <button type="button" class="share-link-copy" id="shareLinkCopy">Copy</button>
+      </div>
+    </div>
+
+    <div class="share-divider"></div>
+
+    <div class="share-panel-section">
+      <div class="share-section-label">Publish to</div>
+      <div class="share-social-grid">
+        <!-- Substack -->
+        <button type="button" class="share-social-btn" id="shareSubstack">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="24" height="24" rx="6" fill="#FF6719"/>
+            <path d="M5 7.5h14v1.5H5V7.5zm0 3.5h14v1.5H5V11zm0 3.5v5.5l7-3.5 7 3.5V14.5H5z" fill="#fff"/>
+          </svg>
+          <span>Substack</span>
+        </button>
+        <!-- X / Twitter -->
+        <button type="button" class="share-social-btn" id="shareTwitter">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="24" height="24" rx="6" fill="#000"/>
+            <path d="M13.38 10.98 18.14 5.5h-1.13l-4.1 4.77L9.4 5.5H5.5l5.01 7.28L5.5 18.5h1.13l4.38-5.1 3.6 5.1H18.5l-5.12-7.52zm-1.55 1.8-.5-.72L6.93 6.34h1.73l3.24 4.64.5.72 4.2 6.01h-1.73l-3.44-4.93z" fill="#fff"/>
+          </svg>
+          <span>X</span>
+        </button>
+        <!-- LinkedIn -->
+        <button type="button" class="share-social-btn" id="shareLinkedIn">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="24" height="24" rx="6" fill="#0A66C2"/>
+            <path d="M7.5 9.5H5.5v9h2V9.5zm-1-1.5a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5zm9 1.5c-1.38 0-2.3.65-2.7 1.3V9.5H10.8v9h2V13c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5.5h2V13c0-2.2-1.35-3.5-3.3-3.5z" fill="#fff"/>
+          </svg>
+          <span>LinkedIn</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="share-copied-toast" id="shareCopiedToast">Link copied!</div>
+
+  <!-- Versions chip (hidden, kept for JS) -->
+  <span id="versionsChip" style="display:none">
+    <span id="versionsCount">0</span>
+    <div id="versionsDropdown"></div>
+  </span>
+
+  <!-- Diff accept/reject buttons -->
+  <div class="diff-actions" id="diffActions">
+    <button type="button" class="diff-btn diff-btn-accept" id="diffAccept">✓ Accept</button>
+    <button type="button" class="diff-btn diff-btn-reject" id="diffReject">✗ Reject</button>
+  </div>
+
+  <!-- Slash command menu -->
+  <div class="slash-menu" id="slashMenu">
+    <div class="slash-item" data-cmd="h1">
+      <div class="slash-item-icon">H1</div>
+      <div><div class="slash-item-label">Título grande</div><div class="slash-item-desc">Encabezado principal</div></div>
+    </div>
+    <div class="slash-item" data-cmd="h2">
+      <div class="slash-item-icon">H2</div>
+      <div><div class="slash-item-label">Título mediano</div><div class="slash-item-desc">Encabezado secundario</div></div>
+    </div>
+    <div class="slash-item" data-cmd="ul">
+      <div class="slash-item-icon">•</div>
+      <div><div class="slash-item-label">Bullet list</div><div class="slash-item-desc">Lista simple</div></div>
+    </div>
+    <div class="slash-item" data-cmd="quote">
+      <div class="slash-item-icon">"</div>
+      <div><div class="slash-item-label">Quote</div><div class="slash-item-desc">Bloque de cita</div></div>
+    </div>
+    <div class="slash-item" data-cmd="divider">
+      <div class="slash-item-icon">—</div>
+      <div><div class="slash-item-label">Divider</div><div class="slash-item-desc">Línea separadora</div></div>
+    </div>
+  </div>
+
+  <!-- Word count -->
+  <div class="word-count" id="wordCount"></div>
+
+  <!-- Focus mode hint -->
+  <div class="focus-hint" id="focusHint">Focus mode · mueve el mouse para salir</div>
+
+  <!-- Quote paste toast -->
+  <div class="quote-toast" id="quoteToast">
+    ¿Convertir en cita?
+    <button type="button" class="quote-toast-btn quote-toast-yes" id="quoteToastYes">Sí</button>
+    <button type="button" class="quote-toast-btn quote-toast-no" id="quoteToastNo">No</button>
+  </div>
+
+  <div class="format-toolbar" id="formatToolbar">
+    <button type="button" id="btnBold" title="Negrita">B</button>
+    <button type="button" id="btnItalic" title="Cursiva">I</button>
+    <button type="button" id="btnH1" title="Título 1">H1</button>
+    <button type="button" id="btnH2" title="Título 2">H2</button>
+    <button type="button" id="btnBulletList" title="Lista con viñetas">•</button>
+    <div class="sep"></div>
+    <button type="button" id="btnLink" title="Enlace">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    </button>
+  </div>
+
+  <div class="floating-chat-backdrop" id="floatingChatBackdrop"></div>
+  <div class="floating-chat" id="floatingChat">
+    <input type="text" class="floating-chat-input" id="floatingChatInput" placeholder="Edit selection…" autocomplete="off">
+    <span class="floating-chat-sep"></span>
+    <div class="floating-chat-mood-wrap" id="floatingChatMoodWrap">
+      <button type="button" class="floating-chat-mood-btn" id="floatingChatMoodBtn">Mood
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="floating-chat-mood-dropdown" id="floatingChatMoodDropdown">
+        <button type="button" class="floating-chat-mood-option" data-mood="smarter">Smarter</button>
+        <button type="button" class="floating-chat-mood-option" data-mood="powerful">More powerful</button>
+        <button type="button" class="floating-chat-mood-option" data-mood="new">Try something new</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ——— Share panel ———
+    const shareBackdrop = document.getElementById('shareBackdrop');
+    const sharePanel = document.getElementById('sharePanel');
+    const shareClose = document.getElementById('shareClose');
+    const shareInviteInput = document.getElementById('shareInviteInput');
+    const shareInviteBtn = document.getElementById('shareInviteBtn');
+    const shareLinkUrl = document.getElementById('shareLinkUrl');
+    const shareLinkCopy = document.getElementById('shareLinkCopy');
+    const shareCopiedToast = document.getElementById('shareCopiedToast');
+
+    const MOCK_SHARE_LINK = 'pages.app/note/' + Math.random().toString(36).slice(2, 8);
+    shareLinkUrl.textContent = MOCK_SHARE_LINK;
+
+    function openSharePanel() {
+      shareBackdrop.classList.add('visible');
+      sharePanel.classList.add('visible');
+    }
+
+    function closeSharePanel() {
+      shareBackdrop.classList.remove('visible');
+      sharePanel.classList.remove('visible');
+    }
+
+    document.querySelector('.btn-share').addEventListener('click', openSharePanel);
+    shareClose.addEventListener('click', closeSharePanel);
+    shareBackdrop.addEventListener('click', closeSharePanel);
+
+    shareInviteBtn.addEventListener('click', () => {
+      const val = shareInviteInput.value.trim();
+      if (!val) { shareInviteInput.focus(); return; }
+      shareInviteInput.value = '';
+      showToast('Invite sent to ' + val);
+    });
+
+    shareInviteInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') shareInviteBtn.click();
+    });
+
+    shareLinkCopy.addEventListener('click', () => {
+      navigator.clipboard.writeText('https://' + MOCK_SHARE_LINK).catch(() => {});
+      showToast('Link copied!');
+    });
+
+    let toastTimeout = null;
+    function showToast(msg) {
+      shareCopiedToast.textContent = msg;
+      shareCopiedToast.classList.add('visible');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => shareCopiedToast.classList.remove('visible'), 2200);
+    }
+
+    // ——— Sidebar toggle ———
+    const btnToggleSidebar = document.getElementById('btnToggleSidebar');
+    const sidebarRevealBtn = document.getElementById('sidebarRevealBtn');
+
+    function hideSidebar() {
+      document.body.classList.add('sidebar-hidden');
+    }
+    function revealSidebar() {
+      document.body.classList.remove('sidebar-hidden');
+    }
+
+    btnToggleSidebar.addEventListener('click', hideSidebar);
+    sidebarRevealBtn.addEventListener('click', revealSidebar);
+
+    // Social share listeners wired after getCurrentDoc is defined (see bottom of script)
+
+    // ——— App ———
+    const STORAGE_KEY = 'pages-documents';
+    const ACTIVE_KEY = 'pages-active-id';
+    const WELCOME_ID = 'welcome';
+
+    const welcomeDoc = {
+      id: WELCOME_ID,
+      title: 'Bienvenido',
+      body: '<p>Este es tu espacio para escribir. Usá la barra lateral para crear nuevos documentos o cambiar entre ellos.</p><p>Seleccioná texto para ver la barra de formato y aplicar <strong>negrita</strong>, <em>cursiva</em>, títulos o listas.</p><p>Todo se guarda automáticamente en tu navegador.</p>',
+      updatedAt: new Date().toISOString()
+    };
+
+    let documents = [];
+    let currentId = null;
+    let saveTimeout = null;
+    const SAVE_DELAY = 800;
+
+    // Pending delete tracking for shake-before-delete UX
+    const pendingDeletes = {};
+
+    const editorTitle = document.getElementById('editorTitle');
+    const editorBody = document.getElementById('editorBody');
+    const docListEl = document.getElementById('docList');
+    const formatToolbar = document.getElementById('formatToolbar');
+    const savedIndicatorEl = document.getElementById('savedIndicator');
+    const searchEmptyEl = document.getElementById('searchEmpty');
+    const emptyStateEl = document.getElementById('emptyState');
+    const editorWrapEl = document.querySelector('.editor-wrap');
+    let savedIndicatorTimer = null;
+
+    function stripHtml(html) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      return (tmp.textContent || tmp.innerText || '').trim();
+    }
+
+    function getPreview(doc) {
+      const text = stripHtml(doc.body || '');
+      if (!text) return null;
+      return text.split(/\s+/).slice(0, 6).join(' ');
+    }
+
+    function loadDocuments() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        try {
+          documents = JSON.parse(raw);
+        } catch (_) {
+          documents = [];
+        }
+      }
+      if (documents.length === 0) {
+        documents = [{ ...welcomeDoc }];
+        currentId = WELCOME_ID;
+        saveDocuments();
+      } else {
+        // Restore last active doc
+        const savedId = localStorage.getItem(ACTIVE_KEY);
+        const exists = savedId && documents.find(d => d.id === savedId);
+        currentId = exists ? savedId : documents.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0].id;
+      }
+    }
+
+    function saveDocuments() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
+      localStorage.setItem(ACTIVE_KEY, currentId);
+    }
+
+    function getCurrentDoc() {
+      return documents.find(d => d.id === currentId);
+    }
+
+    function createDoc() {
+      const id = 'doc-' + Date.now();
+      const doc = {
+        id,
+        title: '',
+        body: '<p></p>',
+        updatedAt: new Date().toISOString()
+      };
+      documents.unshift(doc);
+      saveDocuments();
+      currentId = id;
+      showDoc(id);
+      renderDocList();
+      editorTitle.focus();
+    }
+
+    function deleteDoc(id, e) {
+      if (e) e.stopPropagation();
+      if (documents.length <= 1) return;
+
+      const doc = documents.find(d => d.id === id);
+      const hasContent = doc && (stripHtml(doc.body || '').length > 0 || (doc.title || '').trim().length > 0);
+      const el = docListEl.querySelector(`.doc-item[data-id="${id}"]`);
+
+      // Shake warning for docs with content — require second click within 2s
+      if (hasContent && !pendingDeletes[id]) {
+        if (el) {
+          el.classList.add('shake');
+          el.addEventListener('animationend', () => el.classList.remove('shake'), { once: true });
+        }
+        pendingDeletes[id] = setTimeout(() => { delete pendingDeletes[id]; }, 2000);
+        return;
+      }
+
+      // Clear pending
+      if (pendingDeletes[id]) {
+        clearTimeout(pendingDeletes[id]);
+        delete pendingDeletes[id];
+      }
+
+      const idx = documents.findIndex(d => d.id === id);
+      documents = documents.filter(d => d.id !== id);
+
+      if (currentId === id) {
+        // Select next doc (or previous if last)
+        const nextDoc = documents[Math.min(idx, documents.length - 1)];
+        currentId = nextDoc ? nextDoc.id : null;
+        if (currentId) {
+          showDoc(currentId);
+        } else {
+          createDoc();
+          return;
+        }
+      }
+      saveDocuments();
+      renderDocList();
+    }
+
+    function switchDoc(id) {
+      currentId = id;
+      localStorage.setItem(ACTIVE_KEY, id);
+      showDoc(id);
+      renderDocList();
+    }
+
+    function showDoc(id) {
+      const doc = documents.find(d => d.id === id);
+      if (!doc) return;
+      editorTitle.textContent = doc.title || '';
+      editorBody.innerHTML = doc.body || '<p></p>';
+      updateWordCount();
+      updateVersionsChip();
+      updateEmptyState();
+    }
+
+    function updateEmptyState() {
+      const hasDoc = documents.length > 0 && currentId;
+      emptyStateEl.classList.toggle('visible', !hasDoc);
+      editorWrapEl.style.display = hasDoc ? '' : 'none';
+    }
+
+    function showSavedIndicator() {
+      if (!savedIndicatorEl) return;
+      savedIndicatorEl.textContent = '✓ Guardado';
+      savedIndicatorEl.classList.add('visible');
+      clearTimeout(savedIndicatorTimer);
+      savedIndicatorTimer = setTimeout(() => {
+        savedIndicatorEl.classList.remove('visible');
+      }, 1500);
+    }
+
+    function renderDocList() {
+      const sorted = [...documents].sort((a, b) =>
+        new Date(b.updatedAt) - new Date(a.updatedAt)
+      );
+      const canDelete = documents.length > 1;
+      const svgIcon = `<svg class="doc-item-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`;
+
+      docListEl.innerHTML = sorted.map(doc => {
+        const hasTitle = (doc.title || '').trim().length > 0;
+        const titleText = hasTitle ? escapeHtml(doc.title) : 'Sin título';
+        const titleClass = hasTitle ? 'doc-item-title' : 'doc-item-title untitled';
+        const isActive = doc.id === currentId;
+        const preview = getPreview(doc);
+        const previewHtml = preview
+          ? `<span class="doc-item-preview">${escapeHtml(preview)}</span>`
+          : `<span class="doc-item-preview empty">Sin contenido aún</span>`;
+        const deleteBtn = canDelete
+          ? `<span class="doc-item-actions"><button type="button" class="btn-delete-doc" data-id="${doc.id}" title="Eliminar">×</button></span>`
+          : '';
+        return `<div class="doc-item${isActive ? ' active' : ''}" data-id="${doc.id}">${svgIcon}<div class="doc-item-content"><span class="${titleClass}">${titleText}</span>${previewHtml}</div>${deleteBtn}</div>`;
+      }).join('');
+
+      // Update search visibility
+      updateSearchFilter();
+    }
+
+    function updateSearchFilter() {
+      const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+      let visibleCount = 0;
+      docListEl.querySelectorAll('.doc-item').forEach(item => {
+        const title = (item.querySelector('.doc-item-title').textContent || '').toLowerCase();
+        const preview = (item.querySelector('.doc-item-preview').textContent || '').toLowerCase();
+        const matches = q === '' || title.includes(q) || preview.includes(q);
+        item.style.display = matches ? '' : 'none';
+        if (matches) visibleCount++;
+      });
+      if (searchEmptyEl) {
+        searchEmptyEl.classList.toggle('visible', q !== '' && visibleCount === 0);
+      }
+    }
+
+    function escapeHtml(s) {
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    function updateCurrentDoc() {
+      const doc = getCurrentDoc();
+      if (!doc) return;
+      doc.title = editorTitle.textContent.trim() || '';
+      doc.body = editorBody.innerHTML;
+      doc.updatedAt = new Date().toISOString();
+      saveDocuments();
+      showSavedIndicator();
+      // Patch only the relevant doc item in the list (avoid full re-render)
+      patchDocInList(doc);
+    }
+
+    function patchDocInList(doc) {
+      // Full re-render only if sort order changes (the updated doc should bubble to top)
+      const sorted = [...documents].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+      const firstId = sorted[0] && sorted[0].id;
+      if (firstId === doc.id && docListEl.firstElementChild && docListEl.firstElementChild.dataset.id === doc.id) {
+        // Already at top, just update title/preview in place
+        const el = docListEl.querySelector(`.doc-item[data-id="${doc.id}"]`);
+        if (el) {
+          const hasTitle = doc.title.trim().length > 0;
+          const titleEl = el.querySelector('.doc-item-title');
+          if (titleEl) {
+            titleEl.textContent = hasTitle ? doc.title : 'Sin título';
+            titleEl.className = hasTitle ? 'doc-item-title' : 'doc-item-title untitled';
+          }
+          const previewEl = el.querySelector('.doc-item-preview');
+          if (previewEl) {
+            const preview = getPreview(doc);
+            if (preview) {
+              previewEl.textContent = preview;
+              previewEl.className = 'doc-item-preview';
+            } else {
+              previewEl.textContent = 'Sin contenido aún';
+              previewEl.className = 'doc-item-preview empty';
+            }
+          }
+        }
+      } else {
+        // Sort order changed — full re-render needed
+        renderDocList();
+      }
+    }
+
+    function scheduleSave() {
+      if (saveTimeout) clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(updateCurrentDoc, SAVE_DELAY);
+    }
+
+    // Event delegation for doc list clicks — ONE listener, no leaks
+    docListEl.addEventListener('click', (e) => {
+      const deleteBtn = e.target.closest('.btn-delete-doc');
+      if (deleteBtn) {
+        e.stopPropagation();
+        deleteDoc(deleteBtn.dataset.id, e);
+        return;
+      }
+      const item = e.target.closest('.doc-item');
+      if (item) {
+        switchDoc(item.dataset.id);
+      }
+    });
+
+    document.getElementById('btnNewNote').addEventListener('click', createDoc);
+    document.getElementById('emptyCreateBtn').addEventListener('click', createDoc);
+
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', updateSearchFilter);
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        searchInput.value = '';
+        updateSearchFilter();
+        searchInput.blur();
+      }
+    });
+
+    editorTitle.addEventListener('input', scheduleSave);
+    editorTitle.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        editorBody.focus();
+      } else if (e.key === 'Tab') {
+        e.preventDefault();
+        editorBody.focus();
+      }
+    });
+
+    editorBody.addEventListener('input', scheduleSave);
+
+    // ——— Floating chat state ———
+    let savedSelectionRange = null;
+    let highlightMark = null;
+    let isDragging = false;
+
+    const floatingChat = document.getElementById('floatingChat');
+    const floatingChatBackdrop = document.getElementById('floatingChatBackdrop');
+    const floatingChatInput = document.getElementById('floatingChatInput');
+    const floatingChatMoodBtn = document.getElementById('floatingChatMoodBtn');
+    const floatingChatMoodDropdown = document.getElementById('floatingChatMoodDropdown');
+
+    const MOOD_INSTRUCTIONS = {
+      smarter: 'Make this sound smarter',
+      powerful: 'Make this more powerful',
+      new: 'Try something new'
+    };
+
+    function applySelectionHighlight(range) {
+      removeSelectionHighlight();
+      if (!range || range.collapsed) return;
+      try {
+        const mark = document.createElement('mark');
+        mark.className = 'selection-highlight';
+        mark.id = '__sel_highlight__';
+        range.cloneRange().surroundContents(mark);
+        highlightMark = mark;
+      } catch (_) {
+        // Multi-element selection: can't wrap, skip highlight
+        highlightMark = null;
+      }
+    }
+
+    function removeSelectionHighlight() {
+      if (highlightMark && highlightMark.parentNode) {
+        const parent = highlightMark.parentNode;
+        while (highlightMark.firstChild) parent.insertBefore(highlightMark.firstChild, highlightMark);
+        parent.removeChild(highlightMark);
+        parent.normalize();
+      }
+      highlightMark = null;
+    }
+
+    function positionChat(selRect) {
+      // Force layout so we get real dimensions
+      floatingChat.style.visibility = 'hidden';
+      floatingChat.style.display = 'flex';
+      const cw = floatingChat.offsetWidth;
+      const ch = floatingChat.offsetHeight;
+      floatingChat.style.visibility = '';
+      floatingChat.style.display = '';
+
+      const GAP = 10;
+      const MARGIN = 12;
+      const viewW = window.innerWidth;
+      const viewH = window.innerHeight;
+
+      // Center horizontally on selection, clamped to viewport
+      let left = selRect.left + selRect.width / 2 - cw / 2;
+      left = Math.max(MARGIN, Math.min(left, viewW - cw - MARGIN));
+
+      // Arrow offset relative to chat left
+      const arrowLeft = (selRect.left + selRect.width / 2) - left;
+      const arrowPct = Math.max(10, Math.min(90, (arrowLeft / cw) * 100));
+
+      // Try below, then above
+      let top, arrowDir;
+      const belowTop = selRect.bottom + GAP;
+      const aboveTop = selRect.top - ch - GAP;
+
+      if (belowTop + ch < viewH - MARGIN) {
+        top = belowTop;
+        arrowDir = 'up'; // arrow points up toward selection
+      } else if (aboveTop > MARGIN) {
+        top = aboveTop;
+        arrowDir = 'down'; // arrow points down toward selection
+      } else {
+        top = Math.max(MARGIN, belowTop);
+        arrowDir = 'up';
+      }
+
+      floatingChat.style.left = left + 'px';
+      floatingChat.style.top = top + 'px';
+      floatingChat.classList.toggle('arrow-up', arrowDir === 'up');
+      floatingChat.classList.toggle('arrow-down', arrowDir === 'down');
+
+      // Nudge arrow tip to point at center of selection
+      const arrowEl = floatingChat;
+      arrowEl.style.setProperty('--arrow-left', arrowPct + '%');
+    }
+
+    function tryOpenChat() {
+      if (floatingChat.classList.contains('visible')) return;
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed || !sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+      if (!editorBody.contains(sel.anchorNode) && !editorBody.contains(sel.focusNode)) return;
+      const selRect = range.getBoundingClientRect();
+      if (!selRect || selRect.width === 0) return;
+
+      savedSelectionRange = range.cloneRange();
+      applySelectionHighlight(savedSelectionRange);
+      sel.removeAllRanges(); // Clear OS selection, highlight mark takes over
+
+      positionChat(selRect);
+
+      floatingChatBackdrop.classList.add('visible');
+      floatingChat.classList.add('visible');
+      floatingChatInput.value = '';
+      setTimeout(() => floatingChatInput.focus(), 30);
+    }
+
+    function closeFloatingChat() {
+      removeSelectionHighlight();
+      floatingChatBackdrop.classList.remove('visible');
+      floatingChat.classList.remove('visible');
+      floatingChatMoodDropdown.classList.remove('visible');
+      savedSelectionRange = null;
+    }
+
+    function replaceSelectionWithText(text) {
+      removeSelectionHighlight();
+      if (!savedSelectionRange) return;
+      editorBody.focus();
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(savedSelectionRange);
+      document.execCommand('insertText', false, text);
+      scheduleSave();
+    }
+
+    // ——— Selection triggers ———
+
+    // Drag: open on mouseup after dragging within editor
+    editorBody.addEventListener('mousedown', () => { isDragging = true; });
+    document.addEventListener('mouseup', (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      if (floatingChat.classList.contains('visible')) return;
+      // Small delay to let browser finalize selection
+      setTimeout(tryOpenChat, 10);
+    });
+
+    // Double-click: word selection
+    editorBody.addEventListener('dblclick', () => {
+      if (floatingChat.classList.contains('visible')) return;
+      setTimeout(tryOpenChat, 10);
+    });
+
+    // Triple-click: paragraph selection
+    editorBody.addEventListener('click', (e) => {
+      if (e.detail === 3) {
+        if (floatingChat.classList.contains('visible')) return;
+        setTimeout(tryOpenChat, 10);
+      }
+    });
+
+    // Close on backdrop click
+    floatingChatBackdrop.addEventListener('click', (e) => {
+      if (e.target === floatingChatBackdrop) closeFloatingChat();
+    });
+
+    // Keep chat open when clicking inside it
+    floatingChat.addEventListener('mousedown', (e) => e.stopPropagation());
+
+    // Close when clicking outside editor+chat
+    function execFormat(cmd, value = null) {
+      document.execCommand(cmd, false, value);
+      editorBody.focus();
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && floatingChat.classList.contains('visible')) {
+        closeFloatingChat();
+      }
+    });
+    floatingChatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const value = floatingChatInput.value.trim();
+        const mockResult = value ? `[revisado] ${value}` : '[revisado] ' + (savedSelectionRange ? savedSelectionRange.toString() : '');
+        showInlineDiff(mockResult);
+        closeFloatingChat();
+      }
+    });
+    floatingChatMoodBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      floatingChatMoodDropdown.classList.toggle('visible');
+    });
+    floatingChatInput.addEventListener('click', () => floatingChatMoodDropdown.classList.remove('visible'));
+    floatingChatMoodDropdown.querySelectorAll('.floating-chat-mood-option').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const mood = btn.dataset.mood;
+        floatingChatInput.value = MOOD_INSTRUCTIONS[mood] || '';
+        floatingChatMoodDropdown.classList.remove('visible');
+        floatingChatInput.focus();
+      });
+    });
+    document.addEventListener('click', (e) => {
+      if (!document.getElementById('floatingChatMoodWrap').contains(e.target)) {
+        floatingChatMoodDropdown.classList.remove('visible');
+      }
+    });
+
+    // ═══════════════════════════════════════════════
+    // 1. INLINE DIFF REVIEW
+    // ═══════════════════════════════════════════════
+    const diffActions = document.getElementById('diffActions');
+    const diffAccept = document.getElementById('diffAccept');
+    const diffReject = document.getElementById('diffReject');
+    let diffOldNode = null;
+    let diffNewNode = null;
+    let diffOriginalRange = null;
+
+    function showInlineDiff(newText) {
+      if (!savedSelectionRange) return;
+      const range = savedSelectionRange.cloneRange();
+      diffOriginalRange = range.cloneRange();
+      const originalText = range.toString();
+
+      // Build old span (red strikethrough)
+      const oldSpan = document.createElement('span');
+      oldSpan.className = 'diff-old';
+      oldSpan.textContent = originalText;
+
+      // Build new span (green)
+      const newSpan = document.createElement('span');
+      newSpan.className = 'diff-new';
+      newSpan.textContent = newText;
+
+      // Replace selection with [old][new]
+      removeSelectionHighlight();
+      editorBody.focus();
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+
+      // Delete selected content, insert spans
+      range.deleteContents();
+      const frag = document.createDocumentFragment();
+      frag.appendChild(oldSpan);
+      frag.appendChild(document.createTextNode(' '));
+      frag.appendChild(newSpan);
+      range.insertNode(frag);
+
+      diffOldNode = oldSpan;
+      diffNewNode = newSpan;
+      scheduleSave();
+
+      // Position diff actions below the new span
+      requestAnimationFrame(() => {
+        const rect = newSpan.getBoundingClientRect();
+        diffActions.style.left = rect.left + 'px';
+        diffActions.style.top = (rect.bottom + 8) + 'px';
+        diffActions.classList.add('visible');
+      });
+    }
+
+    function acceptDiff() {
+      if (!diffNewNode) return;
+      const parent = diffNewNode.parentNode;
+      const text = document.createTextNode(diffNewNode.textContent);
+      // Remove old span, space, new span — insert plain text
+      if (diffOldNode && diffOldNode.parentNode) {
+        diffOldNode.parentNode.removeChild(diffOldNode);
+      }
+      // remove the space text node between them if present
+      const prev = diffNewNode.previousSibling;
+      if (prev && prev.nodeType === 3 && prev.textContent === ' ') prev.parentNode.removeChild(prev);
+      parent.replaceChild(text, diffNewNode);
+      parent.normalize();
+      cleanupDiff();
+      scheduleSave();
+    }
+
+    function rejectDiff() {
+      if (!diffOldNode) return;
+      const parent = diffOldNode.parentNode;
+      const text = document.createTextNode(diffOldNode.textContent);
+      if (diffNewNode && diffNewNode.parentNode) diffNewNode.parentNode.removeChild(diffNewNode);
+      const spacer = diffOldNode.nextSibling;
+      if (spacer && spacer.nodeType === 3 && spacer.textContent === ' ') spacer.parentNode.removeChild(spacer);
+      parent.replaceChild(text, diffOldNode);
+      parent.normalize();
+      cleanupDiff();
+      scheduleSave();
+    }
+
+    function cleanupDiff() {
+      diffOldNode = null;
+      diffNewNode = null;
+      diffOriginalRange = null;
+      diffActions.classList.remove('visible');
+    }
+
+    diffAccept.addEventListener('click', acceptDiff);
+    diffReject.addEventListener('click', rejectDiff);
+    // Escape also rejects
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && diffActions.classList.contains('visible')) {
+        rejectDiff();
+      }
+    });
+
+    // ═══════════════════════════════════════════════
+    // 2. FOCUS MODE
+    // ═══════════════════════════════════════════════
+    const focusHint = document.getElementById('focusHint');
+    let focusModeTimer = null;
+    let focusModeActive = false;
+    let focusHintTimer = null;
+    let hasTyped = false;
+
+    function enterFocusMode() {
+      if (focusModeActive) return;
+      focusModeActive = true;
+      document.body.classList.add('focus-mode');
+      focusHint.classList.add('visible');
+      clearTimeout(focusHintTimer);
+      focusHintTimer = setTimeout(() => focusHint.classList.remove('visible'), 2000);
+    }
+
+    function exitFocusMode() {
+      if (!focusModeActive) return;
+      focusModeActive = false;
+      document.body.classList.remove('focus-mode');
+      focusHint.classList.remove('visible');
+      clearTimeout(focusModeTimer);
+    }
+
+    editorBody.addEventListener('input', () => {
+      hasTyped = true;
+      if (!focusModeActive) {
+        clearTimeout(focusModeTimer);
+        focusModeTimer = setTimeout(enterFocusMode, 1500);
+      }
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!focusModeActive) {
+        clearTimeout(focusModeTimer);
+        if (hasTyped) {
+          focusModeTimer = setTimeout(enterFocusMode, 1500);
+        }
+        return;
+      }
+      // Exit focus mode when mouse near top or left edges
+      if (e.clientY < 60 || e.clientX < 200) {
+        exitFocusMode();
+      }
+    });
+
+    // ═══════════════════════════════════════════════
+    // 3. SLASH COMMANDS
+    // ═══════════════════════════════════════════════
+    const slashMenu = document.getElementById('slashMenu');
+    const slashItems = slashMenu.querySelectorAll('.slash-item');
+    let slashActiveIndex = -1;
+    let slashTargetNode = null;
+
+    function openSlashMenu(caretRect) {
+      slashActiveIndex = 0;
+      slashItems.forEach((it, i) => it.classList.toggle('active', i === 0));
+      slashMenu.style.left = caretRect.left + 'px';
+      slashMenu.style.top = (caretRect.bottom + 6) + 'px';
+      slashMenu.classList.add('visible');
+    }
+
+    function closeSlashMenu() {
+      slashMenu.classList.remove('visible');
+      slashActiveIndex = -1;
+    }
+
+    function applySlashCmd(cmd) {
+      closeSlashMenu();
+      editorBody.focus();
+
+      // Remove the "/" using a Range so the cursor stays in the block
+      if (slashTargetNode) {
+        const text = slashTargetNode.textContent;
+        const slashIdx = text.lastIndexOf('/');
+        if (slashIdx !== -1) {
+          const range = document.createRange();
+          range.setStart(slashTargetNode, slashIdx);
+          range.setEnd(slashTargetNode, slashIdx + 1);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          document.execCommand('delete', false);
+        }
+      }
+
+      if (cmd === 'h1') {
+        document.execCommand('formatBlock', false, 'h1');
+      } else if (cmd === 'h2') {
+        document.execCommand('formatBlock', false, 'h2');
+      } else if (cmd === 'ul') {
+        document.execCommand('insertUnorderedList');
+      } else if (cmd === 'quote') {
+        document.execCommand('formatBlock', false, 'blockquote');
+      } else if (cmd === 'divider') {
+        document.execCommand('insertHTML', false, '<hr><p></p>');
+      }
+      scheduleSave();
+    }
+
+    editorBody.addEventListener('keydown', (e) => {
+      if (slashMenu.classList.contains('visible')) {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          slashActiveIndex = (slashActiveIndex + 1) % slashItems.length;
+          slashItems.forEach((it, i) => it.classList.toggle('active', i === slashActiveIndex));
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          slashActiveIndex = (slashActiveIndex - 1 + slashItems.length) % slashItems.length;
+          slashItems.forEach((it, i) => it.classList.toggle('active', i === slashActiveIndex));
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          const active = slashItems[slashActiveIndex];
+          if (active) applySlashCmd(active.dataset.cmd);
+        } else if (e.key === 'Escape') {
+          closeSlashMenu();
+        }
+        return;
+      }
+    });
+
+    editorBody.addEventListener('input', () => {
+      const sel = window.getSelection();
+      if (!sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+      const node = range.startContainer;
+      if (node.nodeType !== 3) return; // text node only
+      const text = node.textContent;
+      const offset = range.startOffset;
+      // Check if "/" is at start of block (nothing or only whitespace before)
+      const beforeSlash = text.slice(0, offset);
+      if (beforeSlash === '/') {
+        slashTargetNode = node;
+        let caretRect = range.getBoundingClientRect();
+        // Fallback: if rect is zero, try getting the parent element rect
+        if (!caretRect || caretRect.width === 0) {
+          const parentEl = node.parentElement;
+          if (parentEl) caretRect = parentEl.getBoundingClientRect();
+        }
+        openSlashMenu(caretRect);
+      } else if (!beforeSlash.endsWith('/')) {
+        closeSlashMenu();
+      }
+    });
+
+    slashItems.forEach(item => {
+      item.addEventListener('mousedown', (e) => {
+        e.preventDefault(); // prevent blur
+        applySlashCmd(item.dataset.cmd);
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!slashMenu.contains(e.target)) closeSlashMenu();
+    });
+
+    // ═══════════════════════════════════════════════
+    // 4. WORD COUNT
+    // ═══════════════════════════════════════════════
+    const wordCountEl = document.getElementById('wordCount');
+
+    function updateWordCount() {
+      const text = editorBody.innerText || '';
+      const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+      if (words === 0) {
+        wordCountEl.classList.remove('visible');
+      } else {
+        const mins = Math.max(1, Math.ceil(words / 200));
+        wordCountEl.textContent = `${words} palabras · ${mins} min lectura`;
+        wordCountEl.classList.add('visible');
+      }
+    }
+
+    editorBody.addEventListener('input', updateWordCount);
+
+    // ═══════════════════════════════════════════════
+    // 5. AUTO VERSIONS
+    // ═══════════════════════════════════════════════
+    const VERSIONS_KEY = 'pages-versions';
+    const VERSION_IDLE = 5 * 60 * 1000; // 5 min
+    const MAX_VERSIONS = 10;
+    let versionTimer = null;
+    const versionsChip = document.getElementById('versionsChip');
+    const versionsDropdown = document.getElementById('versionsDropdown');
+    const versionsCountEl = document.getElementById('versionsCount');
+
+    function getVersions(docId) {
+      try {
+        const all = JSON.parse(localStorage.getItem(VERSIONS_KEY) || '{}');
+        return all[docId] || [];
+      } catch { return []; }
+    }
+
+    function saveVersion(docId, title, body) {
+      try {
+        const all = JSON.parse(localStorage.getItem(VERSIONS_KEY) || '{}');
+        const list = all[docId] || [];
+        list.unshift({ ts: Date.now(), title, body });
+        if (list.length > MAX_VERSIONS) list.length = MAX_VERSIONS;
+        all[docId] = list;
+        localStorage.setItem(VERSIONS_KEY, JSON.stringify(all));
+        updateVersionsChip();
+      } catch {}
+    }
+
+    function relativeTime(ts) {
+      const diff = Date.now() - ts;
+      const mins = Math.floor(diff / 60000);
+      if (mins < 1) return 'hace un momento';
+      if (mins < 60) return `hace ${mins} min`;
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return `hace ${hrs}h`;
+      return `hace ${Math.floor(hrs / 24)}d`;
+    }
+
+    function updateVersionsChip() {
+      if (!currentId) return;
+      const versions = getVersions(currentId);
+      versionsCountEl.textContent = versions.length;
+      versionsChip.style.display = versions.length === 0 ? 'none' : '';
+    }
+
+    function openVersionsDropdown() {
+      if (!currentId) return;
+      const versions = getVersions(currentId);
+      if (!versions.length) return;
+      versionsDropdown.innerHTML = versions.map((v, i) => `
+        <button type="button" class="version-item" data-index="${i}">
+          <span>${v.title || 'Sin título'}</span>
+          <span class="version-item-time">${relativeTime(v.ts)}</span>
+        </button>
+      `).join('');
+      versionsDropdown.querySelectorAll('.version-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const v = versions[parseInt(btn.dataset.index)];
+          if (!v) return;
+          // Fade out, swap, fade in
+          editorBody.style.transition = 'opacity 0.2s ease';
+          editorBody.style.opacity = '0';
+          setTimeout(() => {
+            editorBody.innerHTML = v.body;
+            editorTitle.textContent = v.title;
+            editorBody.style.opacity = '1';
+            updateCurrentDoc();
+            updateWordCount();
+          }, 200);
+          versionsDropdown.classList.remove('visible');
+        });
+      });
+      versionsDropdown.classList.add('visible');
+    }
+
+    versionsChip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (versionsDropdown.classList.contains('visible')) {
+        versionsDropdown.classList.remove('visible');
+      } else {
+        openVersionsDropdown();
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!versionsChip.contains(e.target)) versionsDropdown.classList.remove('visible');
+    });
+
+    function scheduleVersion() {
+      clearTimeout(versionTimer);
+      versionTimer = setTimeout(() => {
+        const doc = getCurrentDoc();
+        if (doc && editorBody.innerText.trim()) {
+          saveVersion(doc.id, doc.title, doc.body);
+        }
+      }, VERSION_IDLE);
+    }
+
+    editorBody.addEventListener('input', scheduleVersion);
+    editorTitle.addEventListener('input', scheduleVersion);
+
+    // ═══════════════════════════════════════════════
+    // 6. QUOTE BLOCK ON PASTE
+    // ═══════════════════════════════════════════════
+    const quoteToast = document.getElementById('quoteToast');
+    const quoteToastYes = document.getElementById('quoteToastYes');
+    const quoteToastNo = document.getElementById('quoteToastNo');
+    let quotePastedRange = null;
+    let quoteToastTimer = null;
+    let quotePastedText = '';
+
+    function showQuoteToast() {
+      quoteToast.classList.add('visible');
+      clearTimeout(quoteToastTimer);
+      quoteToastTimer = setTimeout(dismissQuoteToast, 4000);
+    }
+
+    function dismissQuoteToast() {
+      quoteToast.classList.remove('visible');
+      quotePastedRange = null;
+      quotePastedText = '';
+    }
+
+    quoteToastYes.addEventListener('click', () => {
+      if (!quotePastedRange) { dismissQuoteToast(); return; }
+      // Find the pasted text node and wrap it in a blockquote
+      editorBody.focus();
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(quotePastedRange);
+      document.execCommand('formatBlock', false, 'blockquote');
+      scheduleSave();
+      dismissQuoteToast();
+    });
+
+    quoteToastNo.addEventListener('click', dismissQuoteToast);
+
+    // Paste handler — plain text only, with quote-on-paste prompt for long pastes
+    editorBody.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+      document.execCommand('insertText', false, text);
+      scheduleSave();
+
+      if (text.length > 100) {
+        // Capture range of just-pasted text
+        const sel = window.getSelection();
+        if (sel.rangeCount) {
+          quotePastedText = text;
+          // The pasted text ends at current cursor; try to select it
+          const endRange = sel.getRangeAt(0).cloneRange();
+          // We can't reliably get the start, so store end and text for block command
+          quotePastedRange = endRange;
+          showQuoteToast();
+        }
+      }
+    });
+
+    // Social share listeners (need getCurrentDoc defined above)
+    document.getElementById('shareSubstack').addEventListener('click', () => {
+      showToast('Opening Substack…');
+    });
+    document.getElementById('shareTwitter').addEventListener('click', () => {
+      const doc = getCurrentDoc();
+      const text = encodeURIComponent((doc ? doc.title || 'New note' : 'New note'));
+      window.open('https://twitter.com/intent/tweet?text=' + text + '&url=https%3A%2F%2F' + encodeURIComponent(MOCK_SHARE_LINK), '_blank');
+    });
+    document.getElementById('shareLinkedIn').addEventListener('click', () => {
+      window.open('https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F' + encodeURIComponent(MOCK_SHARE_LINK), '_blank');
+    });
+
+    // ——— Global keyboard shortcuts ———
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
+        e.preventDefault();
+        createDoc();
+      } else if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
+        e.preventDefault();
+        const si = document.getElementById('searchInput');
+        si.focus();
+        si.select();
+      }
+    });
+
+    // ——— Init ———
+    loadDocuments();
+    showDoc(currentId);
+    renderDocList();
+    updateEmptyState();
+    updateWordCount();
+    updateVersionsChip();
+  </script>
+</body>
+</html>
