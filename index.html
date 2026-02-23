@@ -1722,24 +1722,35 @@
 
     // Social share listeners wired after getCurrentDoc is defined (see bottom of script)
 
-    // ——— App ———
-    const STORAGE_KEY = 'pages-documents';
-    const ACTIVE_KEY = 'pages-active-id';
-    const WELCOME_ID = 'welcome';
-
-    const welcomeDoc = {
-      id: WELCOME_ID,
-      title: 'Bienvenido',
-      body: '<p>Este es tu espacio para escribir. Usá la barra lateral para crear nuevos documentos o cambiar entre ellos.</p><p>Seleccioná texto para ver la barra de formato y aplicar <strong>negrita</strong>, <em>cursiva</em>, títulos o listas.</p><p>Todo se guarda automáticamente en tu navegador.</p>',
-      updatedAt: new Date().toISOString()
+    // ——— Supabase config ———
+    const SB_URL = 'https://kihxztxxpfwmhltangih.supabase.co';
+    const SB_KEY = 'sb_publishable_fPkLRpscUpvTP7h-ogA9yA_uOnD4xVH';
+    const SB_HEADERS = {
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + SB_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
     };
+    const ACTIVE_KEY = 'pages-active-id';
 
-    let documents = [];
+    async function sbFetch(path, options = {}) {
+      const res = await fetch(SB_URL + path, {
+        ...options,
+        headers: { ...SB_HEADERS, ...(options.headers || {}) }
+      });
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(err);
+      }
+      const text = await res.text();
+      return text ? JSON.parse(text) : null;
+    }
+
+    // ——— App ———
+    let documents = [];   // local cache; shape: { id, title, body, updatedAt }
     let currentId = null;
     let saveTimeout = null;
     const SAVE_DELAY = 800;
-
-    // Pending delete tracking for shake-before-delete UX
     const pendingDeletes = {};
 
     const editorTitle = document.getElementById('editorTitle');
@@ -1751,6 +1762,16 @@
     const emptyStateEl = document.getElementById('emptyState');
     const editorWrapEl = document.querySelector('.editor-wrap');
     let savedIndicatorTimer = null;
+
+    // Convert Supabase row → local doc shape
+    function rowToDoc(row) {
+      return {
+        id: row.id,
+        title: row.title || '',
+        body: row.content || '<p></p>',
+        updatedAt: row.updated_at
+      };
+    }
 
     function stripHtml(html) {
       const tmp = document.createElement('div');
@@ -1764,53 +1785,69 @@
       return text.split(/\s+/).slice(0, 6).join(' ');
     }
 
-    function loadDocuments() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        try {
-          documents = JSON.parse(raw);
-        } catch (_) {
-          documents = [];
+    // ——— Supabase CRUD ———
+    async function loadDocuments() {
+      setLoadingState(true);
+      try {
+        const rows = await sbFetch('/rest/v1/notes?select=*&order=updated_at.desc');
+        documents = (rows || []).map(rowToDoc);
+        if (documents.length === 0) {
+          // Create welcome note on first run
+          await createDoc('Bienvenido', '<p>Este es tu espacio para escribir. Usá la barra lateral para crear nuevos documentos o cambiar entre ellos.</p><p>Todo se guarda automáticamente en la nube.</p>');
+          return;
         }
-      }
-      if (documents.length === 0) {
-        documents = [{ ...welcomeDoc }];
-        currentId = WELCOME_ID;
-        saveDocuments();
-      } else {
-        // Restore last active doc
         const savedId = localStorage.getItem(ACTIVE_KEY);
         const exists = savedId && documents.find(d => d.id === savedId);
-        currentId = exists ? savedId : documents.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0].id;
+        currentId = exists ? savedId : documents[0].id;
+        showDoc(currentId);
+        renderDocList();
+      } catch (err) {
+        showSyncError('No se pudo cargar las notas. Revisá tu conexión.');
+        console.error('loadDocuments:', err);
+      } finally {
+        setLoadingState(false);
       }
     }
 
-    function saveDocuments() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
-      localStorage.setItem(ACTIVE_KEY, currentId);
+    async function createDoc(defaultTitle = '', defaultBody = '<p></p>') {
+      try {
+        const rows = await sbFetch('/rest/v1/notes', {
+          method: 'POST',
+          body: JSON.stringify({ title: defaultTitle, content: defaultBody })
+        });
+        const doc = rowToDoc(Array.isArray(rows) ? rows[0] : rows);
+        documents.unshift(doc);
+        currentId = doc.id;
+        localStorage.setItem(ACTIVE_KEY, doc.id);
+        showDoc(doc.id);
+        renderDocList();
+        if (!defaultTitle) editorTitle.focus();
+      } catch (err) {
+        console.error('createDoc:', err);
+        showSyncError('No se pudo crear la nota.');
+      }
     }
 
-    function getCurrentDoc() {
-      return documents.find(d => d.id === currentId);
+    async function saveCurrentDoc() {
+      const doc = getCurrentDoc();
+      if (!doc) return;
+      doc.title = editorTitle.textContent.trim() || '';
+      doc.body = editorBody.innerHTML;
+      doc.updatedAt = new Date().toISOString();
+      try {
+        await sbFetch('/rest/v1/notes?id=eq.' + doc.id, {
+          method: 'PATCH',
+          body: JSON.stringify({ title: doc.title, content: doc.body, updated_at: doc.updatedAt })
+        });
+        showSavedIndicator();
+        patchDocInList(doc);
+      } catch (err) {
+        console.error('saveCurrentDoc:', err);
+        showSyncError('No se guardó. Revisá tu conexión.');
+      }
     }
 
-    function createDoc() {
-      const id = 'doc-' + Date.now();
-      const doc = {
-        id,
-        title: '',
-        body: '<p></p>',
-        updatedAt: new Date().toISOString()
-      };
-      documents.unshift(doc);
-      saveDocuments();
-      currentId = id;
-      showDoc(id);
-      renderDocList();
-      editorTitle.focus();
-    }
-
-    function deleteDoc(id, e) {
+    async function deleteDoc(id, e) {
       if (e) e.stopPropagation();
       if (documents.length <= 1) return;
 
@@ -1818,7 +1855,6 @@
       const hasContent = doc && (stripHtml(doc.body || '').length > 0 || (doc.title || '').trim().length > 0);
       const el = docListEl.querySelector(`.doc-item[data-id="${id}"]`);
 
-      // Shake warning for docs with content — require second click within 2s
       if (hasContent && !pendingDeletes[id]) {
         if (el) {
           el.classList.add('shake');
@@ -1828,7 +1864,6 @@
         return;
       }
 
-      // Clear pending
       if (pendingDeletes[id]) {
         clearTimeout(pendingDeletes[id]);
         delete pendingDeletes[id];
@@ -1838,18 +1873,26 @@
       documents = documents.filter(d => d.id !== id);
 
       if (currentId === id) {
-        // Select next doc (or previous if last)
         const nextDoc = documents[Math.min(idx, documents.length - 1)];
         currentId = nextDoc ? nextDoc.id : null;
         if (currentId) {
           showDoc(currentId);
+          localStorage.setItem(ACTIVE_KEY, currentId);
         } else {
-          createDoc();
+          await createDoc();
           return;
         }
       }
-      saveDocuments();
       renderDocList();
+
+      // Fire-and-forget delete to Supabase
+      sbFetch('/rest/v1/notes?id=eq.' + id, { method: 'DELETE' }).catch(err => {
+        console.error('deleteDoc:', err);
+      });
+    }
+
+    function getCurrentDoc() {
+      return documents.find(d => d.id === currentId);
     }
 
     function switchDoc(id) {
@@ -1878,11 +1921,23 @@
     function showSavedIndicator() {
       if (!savedIndicatorEl) return;
       savedIndicatorEl.textContent = '✓ Guardado';
+      savedIndicatorEl.style.color = '#4caf50';
       savedIndicatorEl.classList.add('visible');
       clearTimeout(savedIndicatorTimer);
-      savedIndicatorTimer = setTimeout(() => {
-        savedIndicatorEl.classList.remove('visible');
-      }, 1500);
+      savedIndicatorTimer = setTimeout(() => savedIndicatorEl.classList.remove('visible'), 1500);
+    }
+
+    function showSyncError(msg) {
+      if (!savedIndicatorEl) return;
+      savedIndicatorEl.textContent = '⚠ ' + msg;
+      savedIndicatorEl.style.color = '#e57373';
+      savedIndicatorEl.classList.add('visible');
+      clearTimeout(savedIndicatorTimer);
+      savedIndicatorTimer = setTimeout(() => savedIndicatorEl.classList.remove('visible'), 3000);
+    }
+
+    function setLoadingState(on) {
+      docListEl.style.opacity = on ? '0.4' : '';
     }
 
     function renderDocList() {
@@ -1907,7 +1962,6 @@
         return `<div class="doc-item${isActive ? ' active' : ''}" data-id="${doc.id}">${svgIcon}<div class="doc-item-content"><span class="${titleClass}">${titleText}</span>${previewHtml}</div>${deleteBtn}</div>`;
       }).join('');
 
-      // Update search visibility
       updateSearchFilter();
     }
 
@@ -1916,14 +1970,12 @@
       let visibleCount = 0;
       docListEl.querySelectorAll('.doc-item').forEach(item => {
         const title = (item.querySelector('.doc-item-title').textContent || '').toLowerCase();
-        const preview = (item.querySelector('.doc-item-preview').textContent || '').toLowerCase();
+        const preview = (item.querySelector('.doc-item-preview') ? item.querySelector('.doc-item-preview').textContent : '').toLowerCase();
         const matches = q === '' || title.includes(q) || preview.includes(q);
         item.style.display = matches ? '' : 'none';
         if (matches) visibleCount++;
       });
-      if (searchEmptyEl) {
-        searchEmptyEl.classList.toggle('visible', q !== '' && visibleCount === 0);
-      }
+      if (searchEmptyEl) searchEmptyEl.classList.toggle('visible', q !== '' && visibleCount === 0);
     }
 
     function escapeHtml(s) {
@@ -1932,24 +1984,10 @@
       return div.innerHTML;
     }
 
-    function updateCurrentDoc() {
-      const doc = getCurrentDoc();
-      if (!doc) return;
-      doc.title = editorTitle.textContent.trim() || '';
-      doc.body = editorBody.innerHTML;
-      doc.updatedAt = new Date().toISOString();
-      saveDocuments();
-      showSavedIndicator();
-      // Patch only the relevant doc item in the list (avoid full re-render)
-      patchDocInList(doc);
-    }
-
     function patchDocInList(doc) {
-      // Full re-render only if sort order changes (the updated doc should bubble to top)
       const sorted = [...documents].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
       const firstId = sorted[0] && sorted[0].id;
       if (firstId === doc.id && docListEl.firstElementChild && docListEl.firstElementChild.dataset.id === doc.id) {
-        // Already at top, just update title/preview in place
         const el = docListEl.querySelector(`.doc-item[data-id="${doc.id}"]`);
         if (el) {
           const hasTitle = doc.title.trim().length > 0;
@@ -1961,24 +1999,18 @@
           const previewEl = el.querySelector('.doc-item-preview');
           if (previewEl) {
             const preview = getPreview(doc);
-            if (preview) {
-              previewEl.textContent = preview;
-              previewEl.className = 'doc-item-preview';
-            } else {
-              previewEl.textContent = 'Sin contenido aún';
-              previewEl.className = 'doc-item-preview empty';
-            }
+            previewEl.textContent = preview || 'Sin contenido aún';
+            previewEl.className = preview ? 'doc-item-preview' : 'doc-item-preview empty';
           }
         }
       } else {
-        // Sort order changed — full re-render needed
         renderDocList();
       }
     }
 
     function scheduleSave() {
       if (saveTimeout) clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(updateCurrentDoc, SAVE_DELAY);
+      saveTimeout = setTimeout(saveCurrentDoc, SAVE_DELAY);
     }
 
     // Event delegation for doc list clicks — ONE listener, no leaks
@@ -2731,24 +2763,13 @@
       draftFooter.style.display = 'none';
       draftLoading.classList.add('visible');
 
-      setTimeout(() => {
+      setTimeout(async () => {
         const draft = generateDraft(topic);
         closeDraftChat();
         draftFooter.style.display = '';
 
-        // Create the doc with generated content
-        const id = 'doc-' + Date.now();
-        const doc = {
-          id,
-          title: draft.title,
-          body: draft.body,
-          updatedAt: new Date().toISOString()
-        };
-        documents.unshift(doc);
-        saveDocuments();
-        currentId = id;
-        showDoc(id);
-        renderDocList();
+        // Create doc in Supabase with generated content
+        await createDoc(draft.title, draft.body);
 
         // Place cursor at end of body
         requestAnimationFrame(() => {
@@ -2832,12 +2853,9 @@
     });
 
     // ——— Init ———
-    loadDocuments();
-    showDoc(currentId);
-    renderDocList();
     updateEmptyState();
     updateWordCount();
-    updateVersionsChip();
+    loadDocuments(); // async — populates UI once Supabase responds
   </script>
 </body>
 </html>
