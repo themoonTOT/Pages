@@ -1301,42 +1301,58 @@
       align-items: center;
     }
 
-    /* ——— Draft chat ——— */
-    .draft-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 1200;
-      background: transparent;
+    /* ——— Draft chat (inline editor overlay) ——— */
+
+    /* The editor-wrap gets a relative context */
+    .editor-wrap {
+      position: relative;
     }
 
-    .draft-chat {
-      position: fixed;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%) translateY(16px);
-      width: 600px;
-      max-width: calc(100vw - 48px);
-      background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 16px 60px rgba(0, 0, 0, 0.14), 0 0 0 1px rgba(0,0,0,0.05);
-      padding: 20px 24px;
-      z-index: 1201;
+    /* Overlay sits on top of editor body */
+    .draft-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 8px;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.25s ease, transform 0.25s ease;
+      transition: opacity 0.2s ease;
+      z-index: 10;
     }
 
-    .draft-chat.visible {
+    .draft-overlay.visible {
       opacity: 1;
       pointer-events: auto;
-      transform: translateX(-50%) translateY(0);
+    }
+
+    /* The card itself */
+    .draft-chat {
+      width: 100%;
+      max-width: 560px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.06);
+      padding: 18px 20px 14px;
+      transform: translateY(8px);
+      transition: transform 0.22s ease, opacity 0.22s ease;
+    }
+
+    .draft-overlay.visible .draft-chat {
+      transform: translateY(0);
     }
 
     .draft-chat-label {
-      font-size: 12px;
-      color: #999;
+      font-size: 11px;
+      color: #bbb;
       font-weight: 400;
-      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
       display: block;
     }
 
@@ -1349,29 +1365,29 @@
       font-size: 15px;
       color: #1a1a1a;
       resize: none;
-      line-height: 1.5;
-      min-height: 24px;
-      max-height: 160px;
+      line-height: 1.6;
+      min-height: 28px;
+      max-height: 120px;
       overflow-y: auto;
       display: block;
     }
 
     .draft-chat-textarea::placeholder {
-      color: #C0BDB8;
+      color: #D0CCC6;
     }
 
     .draft-chat-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 16px;
-      padding-top: 14px;
+      margin-top: 14px;
+      padding-top: 12px;
       border-top: 1px solid #F0EDE6;
     }
 
     .draft-chat-hint {
       font-size: 11px;
-      color: #C0BDB8;
+      color: #C8C4BC;
     }
 
     .draft-chat-btn {
@@ -1379,43 +1395,35 @@
       color: #fff;
       border: none;
       border-radius: 20px;
-      padding: 8px 18px;
+      padding: 7px 16px;
       font-size: 13px;
       font-family: var(--font);
       font-weight: 400;
       cursor: pointer;
-      transition: background 0.15s ease, opacity 0.15s ease;
+      transition: background 0.12s ease, opacity 0.12s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    .draft-chat-btn:hover {
-      background: #333;
-    }
-
-    .draft-chat-btn:disabled {
-      opacity: 0.4;
-      cursor: default;
-    }
+    .draft-chat-btn:hover { background: #333; }
+    .draft-chat-btn:disabled { opacity: 0.35; cursor: default; }
 
     /* Loading state */
     .draft-loading {
       display: none;
       align-items: center;
       gap: 10px;
-      padding: 4px 0 8px;
+      padding: 2px 0 6px;
     }
 
-    .draft-loading.visible {
-      display: flex;
-    }
+    .draft-loading.visible { display: flex; }
 
-    .draft-dots {
-      display: flex;
-      gap: 5px;
-    }
+    .draft-dots { display: flex; gap: 5px; }
 
     .draft-dot {
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
       border-radius: 50%;
       background: #C0BDB8;
       animation: draftPulse 1.2s ease-in-out infinite;
@@ -1425,13 +1433,27 @@
     .draft-dot:nth-child(3) { animation-delay: 0.4s; }
 
     @keyframes draftPulse {
-      0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+      0%, 80%, 100% { transform: scale(0.65); opacity: 0.35; }
       40% { transform: scale(1); opacity: 1; }
     }
 
-    .draft-loading-text {
-      font-size: 13px;
-      color: #999;
+    .draft-loading-text { font-size: 13px; color: #aaa; }
+
+    /* Spinner icon inside button while loading */
+    .draft-chat-btn .btn-spinner {
+      width: 12px;
+      height: 12px;
+      border: 1.5px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: btnSpin 0.7s linear infinite;
+      display: none;
+    }
+
+    .draft-chat-btn.loading .btn-spinner { display: block; }
+
+    @keyframes btnSpin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -1487,6 +1509,31 @@
         <span id="savedIndicator"></span>
       </div>
       <div class="editor-body" id="editorBody" contenteditable="true" data-placeholder="Escribí algo…"></div>
+
+      <!-- Draft chat overlay — appears when creating a new blank note -->
+      <div class="draft-overlay" id="draftOverlay">
+        <div class="draft-chat" id="draftChat">
+          <span class="draft-chat-label">¿Sobre qué querés escribir?</span>
+          <div id="draftInputArea">
+            <textarea class="draft-chat-textarea" id="draftTextarea" placeholder="Ej: El futuro de los data centers y la IA…" rows="1" autocomplete="off" spellcheck="true"></textarea>
+          </div>
+          <div class="draft-loading" id="draftLoading">
+            <div class="draft-dots">
+              <div class="draft-dot"></div>
+              <div class="draft-dot"></div>
+              <div class="draft-dot"></div>
+            </div>
+            <span class="draft-loading-text">Claude está escribiendo tu draft…</span>
+          </div>
+          <div class="draft-chat-footer" id="draftFooter">
+            <span class="draft-chat-hint">Esc para cancelar</span>
+            <button type="button" class="draft-chat-btn" id="draftGenerateBtn">
+              <span class="btn-spinner"></span>
+              Generar draft →
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -1605,26 +1652,7 @@
     <button type="button" class="quote-toast-btn quote-toast-no" id="quoteToastNo">No</button>
   </div>
 
-  <!-- Draft chat -->
-  <div class="draft-backdrop" id="draftBackdrop" style="display:none"></div>
-  <div class="draft-chat" id="draftChat">
-    <span class="draft-chat-label">¿De qué querés escribir hoy? (en inglés)</span>
-    <div class="draft-input-area" id="draftInputArea">
-      <textarea class="draft-chat-textarea" id="draftTextarea" placeholder="Ej: Escribí sobre el futuro de los data centers..." rows="1" autocomplete="off"></textarea>
-    </div>
-    <div class="draft-loading" id="draftLoading">
-      <div class="draft-dots">
-        <div class="draft-dot"></div>
-        <div class="draft-dot"></div>
-        <div class="draft-dot"></div>
-      </div>
-      <span class="draft-loading-text">Armando tu draft…</span>
-    </div>
-    <div class="draft-chat-footer" id="draftFooter">
-      <span class="draft-chat-hint">Esc para cancelar</span>
-      <button type="button" class="draft-chat-btn" id="draftGenerateBtn">Generar draft →</button>
-    </div>
-  </div>
+  <!-- Draft chat moved into editor-wrap below -->
 
   <div class="format-toolbar" id="formatToolbar">
     <button type="button" id="btnBold" title="Negrita">B</button>
@@ -2708,38 +2736,71 @@
     });
 
     // ——— Draft chat ———
-    const draftBackdrop = document.getElementById('draftBackdrop');
-    const draftChat = document.getElementById('draftChat');
+    const draftOverlay  = document.getElementById('draftOverlay');
+    const draftChat     = document.getElementById('draftChat');
     const draftTextarea = document.getElementById('draftTextarea');
     const draftGenerateBtn = document.getElementById('draftGenerateBtn');
-    const draftLoading = document.getElementById('draftLoading');
+    const draftLoading  = document.getElementById('draftLoading');
     const draftInputArea = document.getElementById('draftInputArea');
-    const draftFooter = document.getElementById('draftFooter');
-    let draftPreviousId = null;
+    const draftFooter   = document.getElementById('draftFooter');
 
-    function openDraftChat() {
-      draftPreviousId = currentId;
+    // ID of the blank doc created when the user clicks "+ Nueva nota".
+    // If they press Escape we delete it so the list stays clean.
+    let draftDocId = null;
+
+    function resetDraftUI() {
       draftTextarea.value = '';
+      draftTextarea.style.height = '';
       draftLoading.classList.remove('visible');
       draftInputArea.style.display = '';
+      draftFooter.style.display = '';
+      draftGenerateBtn.classList.remove('loading');
       draftGenerateBtn.disabled = false;
-      draftGenerateBtn.textContent = 'Generar draft →';
-      draftBackdrop.style.display = '';
+      // Restore button label (keep spinner element, just update text node)
+      const btnSpinner = draftGenerateBtn.querySelector('.btn-spinner');
+      draftGenerateBtn.textContent = '';
+      if (btnSpinner) draftGenerateBtn.appendChild(btnSpinner);
+      draftGenerateBtn.appendChild(document.createTextNode('Generar draft →'));
+    }
+
+    async function openDraftChat() {
+      // 1. Create the blank note in Supabase immediately
+      await createDoc('', '<p></p>');
+      draftDocId = currentId;
+
+      // 2. Reset and show the overlay
+      resetDraftUI();
       requestAnimationFrame(() => {
-        draftChat.classList.add('visible');
-        draftTextarea.focus();
+        draftOverlay.classList.add('visible');
+        setTimeout(() => draftTextarea.focus(), 50);
       });
     }
 
-    function closeDraftChat() {
-      draftChat.classList.remove('visible');
-      draftBackdrop.style.display = 'none';
+    function closeDraftChat(keepDoc = true) {
+      draftOverlay.classList.remove('visible');
+      if (!keepDoc && draftDocId) {
+        // Delete the blank doc the user abandoned
+        _deleteDocById(draftDocId);
+      }
+      draftDocId = null;
+    }
+
+    // Silently delete a doc by id without the shake guard
+    function _deleteDocById(id) {
+      documents = documents.filter(d => d.id !== id);
+      if (currentId === id) {
+        currentId = documents.length ? documents[0].id : null;
+        if (currentId) { showDoc(currentId); }
+        else { updateEmptyState(); }
+      }
+      renderDocList();
+      sbFetch('/rest/v1/notes?id=eq.' + id, { method: 'DELETE' }).catch(() => {});
     }
 
     // Auto-resize textarea
     draftTextarea.addEventListener('input', () => {
       draftTextarea.style.height = 'auto';
-      draftTextarea.style.height = Math.min(draftTextarea.scrollHeight, 160) + 'px';
+      draftTextarea.style.height = Math.min(draftTextarea.scrollHeight, 120) + 'px';
     });
 
     draftTextarea.addEventListener('keydown', (e) => {
@@ -2747,18 +2808,17 @@
         e.preventDefault();
         triggerGenerate();
       } else if (e.key === 'Escape') {
-        closeDraftChat();
+        closeDraftChat(false); // cancel → delete blank doc
       }
     });
 
     draftGenerateBtn.addEventListener('click', triggerGenerate);
-    draftBackdrop.addEventListener('click', closeDraftChat);
 
     async function triggerGenerate() {
       const topic = draftTextarea.value.trim();
       if (!topic) { draftTextarea.focus(); return; }
 
-      // Switch to loading state
+      // Loading state
       draftInputArea.style.display = 'none';
       draftFooter.style.display = 'none';
       draftLoading.classList.add('visible');
@@ -2774,28 +2834,43 @@
         draft = await res.json();
       } catch (err) {
         console.error('generate error:', err);
+        // Reset so user can retry
         draftLoading.classList.remove('visible');
         draftInputArea.style.display = '';
         draftFooter.style.display = '';
-        draftGenerateBtn.textContent = 'Reintentar →';
-        showSyncError('No se pudo generar el draft. Intentá de nuevo.');
+        showSyncError('No se pudo generar. Intentá de nuevo.');
         return;
       }
 
-      closeDraftChat();
-      draftFooter.style.display = '';
+      // Hide overlay first so the reveal feels instant
+      closeDraftChat(true);
 
-      await createDoc(draft.title, draft.body);
+      // Update the already-created blank doc with the generated content
+      const doc = documents.find(d => d.id === draftDocId || d.id === currentId);
+      if (doc) {
+        doc.title = draft.title || '';
+        doc.body  = draft.body  || '<p></p>';
+        doc.updatedAt = new Date().toISOString();
+        // Render immediately into editor
+        editorTitle.textContent = doc.title;
+        editorBody.innerHTML    = doc.body;
+        renderDocList();
+        updateWordCount();
+        // Persist to Supabase
+        sbFetch('/rest/v1/notes?id=eq.' + doc.id, {
+          method: 'PATCH',
+          body: JSON.stringify({ title: doc.title, content: doc.body, updated_at: doc.updatedAt })
+        }).then(() => showSavedIndicator()).catch(console.error);
+      }
 
-      // Place cursor at end of body
+      // Cursor at end of body
       requestAnimationFrame(() => {
         editorBody.focus();
         const range = document.createRange();
         range.selectNodeContents(editorBody);
         range.collapse(false);
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
       });
     }
 
