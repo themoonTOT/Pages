@@ -1231,8 +1231,9 @@
       color: #666;
     }
 
-    /* ——— Saved indicator ——— */
+    /* ——— Saved indicator — hidden, keep element for JS ——— */
     #savedIndicator {
+      display: none !important;
       font-size: 11px;
       font-weight: 400;
       color: transparent;
@@ -1313,8 +1314,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
-      padding-top: 48px;
+      justify-content: center;
       background: var(--bg-cream);
       opacity: 0;
       pointer-events: none;
@@ -1326,19 +1326,28 @@
       pointer-events: auto;
     }
 
-    /* Hero prompt — uses existing serif + size language */
+    /* Hero prompt */
     .draft-hero-title {
       font-family: var(--font-serif);
       font-size: 22px;
       font-weight: 600;
       color: #1a1a1a;
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       line-height: 1.3;
       letter-spacing: -0.01em;
     }
 
-    /* Search pill — adapts sidebar search-wrap style to canvas */
+    /* Composer inner block — constrained width, centered */
+    .draft-composer {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Search pill */
     .draft-search-wrap {
       width: 100%;
       position: relative;
@@ -1352,8 +1361,8 @@
       border-radius: 10px;
       display: flex;
       align-items: center;
-      padding: 10px 10px 10px 14px;
-      gap: 0;
+      padding: 10px 8px 10px 14px;
+      gap: 6px;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
@@ -1362,7 +1371,7 @@
       box-shadow: 0 1px 6px rgba(0,0,0,0.08), 0 0 0 3px rgba(0,0,0,0.05);
     }
 
-    /* Main textarea — light-themed */
+    /* Main textarea */
     .draft-chat-textarea {
       flex: 1;
       border: none;
@@ -1381,12 +1390,36 @@
     }
 
     .draft-chat-textarea::-webkit-scrollbar { display: none; }
+    .draft-chat-textarea::placeholder { color: #aaa; }
 
-    .draft-chat-textarea::placeholder {
-      color: #aaa;
+    /* Right icon group inside pill */
+    .draft-pill-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
     }
 
-    /* Send button — matches .btn-new-note dark pill */
+    /* Clip / attach icon button */
+    .draft-attach-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #aaa;
+      flex-shrink: 0;
+      transition: color 0.12s ease, background 0.12s ease;
+      outline: none;
+    }
+
+    .draft-attach-btn:hover { color: #555; background: rgba(0,0,0,0.05); }
+
+    /* Voice / send toggle button */
     .draft-send-btn {
       display: flex;
       align-items: center;
@@ -1406,6 +1439,15 @@
     .draft-send-btn:hover { background: #2C2C2E; }
     .draft-send-btn:disabled { opacity: 0.35; cursor: default; }
 
+    /* Default: show mic, hide arrow */
+    .draft-send-btn .icon-mic  { display: block; }
+    .draft-send-btn .send-arrow { display: none; }
+
+    /* When textarea has content: hide mic, show arrow */
+    .draft-send-btn.has-input .icon-mic  { display: none; }
+    .draft-send-btn.has-input .send-arrow { display: block; }
+
+    /* Spinner overrides both */
     .draft-send-btn .btn-spinner {
       width: 13px;
       height: 13px;
@@ -1417,76 +1459,10 @@
     }
 
     .draft-send-btn.loading .btn-spinner { display: block; }
+    .draft-send-btn.loading .icon-mic,
     .draft-send-btn.loading .send-arrow { display: none; }
 
     @keyframes btnSpin { to { transform: rotate(360deg); } }
-
-    /* Suggestion chips — light theme matching sidebar UI language */
-    .draft-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      justify-content: center;
-      margin-top: 16px;
-      width: 100%;
-    }
-
-    .draft-chip {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255,255,255,0.7);
-      border: 1px solid rgba(0,0,0,0.08);
-      border-radius: 999px;
-      padding: 5px 12px 5px 9px;
-      font-size: 12px;
-      font-family: var(--font);
-      color: #4a4a4a;
-      cursor: pointer;
-      transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
-      white-space: nowrap;
-      outline: none;
-    }
-
-    .draft-chip:hover {
-      background: rgba(255,255,255,0.95);
-      border-color: rgba(0,0,0,0.14);
-      color: #1a1a1a;
-    }
-
-    .draft-chip-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 2px;
-      flex-shrink: 0;
-      opacity: 0.8;
-    }
-
-    /* "Start from scratch" CTA */
-    .draft-scratch-btn {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      font-family: var(--font);
-      color: var(--sidebar-muted);
-      background: none;
-      border: 1px solid rgba(0,0,0,0.10);
-      border-radius: 6px;
-      padding: 5px 10px;
-      cursor: pointer;
-      transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
-      outline: none;
-    }
-
-    .draft-scratch-btn:hover {
-      border-color: rgba(0,0,0,0.18);
-      color: #1a1a1a;
-      background: rgba(0,0,0,0.03);
-    }
 
     /* Loading — inline, below pill */
     .draft-loading {
@@ -1515,6 +1491,30 @@
     }
 
     .draft-loading-text { font-size: 12px; color: var(--sidebar-muted); }
+
+    /* "Start from scratch" — styled like .btn-share (top-bar style) */
+    .draft-scratch-btn {
+      position: absolute;
+      bottom: 28px;
+      right: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-family: var(--font);
+      font-weight: 400;
+      color: #fff;
+      background: #1C1C1E;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      outline: none;
+      white-space: nowrap;
+    }
+
+    .draft-scratch-btn:hover { background: #2C2C2E; }
   </style>
 </head>
 <body>
@@ -1571,71 +1571,67 @@
       <div class="editor-body" id="editorBody" contenteditable="true" data-placeholder="Escribí algo…"></div>
 
       <!-- Draft composer — inline in main canvas, sidebar always visible -->
-      <div class="draft-overlay" id="draftOverlay" role="region" aria-label="Nueva nota">
+      <div class="draft-overlay" id="draftOverlay" role="region" aria-label="New note">
 
-        <h2 class="draft-hero-title">¿Qué querés escribir hoy?</h2>
+        <div class="draft-composer">
+          <h2 class="draft-hero-title">What do you want to write today?</h2>
 
-        <div class="draft-search-wrap">
-          <div class="draft-pill">
-            <textarea
-              class="draft-chat-textarea"
-              id="draftTextarea"
-              placeholder="Describí tu nota y Claude la estructura por vos…"
-              rows="1"
-              autocomplete="off"
-              spellcheck="true"
-              aria-label="Tema de tu nota"
-            ></textarea>
-            <button type="button" class="draft-send-btn" id="draftGenerateBtn" aria-label="Generar draft">
-              <span class="btn-spinner"></span>
-              <svg class="send-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
-              </svg>
-            </button>
-          </div>
+          <div class="draft-search-wrap">
+            <!-- Hidden file input for attachment -->
+            <input type="file" id="draftFileInput" style="display:none" multiple accept="*/*" aria-hidden="true" tabindex="-1">
 
-          <!-- Loading -->
-          <div class="draft-loading" id="draftLoading">
-            <div class="draft-dots">
-              <div class="draft-dot"></div>
-              <div class="draft-dot"></div>
-              <div class="draft-dot"></div>
+            <div class="draft-pill">
+              <textarea
+                class="draft-chat-textarea"
+                id="draftTextarea"
+                placeholder="Describe your note and Claude will structure it…"
+                rows="1"
+                autocomplete="off"
+                spellcheck="true"
+                aria-label="Note topic"
+              ></textarea>
+
+              <div class="draft-pill-actions">
+                <!-- Clip / attach -->
+                <button type="button" class="draft-attach-btn" id="draftAttachBtn" aria-label="Attach file">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66L9.41 17.41a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                  </svg>
+                </button>
+
+                <!-- Send / mic toggle -->
+                <button type="button" class="draft-send-btn" id="draftGenerateBtn" aria-label="Generate draft">
+                  <span class="btn-spinner"></span>
+                  <!-- Mic icon (default, no input) -->
+                  <svg class="icon-mic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="9" y="2" width="6" height="11" rx="3"/>
+                    <path d="M19 10a7 7 0 0 1-14 0"/>
+                    <line x1="12" y1="19" x2="12" y2="22"/>
+                    <line x1="8" y1="22" x2="16" y2="22"/>
+                  </svg>
+                  <!-- Arrow (shown when typing) -->
+                  <svg class="send-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
+                  </svg>
+                </button>
+              </div>
             </div>
-            <span class="draft-loading-text">Claude está escribiendo tu draft…</span>
+
+            <!-- Loading -->
+            <div class="draft-loading" id="draftLoading">
+              <div class="draft-dots">
+                <div class="draft-dot"></div>
+                <div class="draft-dot"></div>
+                <div class="draft-dot"></div>
+              </div>
+              <span class="draft-loading-text">Claude is writing your draft…</span>
+            </div>
           </div>
         </div>
 
-        <!-- Suggestion chips -->
-        <div class="draft-chips" id="draftChips">
-          <button type="button" class="draft-chip" data-topic="Lista de todos recientes">
-            <span class="draft-chip-dot" style="background:#f59e0b;" aria-hidden="true"></span>
-            Lista de todos recientes
-          </button>
-          <button type="button" class="draft-chip" data-topic="Resumen semanal">
-            <span class="draft-chip-dot" style="background:#3b82f6;" aria-hidden="true"></span>
-            Resumen semanal
-          </button>
-          <button type="button" class="draft-chip" data-topic="Ideas de proyectos">
-            <span class="draft-chip-dot" style="background:#a78bfa;" aria-hidden="true"></span>
-            Ideas de proyectos
-          </button>
-          <button type="button" class="draft-chip" data-topic="Agenda del día">
-            <span class="draft-chip-dot" style="background:#34d399;" aria-hidden="true"></span>
-            Agenda del día
-          </button>
-          <button type="button" class="draft-chip" data-topic="Puntos ciegos en mi estrategia">
-            <span class="draft-chip-dot" style="background:#f43f5e;" aria-hidden="true"></span>
-            Puntos ciegos
-          </button>
-          <button type="button" class="draft-chip" data-topic="Todas mis recetas">
-            <span class="draft-chip-dot" style="background:#fb923c;" aria-hidden="true"></span>
-            Todas las recetas
-          </button>
-        </div>
-
-        <!-- Start from scratch CTA -->
-        <button type="button" class="draft-scratch-btn" id="draftScratchBtn" aria-label="Empezar nota en blanco">
-          Empezar desde cero
+        <!-- Start from scratch — styled like Share button -->
+        <button type="button" class="draft-scratch-btn" id="draftScratchBtn" aria-label="Start from scratch">
+          Start from scratch
         </button>
 
       </div>
@@ -2845,19 +2841,24 @@
     const draftTextarea    = document.getElementById('draftTextarea');
     const draftGenerateBtn = document.getElementById('draftGenerateBtn');
     const draftLoading     = document.getElementById('draftLoading');
-    const draftChips       = document.getElementById('draftChips');
     const draftScratchBtn  = document.getElementById('draftScratchBtn');
+    const draftAttachBtn   = document.getElementById('draftAttachBtn');
+    const draftFileInput   = document.getElementById('draftFileInput');
 
     // ID of the blank doc created when the user clicks "+ Nueva nota".
     let draftDocId = null;
+
+    function updateSendIcon() {
+      const hasText = draftTextarea.value.trim().length > 0;
+      draftGenerateBtn.classList.toggle('has-input', hasText);
+    }
 
     function resetDraftUI() {
       draftTextarea.value = '';
       draftTextarea.style.height = '';
       draftLoading.classList.remove('visible');
-      draftGenerateBtn.classList.remove('loading');
+      draftGenerateBtn.classList.remove('loading', 'has-input');
       draftGenerateBtn.disabled = false;
-      draftChips.style.display = '';
     }
 
     async function openDraftChat() {
@@ -2893,24 +2894,17 @@
       sbFetch('/rest/v1/notes?id=eq.' + id, { method: 'DELETE' }).catch(() => {});
     }
 
-    // ── Chips: fill textarea on click ─────────
-    draftChips.addEventListener('click', (e) => {
-      const chip = e.target.closest('.draft-chip');
-      if (!chip) return;
-      draftTextarea.value = chip.dataset.topic;
-      draftTextarea.dispatchEvent(new Event('input'));
-      draftTextarea.focus();
-    });
+    // ── Attach / clip button → open file picker ───
+    draftAttachBtn.addEventListener('click', () => draftFileInput.click());
 
-    // ── "Start from scratch" — clears input, keeps note, hides composer ──
-    draftScratchBtn.addEventListener('click', () => {
-      closeDraftChat(true); // keep the blank doc, just hide composer
-    });
+    // ── "Start from scratch" — hide composer, keep blank doc ──
+    draftScratchBtn.addEventListener('click', () => closeDraftChat(true));
 
-    // ── Textarea auto-resize ──────────────────
+    // ── Textarea: auto-resize + mic↔send toggle ──
     draftTextarea.addEventListener('input', () => {
       draftTextarea.style.height = 'auto';
       draftTextarea.style.height = Math.min(draftTextarea.scrollHeight, 120) + 'px';
+      updateSendIcon();
     });
 
     draftTextarea.addEventListener('keydown', (e) => {
@@ -2918,10 +2912,10 @@
         e.preventDefault();
         triggerGenerate();
       } else if (e.key === 'Escape') {
-        // Escape: if textarea has text, clear it. Otherwise close composer (keep doc).
         if (draftTextarea.value.trim()) {
           draftTextarea.value = '';
           draftTextarea.style.height = '';
+          updateSendIcon();
           draftTextarea.focus();
         } else {
           closeDraftChat(true);
@@ -2938,7 +2932,6 @@
       // Loading state
       draftGenerateBtn.classList.add('loading');
       draftGenerateBtn.disabled = true;
-      draftChips.style.display = 'none';
       draftLoading.classList.add('visible');
 
       const savedDraftDocId = draftDocId; // capture before closeDraftChat clears it
@@ -2957,8 +2950,7 @@
         draftLoading.classList.remove('visible');
         draftGenerateBtn.classList.remove('loading');
         draftGenerateBtn.disabled = false;
-        draftChips.style.display = '';
-        showSyncError('No se pudo generar. Intentá de nuevo.');
+        showSyncError('Could not generate. Please try again.');
         return;
       }
 
