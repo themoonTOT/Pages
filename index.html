@@ -419,6 +419,8 @@
     .editor-wrap {
       width: 100%;
       max-width: var(--editor-max);
+      position: relative;
+      min-height: 420px;
     }
 
     .editor-title {
@@ -1301,26 +1303,22 @@
       align-items: center;
     }
 
-    /* ——— Draft chat (inline editor overlay) ——— */
+    /* ─── Draft composer — inline, inside main canvas ─────────────── */
 
-    /* The editor-wrap gets a relative context */
-    .editor-wrap {
-      position: relative;
-    }
-
-    /* ─── Draft overlay — full dark hero ─────────────────────────── */
+    /* Overlay lives inside .editor-wrap (position: relative) */
     .draft-overlay {
-      position: fixed;
+      position: absolute;
       inset: 0;
-      z-index: 200;
+      z-index: 10;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      background: #141414;
+      justify-content: flex-start;
+      padding-top: 48px;
+      background: var(--bg-cream);
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.25s ease;
+      transition: opacity 0.18s ease;
     }
 
     .draft-overlay.visible {
@@ -1328,202 +1326,91 @@
       pointer-events: auto;
     }
 
-    /* Escape hint top-right */
-    .draft-esc-hint {
-      position: absolute;
-      top: 20px;
-      right: 24px;
-      font-size: 12px;
-      color: #555;
-      letter-spacing: 0.02em;
-    }
-
-    /* Hero title */
+    /* Hero prompt — uses existing serif + size language */
     .draft-hero-title {
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: clamp(26px, 3vw, 36px);
-      font-weight: 400;
-      color: rgba(255,255,255,0.88);
-      letter-spacing: 0.01em;
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 600;
+      color: #1a1a1a;
       text-align: center;
-      margin-bottom: 32px;
-      line-height: 1.25;
+      margin-bottom: 24px;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
     }
 
-    /* Search container */
+    /* Search pill — adapts sidebar search-wrap style to canvas */
     .draft-search-wrap {
-      width: min(640px, calc(100vw - 48px));
+      width: 100%;
       position: relative;
     }
 
     .draft-pill {
       width: 100%;
-      background: #1c1c1c;
-      border: 1px solid rgba(52, 211, 153, 0.45);
-      box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.07), 0 4px 32px rgba(0,0,0,0.45);
-      border-radius: 999px;
+      background: rgba(255,255,255,0.85);
+      border: 1px solid rgba(0,0,0,0.10);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 0 0 3px rgba(0,0,0,0.03);
+      border-radius: 10px;
       display: flex;
       align-items: center;
-      padding: 10px 10px 10px 6px;
+      padding: 10px 10px 10px 14px;
       gap: 0;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
     .draft-pill:focus-within {
-      border-color: rgba(52, 211, 153, 0.7);
-      box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.12), 0 4px 32px rgba(0,0,0,0.45);
+      border-color: rgba(0,0,0,0.18);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08), 0 0 0 3px rgba(0,0,0,0.05);
     }
 
-    /* Left mini-dropdown */
-    .draft-dropdown-btn {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      background: #2a2a2a;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 999px;
-      padding: 5px 10px 5px 12px;
-      font-size: 13px;
-      font-family: var(--font);
-      color: rgba(255,255,255,0.7);
-      cursor: pointer;
-      white-space: nowrap;
-      flex-shrink: 0;
-      transition: background 0.12s ease;
-      outline: none;
-    }
-
-    .draft-dropdown-btn:hover { background: #333; }
-
-    .draft-dropdown-caret {
-      opacity: 0.5;
-      flex-shrink: 0;
-    }
-
-    /* Dropdown menu */
-    .draft-dropdown-menu {
-      position: absolute;
-      left: 6px;
-      top: calc(100% + 8px);
-      background: #222;
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 10px;
-      padding: 4px;
-      min-width: 130px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-      z-index: 10;
-      display: none;
-    }
-
-    .draft-dropdown-menu.open { display: block; }
-
-    .draft-dropdown-item {
-      display: block;
-      width: 100%;
-      text-align: left;
-      padding: 7px 12px;
-      font-size: 13px;
-      font-family: var(--font);
-      color: rgba(255,255,255,0.7);
-      background: none;
-      border: none;
-      border-radius: 7px;
-      cursor: pointer;
-      transition: background 0.1s ease;
-    }
-
-    .draft-dropdown-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
-    .draft-dropdown-item.active { color: #fff; }
-
-    /* Main textarea */
+    /* Main textarea — light-themed */
     .draft-chat-textarea {
       flex: 1;
       border: none;
       outline: none;
       background: transparent;
       font-family: var(--font);
-      font-size: 15px;
-      color: rgba(255,255,255,0.55);
+      font-size: 14px;
+      color: #1a1a1a;
       resize: none;
-      line-height: 1.4;
-      min-height: 24px;
+      line-height: 1.5;
+      min-height: 22px;
       max-height: 120px;
       overflow-y: auto;
-      padding: 2px 8px;
+      padding: 0;
       scrollbar-width: none;
     }
 
     .draft-chat-textarea::-webkit-scrollbar { display: none; }
 
-    .draft-chat-textarea:focus { color: rgba(255,255,255,0.9); }
-
     .draft-chat-textarea::placeholder {
-      color: rgba(255,255,255,0.22);
+      color: #aaa;
     }
 
-    /* Right icons group */
-    .draft-right-icons {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-      padding-right: 2px;
-    }
-
-    .draft-auto-label {
-      font-size: 11px;
-      color: rgba(255,255,255,0.28);
-      font-family: var(--font);
-      letter-spacing: 0.02em;
-    }
-
-    .draft-icon-btn {
+    /* Send button — matches .btn-new-note dark pill */
+    .draft-send-btn {
       display: flex;
       align-items: center;
       justify-content: center;
       width: 30px;
       height: 30px;
-      border-radius: 50%;
-      background: none;
+      border-radius: 7px;
+      background: #1C1C1E;
       border: none;
       cursor: pointer;
-      color: rgba(255,255,255,0.38);
-      transition: background 0.12s ease, color 0.12s ease;
-      outline: none;
+      color: #fff;
       flex-shrink: 0;
-    }
-
-    .draft-icon-btn:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); }
-
-    .draft-send-btn {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: rgba(52, 211, 153, 0.15);
-      border: 1px solid rgba(52, 211, 153, 0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: rgb(52, 211, 153);
-      transition: background 0.12s ease, border-color 0.12s ease;
+      transition: background 0.12s ease, opacity 0.12s ease;
       outline: none;
-      flex-shrink: 0;
     }
 
-    .draft-send-btn:hover {
-      background: rgba(52, 211, 153, 0.25);
-      border-color: rgba(52, 211, 153, 0.55);
-    }
-
+    .draft-send-btn:hover { background: #2C2C2E; }
     .draft-send-btn:disabled { opacity: 0.35; cursor: default; }
 
-    /* Spinner inside send btn */
     .draft-send-btn .btn-spinner {
       width: 13px;
       height: 13px;
-      border: 1.5px solid rgba(52, 211, 153, 0.3);
-      border-top-color: rgb(52, 211, 153);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
       border-radius: 50%;
       animation: btnSpin 0.7s linear infinite;
       display: none;
@@ -1534,66 +1421,88 @@
 
     @keyframes btnSpin { to { transform: rotate(360deg); } }
 
-    /* Suggestion chips */
+    /* Suggestion chips — light theme matching sidebar UI language */
     .draft-chips {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
       justify-content: center;
-      margin-top: 20px;
-      width: min(700px, calc(100vw - 48px));
+      margin-top: 16px;
+      width: 100%;
     }
 
     .draft-chip {
       display: flex;
       align-items: center;
-      gap: 7px;
-      background: #1e1e1e;
-      border: 1px solid rgba(255,255,255,0.09);
+      gap: 6px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(0,0,0,0.08);
       border-radius: 999px;
-      padding: 7px 14px 7px 10px;
-      font-size: 13px;
+      padding: 5px 12px 5px 9px;
+      font-size: 12px;
       font-family: var(--font);
-      color: rgba(255,255,255,0.62);
+      color: #4a4a4a;
       cursor: pointer;
       transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
       white-space: nowrap;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
       outline: none;
     }
 
     .draft-chip:hover {
-      background: #272727;
-      border-color: rgba(255,255,255,0.18);
-      color: rgba(255,255,255,0.88);
+      background: rgba(255,255,255,0.95);
+      border-color: rgba(0,0,0,0.14);
+      color: #1a1a1a;
     }
 
     .draft-chip-dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 2px;
       flex-shrink: 0;
+      opacity: 0.8;
     }
 
-    /* Loading state */
+    /* "Start from scratch" CTA */
+    .draft-scratch-btn {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-family: var(--font);
+      color: var(--sidebar-muted);
+      background: none;
+      border: 1px solid rgba(0,0,0,0.10);
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
+      outline: none;
+    }
+
+    .draft-scratch-btn:hover {
+      border-color: rgba(0,0,0,0.18);
+      color: #1a1a1a;
+      background: rgba(0,0,0,0.03);
+    }
+
+    /* Loading — inline, below pill */
     .draft-loading {
       display: none;
       align-items: center;
-      gap: 10px;
-      position: absolute;
-      bottom: -36px;
-      left: 50%;
-      transform: translateX(-50%);
-      white-space: nowrap;
+      gap: 8px;
+      margin-top: 12px;
     }
 
     .draft-loading.visible { display: flex; }
-    .draft-dots { display: flex; gap: 5px; }
+    .draft-dots { display: flex; gap: 4px; }
 
     .draft-dot {
       width: 5px; height: 5px;
       border-radius: 50%;
-      background: rgba(52,211,153,0.6);
+      background: rgba(0,0,0,0.25);
       animation: draftPulse 1.2s ease-in-out infinite;
     }
 
@@ -1601,11 +1510,11 @@
     .draft-dot:nth-child(3) { animation-delay: 0.4s; }
 
     @keyframes draftPulse {
-      0%, 80%, 100% { transform: scale(0.65); opacity: 0.35; }
-      40% { transform: scale(1); opacity: 1; }
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.25; }
+      40% { transform: scale(1); opacity: 0.7; }
     }
 
-    .draft-loading-text { font-size: 13px; color: rgba(255,255,255,0.38); }
+    .draft-loading-text { font-size: 12px; color: var(--sidebar-muted); }
   </style>
 </head>
 <body>
@@ -1661,57 +1570,28 @@
       </div>
       <div class="editor-body" id="editorBody" contenteditable="true" data-placeholder="Escribí algo…"></div>
 
-      <!-- Draft overlay — dark hero with search pill + chips -->
-      <div class="draft-overlay" id="draftOverlay" role="dialog" aria-modal="true" aria-label="Nueva nota con IA">
+      <!-- Draft composer — inline in main canvas, sidebar always visible -->
+      <div class="draft-overlay" id="draftOverlay" role="region" aria-label="Nueva nota">
 
-        <span class="draft-esc-hint">Esc para cancelar</span>
-
-        <h1 class="draft-hero-title">Preguntale algo a tus notas</h1>
+        <h2 class="draft-hero-title">¿Qué querés escribir hoy?</h2>
 
         <div class="draft-search-wrap">
-          <!-- Dropdown menu -->
-          <div class="draft-dropdown-menu" id="draftDropdownMenu" role="menu">
-            <button type="button" class="draft-dropdown-item active" data-value="Mis notas" role="menuitem">Mis notas</button>
-            <button type="button" class="draft-dropdown-item" data-value="Recientes" role="menuitem">Recientes</button>
-          </div>
-
-          <div class="draft-pill" id="draftPill">
-            <!-- Left: scope dropdown -->
-            <button type="button" class="draft-dropdown-btn" id="draftDropdownBtn" aria-haspopup="true" aria-expanded="false" aria-label="Seleccionar scope">
-              <span id="draftDropdownLabel">Mis notas</span>
-              <svg class="draft-dropdown-caret" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-
-            <!-- Center: textarea -->
+          <div class="draft-pill">
             <textarea
               class="draft-chat-textarea"
               id="draftTextarea"
-              placeholder="Escribí / para recetas…"
+              placeholder="Describí tu nota y Claude la estructura por vos…"
               rows="1"
               autocomplete="off"
               spellcheck="true"
               aria-label="Tema de tu nota"
             ></textarea>
-
-            <!-- Right: icons -->
-            <div class="draft-right-icons">
-              <span class="draft-auto-label">Auto</span>
-              <button type="button" class="draft-icon-btn" aria-label="Adjuntar archivo">
-                <!-- Paperclip -->
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66L9.41 17.41a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-                </svg>
-              </button>
-              <button type="button" class="draft-send-btn" id="draftGenerateBtn" aria-label="Generar draft">
-                <span class="btn-spinner"></span>
-                <!-- Arrow up -->
-                <svg class="send-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
-                </svg>
-              </button>
-            </div>
+            <button type="button" class="draft-send-btn" id="draftGenerateBtn" aria-label="Generar draft">
+              <span class="btn-spinner"></span>
+              <svg class="send-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
+              </svg>
+            </button>
           </div>
 
           <!-- Loading -->
@@ -1726,32 +1606,37 @@
         </div>
 
         <!-- Suggestion chips -->
-        <div class="draft-chips" id="draftChips" role="list">
-          <button type="button" class="draft-chip" data-topic="Lista de todos recientes" role="listitem">
+        <div class="draft-chips" id="draftChips">
+          <button type="button" class="draft-chip" data-topic="Lista de todos recientes">
             <span class="draft-chip-dot" style="background:#f59e0b;" aria-hidden="true"></span>
             Lista de todos recientes
           </button>
-          <button type="button" class="draft-chip" data-topic="Resumen semanal" role="listitem">
+          <button type="button" class="draft-chip" data-topic="Resumen semanal">
             <span class="draft-chip-dot" style="background:#3b82f6;" aria-hidden="true"></span>
             Resumen semanal
           </button>
-          <button type="button" class="draft-chip" data-topic="Ideas de proyectos" role="listitem">
+          <button type="button" class="draft-chip" data-topic="Ideas de proyectos">
             <span class="draft-chip-dot" style="background:#a78bfa;" aria-hidden="true"></span>
             Ideas de proyectos
           </button>
-          <button type="button" class="draft-chip" data-topic="Agenda del día" role="listitem">
+          <button type="button" class="draft-chip" data-topic="Agenda del día">
             <span class="draft-chip-dot" style="background:#34d399;" aria-hidden="true"></span>
             Agenda del día
           </button>
-          <button type="button" class="draft-chip" data-topic="Puntos ciegos en mi estrategia" role="listitem">
+          <button type="button" class="draft-chip" data-topic="Puntos ciegos en mi estrategia">
             <span class="draft-chip-dot" style="background:#f43f5e;" aria-hidden="true"></span>
             Puntos ciegos
           </button>
-          <button type="button" class="draft-chip" data-topic="Todas mis recetas" role="listitem">
+          <button type="button" class="draft-chip" data-topic="Todas mis recetas">
             <span class="draft-chip-dot" style="background:#fb923c;" aria-hidden="true"></span>
             Todas las recetas
           </button>
         </div>
+
+        <!-- Start from scratch CTA -->
+        <button type="button" class="draft-scratch-btn" id="draftScratchBtn" aria-label="Empezar nota en blanco">
+          Empezar desde cero
+        </button>
 
       </div>
     </div>
@@ -2955,18 +2840,15 @@
       window.open('https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F' + encodeURIComponent(MOCK_SHARE_LINK), '_blank');
     });
 
-    // ——— Draft chat ———
+    // ——— Draft composer ———
     const draftOverlay     = document.getElementById('draftOverlay');
     const draftTextarea    = document.getElementById('draftTextarea');
     const draftGenerateBtn = document.getElementById('draftGenerateBtn');
     const draftLoading     = document.getElementById('draftLoading');
-    const draftDropdownBtn = document.getElementById('draftDropdownBtn');
-    const draftDropdownMenu= document.getElementById('draftDropdownMenu');
-    const draftDropdownLabel = document.getElementById('draftDropdownLabel');
     const draftChips       = document.getElementById('draftChips');
+    const draftScratchBtn  = document.getElementById('draftScratchBtn');
 
     // ID of the blank doc created when the user clicks "+ Nueva nota".
-    // If they press Escape we delete it so the list stays clean.
     let draftDocId = null;
 
     function resetDraftUI() {
@@ -2976,7 +2858,6 @@
       draftGenerateBtn.classList.remove('loading');
       draftGenerateBtn.disabled = false;
       draftChips.style.display = '';
-      closeDropdown();
     }
 
     async function openDraftChat() {
@@ -2984,7 +2865,7 @@
       await createDoc('', '<p></p>');
       draftDocId = currentId;
 
-      // 2. Reset and show the overlay
+      // 2. Show the composer
       resetDraftUI();
       requestAnimationFrame(() => {
         draftOverlay.classList.add('visible');
@@ -2994,7 +2875,6 @@
 
     function closeDraftChat(keepDoc = true) {
       draftOverlay.classList.remove('visible');
-      closeDropdown();
       if (!keepDoc && draftDocId) {
         _deleteDocById(draftDocId);
       }
@@ -3013,42 +2893,18 @@
       sbFetch('/rest/v1/notes?id=eq.' + id, { method: 'DELETE' }).catch(() => {});
     }
 
-    // ── Dropdown ──────────────────────────────
-    function closeDropdown() {
-      draftDropdownMenu.classList.remove('open');
-      draftDropdownBtn.setAttribute('aria-expanded', 'false');
-    }
-
-    draftDropdownBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const isOpen = draftDropdownMenu.classList.toggle('open');
-      draftDropdownBtn.setAttribute('aria-expanded', String(isOpen));
-    });
-
-    draftDropdownMenu.addEventListener('click', (e) => {
-      const item = e.target.closest('.draft-dropdown-item');
-      if (!item) return;
-      draftDropdownLabel.textContent = item.dataset.value;
-      draftDropdownMenu.querySelectorAll('.draft-dropdown-item').forEach(el => el.classList.remove('active'));
-      item.classList.add('active');
-      closeDropdown();
-      draftTextarea.focus();
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!draftDropdownBtn.contains(e.target) && !draftDropdownMenu.contains(e.target)) {
-        closeDropdown();
-      }
-    });
-
-    // ── Chips ─────────────────────────────────
+    // ── Chips: fill textarea on click ─────────
     draftChips.addEventListener('click', (e) => {
       const chip = e.target.closest('.draft-chip');
       if (!chip) return;
       draftTextarea.value = chip.dataset.topic;
       draftTextarea.dispatchEvent(new Event('input'));
       draftTextarea.focus();
+    });
+
+    // ── "Start from scratch" — clears input, keeps note, hides composer ──
+    draftScratchBtn.addEventListener('click', () => {
+      closeDraftChat(true); // keep the blank doc, just hide composer
     });
 
     // ── Textarea auto-resize ──────────────────
@@ -3062,13 +2918,15 @@
         e.preventDefault();
         triggerGenerate();
       } else if (e.key === 'Escape') {
-        closeDraftChat(false);
+        // Escape: if textarea has text, clear it. Otherwise close composer (keep doc).
+        if (draftTextarea.value.trim()) {
+          draftTextarea.value = '';
+          draftTextarea.style.height = '';
+          draftTextarea.focus();
+        } else {
+          closeDraftChat(true);
+        }
       }
-    });
-
-    // Close overlay on Escape globally too
-    draftOverlay.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeDraftChat(false);
     });
 
     draftGenerateBtn.addEventListener('click', triggerGenerate);
@@ -3104,7 +2962,7 @@
         return;
       }
 
-      // Close overlay (keep the blank doc)
+      // Hide composer, keep the blank doc
       closeDraftChat(true);
 
       // Patch the already-created blank doc with Claude's content
