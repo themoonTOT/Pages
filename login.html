@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in — Pages</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <script>
+    /* Theme init — FOUC prevention */
+    (function(){try{var t=localStorage.getItem('pages-theme'),s=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(t===null&&s))document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
+  </script>
+  <style>
+    :root {
+      --bg: #F2EFE9;
+      --card-bg: #FAFAF8;
+      --card-border: rgba(0,0,0,0.08);
+      --text: #1a1a1a;
+      --muted: #787878;
+      --input-bg: #fff;
+      --input-border: rgba(0,0,0,0.14);
+      --input-border-focus: rgba(60,100,255,0.55);
+      --btn-bg: #1a1a1a;
+      --btn-text: #fff;
+      --btn-hover: #2e2e2e;
+      --accent: #3C64FF;
+      --error: #d0393a;
+      --success: #2a7f4f;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1C1C1E;
+      --card-bg: #252528;
+      --card-border: rgba(255,255,255,0.07);
+      --text: #E6E6E6;
+      --muted: #8A8A90;
+      --input-bg: #1C1C1E;
+      --input-border: rgba(255,255,255,0.12);
+      --input-border-focus: rgba(139,157,255,0.6);
+      --btn-bg: #E6E6E6;
+      --btn-text: #1a1a1a;
+      --btn-hover: #d0d0d0;
+      --accent: #8B9DFF;
+      --error: #ff6b6b;
+      --success: #5cb887;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      font-size: 13.5px;
+      font-weight: 400;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+      padding: 24px 16px;
+      transition: background 0.1s ease, color 0.1s ease;
+    }
+
+    /* ——— Logo ——— */
+    .auth-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 32px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .auth-logo-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--text);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .auth-logo-icon svg { color: var(--bg); }
+    .auth-logo-name {
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+    }
+
+    /* ——— Card ——— */
+    .auth-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 32px 28px 28px;
+      box-shadow: 0 1px 12px rgba(0,0,0,0.06), 0 0 0 1px var(--card-border);
+    }
+    [data-theme="dark"] .auth-card {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px var(--card-border);
+    }
+
+    /* ——— View management ——— */
+    .auth-view { display: none; }
+    .auth-view.active { display: block; }
+
+    /* ——— Headings ——— */
+    .auth-heading {
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .auth-subheading {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    /* ——— Form ——— */
+    .auth-field {
+      margin-bottom: 14px;
+    }
+    .auth-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    .auth-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+    }
+    .auth-label-link {
+      font-size: 12px;
+      color: var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: var(--font);
+      padding: 0;
+    }
+    .auth-label-link:hover { text-decoration: underline; }
+
+    .auth-input {
+      width: 100%;
+      padding: 9px 12px;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 13.5px;
+      font-weight: 400;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.12s ease-out, box-shadow 0.12s ease-out;
+      -webkit-appearance: none;
+    }
+    .auth-input::placeholder { color: var(--muted); opacity: 0.7; }
+    .auth-input:focus {
+      border-color: var(--input-border-focus);
+      box-shadow: 0 0 0 3px rgba(60,100,255,0.10);
+    }
+    [data-theme="dark"] .auth-input:focus {
+      box-shadow: 0 0 0 3px rgba(139,157,255,0.12);
+    }
+    .auth-input.error {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(208,57,58,0.08);
+    }
+    [data-theme="dark"] .auth-input.error {
+      box-shadow: 0 0 0 3px rgba(255,107,107,0.10);
+    }
+
+    /* Inline error text */
+    .auth-error-msg {
+      font-size: 11.5px;
+      color: var(--error);
+      margin-top: 4px;
+      min-height: 16px;
+      display: none;
+    }
+    .auth-error-msg.visible { display: block; }
+
+    /* Global form error (e.g. wrong password) */
+    .auth-form-error {
+      background: rgba(208,57,58,0.07);
+      border: 1px solid rgba(208,57,58,0.18);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 12.5px;
+      color: var(--error);
+      margin-bottom: 16px;
+      display: none;
+      line-height: 1.45;
+    }
+    [data-theme="dark"] .auth-form-error {
+      background: rgba(255,107,107,0.08);
+      border-color: rgba(255,107,107,0.2);
+    }
+    .auth-form-error.visible { display: block; }
+
+    /* Success notice */
+    .auth-form-success {
+      background: rgba(42,127,79,0.07);
+      border: 1px solid rgba(42,127,79,0.18);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 12.5px;
+      color: var(--success);
+      margin-bottom: 16px;
+      display: none;
+      line-height: 1.45;
+    }
+    [data-theme="dark"] .auth-form-success {
+      background: rgba(92,184,135,0.08);
+      border-color: rgba(92,184,135,0.2);
+    }
+    .auth-form-success.visible { display: block; }
+
+    /* ——— Primary button ——— */
+    .auth-btn-primary {
+      display: block;
+      width: 100%;
+      padding: 10px 16px;
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.12s ease-out, transform 0.06s ease-out, opacity 0.12s ease-out;
+      margin-top: 20px;
+      letter-spacing: -0.01em;
+      position: relative;
+    }
+    .auth-btn-primary:hover { background: var(--btn-hover); }
+    .auth-btn-primary:active { transform: scale(0.98); }
+    .auth-btn-primary:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .auth-btn-primary.loading { opacity: 0.7; pointer-events: none; }
+
+    /* ——— Divider ——— */
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 20px 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--input-border);
+    }
+
+    /* ——— OAuth button ——— */
+    .auth-btn-oauth {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      width: 100%;
+      padding: 9px 16px;
+      background: var(--input-bg);
+      color: var(--text);
+      border: 1px solid var(--input-border);
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 400;
+      cursor: pointer;
+      transition: background 0.12s ease-out, border-color 0.12s ease-out, transform 0.06s ease-out;
+    }
+    .auth-btn-oauth:hover {
+      background: var(--card-border);
+      border-color: rgba(0,0,0,0.18);
+    }
+    [data-theme="dark"] .auth-btn-oauth:hover {
+      background: rgba(255,255,255,0.06);
+    }
+    .auth-btn-oauth:active { transform: scale(0.98); }
+    .auth-btn-oauth svg { flex-shrink: 0; }
+
+    /* ——— Footer links ——— */
+    .auth-footer {
+      margin-top: 22px;
+      text-align: center;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+    .auth-footer a,
+    .auth-footer button {
+      color: var(--accent);
+      text-decoration: none;
+      background: none;
+      border: none;
+      font-family: var(--font);
+      font-size: 12.5px;
+      cursor: pointer;
+      padding: 0;
+    }
+    .auth-footer a:hover,
+    .auth-footer button:hover { text-decoration: underline; }
+
+    /* ——— Back link ——— */
+    .auth-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12.5px;
+      color: var(--accent);
+      background: none;
+      border: none;
+      font-family: var(--font);
+      cursor: pointer;
+      padding: 0;
+      margin-top: 18px;
+    }
+    .auth-back:hover { text-decoration: underline; }
+    .auth-back svg { opacity: 0.8; }
+
+    /* ——— "Check email" confirmation ——— */
+    .auth-confirm-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(42,127,79,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      color: var(--success);
+    }
+    [data-theme="dark"] .auth-confirm-icon { background: rgba(92,184,135,0.12); }
+
+    /* ——— Responsive ——— */
+    @media (max-width: 420px) {
+      .auth-card { padding: 24px 20px 22px; border-radius: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <a class="auth-logo" href="#">
+    <span class="auth-logo-icon">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+      </svg>
+    </span>
+    <span class="auth-logo-name">Pages</span>
+  </a>
+
+  <div class="auth-card">
+
+    <!-- ═══ VIEW: LOGIN ═══ -->
+    <div class="auth-view active" id="viewLogin">
+      <h1 class="auth-heading">Sign in to Pages</h1>
+      <p class="auth-subheading">Welcome back. Enter your credentials to continue.</p>
+
+      <div class="auth-form-error" id="loginError"></div>
+
+      <form id="loginForm" novalidate>
+        <div class="auth-field">
+          <div class="auth-label-row">
+            <label class="auth-label" for="loginEmail">Email</label>
+          </div>
+          <input class="auth-input" type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email" autocapitalize="off" spellcheck="false">
+          <div class="auth-error-msg" id="loginEmailErr"></div>
+        </div>
+
+        <div class="auth-field">
+          <div class="auth-label-row">
+            <label class="auth-label" for="loginPassword">Password</label>
+            <button type="button" class="auth-label-link" id="btnForgot">Forgot password?</button>
+          </div>
+          <input class="auth-input" type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+          <div class="auth-error-msg" id="loginPasswordErr"></div>
+        </div>
+
+        <button type="submit" class="auth-btn-primary" id="loginSubmit">Continue</button>
+      </form>
+
+      <!-- Optional Google OAuth -->
+      <div class="auth-divider">or</div>
+      <button type="button" class="auth-btn-oauth" id="btnGoogleLogin">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Continue with Google
+      </button>
+
+      <p class="auth-footer">
+        Don't have an account?&nbsp;
+        <button type="button" id="btnGoSignup">Create account</button>
+      </p>
+    </div>
+
+    <!-- ═══ VIEW: SIGN UP ═══ -->
+    <div class="auth-view" id="viewSignup">
+      <h1 class="auth-heading">Create an account</h1>
+      <p class="auth-subheading">Start writing. Free, no credit card needed.</p>
+
+      <div class="auth-form-error" id="signupError"></div>
+
+      <form id="signupForm" novalidate>
+        <div class="auth-field">
+          <div class="auth-label-row">
+            <label class="auth-label" for="signupEmail">Email</label>
+          </div>
+          <input class="auth-input" type="email" id="signupEmail" placeholder="you@example.com" autocomplete="email" autocapitalize="off" spellcheck="false">
+          <div class="auth-error-msg" id="signupEmailErr"></div>
+        </div>
+
+        <div class="auth-field">
+          <div class="auth-label-row">
+            <label class="auth-label" for="signupPassword">Password</label>
+          </div>
+          <input class="auth-input" type="password" id="signupPassword" placeholder="At least 8 characters" autocomplete="new-password">
+          <div class="auth-error-msg" id="signupPasswordErr"></div>
+        </div>
+
+        <button type="submit" class="auth-btn-primary" id="signupSubmit">Create account</button>
+      </form>
+
+      <p class="auth-footer">
+        Already have an account?&nbsp;
+        <button type="button" id="btnGoLogin">Sign in</button>
+      </p>
+    </div>
+
+    <!-- ═══ VIEW: FORGOT PASSWORD ═══ -->
+    <div class="auth-view" id="viewForgot">
+      <h1 class="auth-heading">Reset your password</h1>
+      <p class="auth-subheading">We'll send a reset link to your email address.</p>
+
+      <div class="auth-form-error" id="forgotError"></div>
+      <div class="auth-form-success" id="forgotSuccess"></div>
+
+      <form id="forgotForm" novalidate>
+        <div class="auth-field">
+          <div class="auth-label-row">
+            <label class="auth-label" for="forgotEmail">Email</label>
+          </div>
+          <input class="auth-input" type="email" id="forgotEmail" placeholder="you@example.com" autocomplete="email" autocapitalize="off" spellcheck="false">
+          <div class="auth-error-msg" id="forgotEmailErr"></div>
+        </div>
+
+        <button type="submit" class="auth-btn-primary" id="forgotSubmit">Send reset link</button>
+      </form>
+
+      <button type="button" class="auth-back" id="btnBackFromForgot">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to sign in
+      </button>
+    </div>
+
+    <!-- ═══ VIEW: CHECK EMAIL (post-signup confirmation) ═══ -->
+    <div class="auth-view" id="viewCheckEmail">
+      <div class="auth-confirm-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <h1 class="auth-heading">Check your email</h1>
+      <p class="auth-subheading" id="checkEmailMsg">We sent a confirmation link to your email address. Click it to activate your account.</p>
+
+      <button type="button" class="auth-back" id="btnBackFromCheck">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to sign in
+      </button>
+    </div>
+
+  </div><!-- /.auth-card -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    // ——— Config ———
+    const SB_URL = 'https://kihxztxxpfwmhltangih.supabase.co';
+    const SB_KEY = 'sb_publishable_fPkLRpscUpvTP7h-ogA9yA_uOnD4xVH';
+
+    const { createClient } = window.supabase;
+    const sbClient = createClient(SB_URL, SB_KEY, {
+      auth: {
+        persistSession: true,
+        detectSessionInUrl: true,
+        redirectTo: window.location.origin + '/reset.html'
+      }
+    });
+
+    // If already logged in, go straight to the app
+    sbClient.auth.getSession().then(({ data: { session } }) => {
+      if (session) window.location.replace('./index.html');
+    });
+
+    // ——— View management ———
+    const views = {
+      login:      document.getElementById('viewLogin'),
+      signup:     document.getElementById('viewSignup'),
+      forgot:     document.getElementById('viewForgot'),
+      checkEmail: document.getElementById('viewCheckEmail'),
+    };
+
+    function showView(name) {
+      Object.values(views).forEach(v => v.classList.remove('active'));
+      views[name].classList.add('active');
+    }
+
+    // ——— Navigation ———
+    document.getElementById('btnGoSignup').addEventListener('click', () => showView('signup'));
+    document.getElementById('btnGoLogin').addEventListener('click', () => showView('login'));
+    document.getElementById('btnForgot').addEventListener('click', () => {
+      // Pre-fill the forgot email from login field if present
+      const email = document.getElementById('loginEmail').value.trim();
+      if (email) document.getElementById('forgotEmail').value = email;
+      showView('forgot');
+    });
+    document.getElementById('btnBackFromForgot').addEventListener('click', () => showView('login'));
+    document.getElementById('btnBackFromCheck').addEventListener('click', () => showView('login'));
+
+    // ——— Helpers ———
+    function isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+    function setFieldError(inputEl, msgEl, msg) {
+      if (msg) {
+        inputEl.classList.add('error');
+        msgEl.textContent = msg;
+        msgEl.classList.add('visible');
+      } else {
+        inputEl.classList.remove('error');
+        msgEl.textContent = '';
+        msgEl.classList.remove('visible');
+      }
+    }
+
+    function clearFieldError(inputEl, msgEl) {
+      setFieldError(inputEl, msgEl, '');
+    }
+
+    function showFormError(el, msg) {
+      el.textContent = msg;
+      el.classList.toggle('visible', !!msg);
+    }
+
+    function setLoading(btn, loading) {
+      btn.disabled = loading;
+      btn.classList.toggle('loading', loading);
+      if (loading) {
+        btn.dataset.originalText = btn.textContent;
+        btn.textContent = 'Loading…';
+      } else {
+        btn.textContent = btn.dataset.originalText || btn.textContent;
+      }
+    }
+
+    function humanizeError(err) {
+      const msg = (err?.message || '').toLowerCase();
+      if (msg.includes('invalid login credentials') || msg.includes('invalid email or password')) {
+        return 'Incorrect email or password. Please try again.';
+      }
+      if (msg.includes('email not confirmed')) {
+        return 'Please confirm your email before signing in.';
+      }
+      if (msg.includes('user already registered') || msg.includes('already been registered')) {
+        return 'An account with this email already exists. Try signing in.';
+      }
+      if (msg.includes('password should be at least')) {
+        return 'Password must be at least 8 characters.';
+      }
+      if (msg.includes('rate limit') || msg.includes('too many requests')) {
+        return 'Too many attempts. Please wait a moment and try again.';
+      }
+      return err?.message || 'Something went wrong. Please try again.';
+    }
+
+    // ——— Login form ———
+    const loginEmailEl    = document.getElementById('loginEmail');
+    const loginPasswordEl = document.getElementById('loginPassword');
+    const loginEmailErr   = document.getElementById('loginEmailErr');
+    const loginPasswordErr= document.getElementById('loginPasswordErr');
+    const loginErrorEl    = document.getElementById('loginError');
+    const loginSubmitBtn  = document.getElementById('loginSubmit');
+
+    // Clear errors on input
+    loginEmailEl.addEventListener('input', () => clearFieldError(loginEmailEl, loginEmailErr));
+    loginPasswordEl.addEventListener('input', () => clearFieldError(loginPasswordEl, loginPasswordErr));
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showFormError(loginErrorEl, '');
+
+      const email    = loginEmailEl.value.trim();
+      const password = loginPasswordEl.value;
+      let valid = true;
+
+      if (!email) {
+        setFieldError(loginEmailEl, loginEmailErr, 'Email is required.');
+        valid = false;
+      } else if (!isValidEmail(email)) {
+        setFieldError(loginEmailEl, loginEmailErr, 'Enter a valid email address.');
+        valid = false;
+      }
+      if (!password) {
+        setFieldError(loginPasswordEl, loginPasswordErr, 'Password is required.');
+        valid = false;
+      }
+      if (!valid) return;
+
+      setLoading(loginSubmitBtn, true);
+      try {
+        const { error } = await sbClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        // Success — redirect to app
+        window.location.replace('./index.html');
+      } catch (err) {
+        showFormError(loginErrorEl, humanizeError(err));
+      } finally {
+        setLoading(loginSubmitBtn, false);
+      }
+    });
+
+    // ——— Sign up form ———
+    const signupEmailEl    = document.getElementById('signupEmail');
+    const signupPasswordEl = document.getElementById('signupPassword');
+    const signupEmailErr   = document.getElementById('signupEmailErr');
+    const signupPasswordErr= document.getElementById('signupPasswordErr');
+    const signupErrorEl    = document.getElementById('signupError');
+    const signupSubmitBtn  = document.getElementById('signupSubmit');
+
+    signupEmailEl.addEventListener('input', () => clearFieldError(signupEmailEl, signupEmailErr));
+    signupPasswordEl.addEventListener('input', () => clearFieldError(signupPasswordEl, signupPasswordErr));
+
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showFormError(signupErrorEl, '');
+
+      const email    = signupEmailEl.value.trim();
+      const password = signupPasswordEl.value;
+      let valid = true;
+
+      if (!email) {
+        setFieldError(signupEmailEl, signupEmailErr, 'Email is required.');
+        valid = false;
+      } else if (!isValidEmail(email)) {
+        setFieldError(signupEmailEl, signupEmailErr, 'Enter a valid email address.');
+        valid = false;
+      }
+      if (!password) {
+        setFieldError(signupPasswordEl, signupPasswordErr, 'Password is required.');
+        valid = false;
+      } else if (password.length < 8) {
+        setFieldError(signupPasswordEl, signupPasswordErr, 'Password must be at least 8 characters.');
+        valid = false;
+      }
+      if (!valid) return;
+
+      setLoading(signupSubmitBtn, true);
+      try {
+        const { data, error } = await sbClient.auth.signUp({ email, password });
+        if (error) throw error;
+
+        // Check if email confirmation is required
+        if (data.user && data.session) {
+          // No email confirmation needed — go straight to app
+          window.location.replace('./index.html');
+        } else {
+          // Email confirmation required
+          document.getElementById('checkEmailMsg').textContent =
+            `We sent a confirmation link to ${email}. Click it to activate your account.`;
+          showView('checkEmail');
+        }
+      } catch (err) {
+        showFormError(signupErrorEl, humanizeError(err));
+      } finally {
+        setLoading(signupSubmitBtn, false);
+      }
+    });
+
+    // ——— Forgot password form ———
+    const forgotEmailEl   = document.getElementById('forgotEmail');
+    const forgotEmailErr  = document.getElementById('forgotEmailErr');
+    const forgotErrorEl   = document.getElementById('forgotError');
+    const forgotSuccessEl = document.getElementById('forgotSuccess');
+    const forgotSubmitBtn = document.getElementById('forgotSubmit');
+
+    forgotEmailEl.addEventListener('input', () => {
+      clearFieldError(forgotEmailEl, forgotEmailErr);
+      forgotSuccessEl.classList.remove('visible');
+    });
+
+    document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showFormError(forgotErrorEl, '');
+      forgotSuccessEl.classList.remove('visible');
+
+      const email = forgotEmailEl.value.trim();
+      if (!email) {
+        setFieldError(forgotEmailEl, forgotEmailErr, 'Email is required.');
+        return;
+      }
+      if (!isValidEmail(email)) {
+        setFieldError(forgotEmailEl, forgotEmailErr, 'Enter a valid email address.');
+        return;
+      }
+
+      setLoading(forgotSubmitBtn, true);
+      try {
+        const redirectTo = window.location.origin + '/reset.html';
+        const { error } = await sbClient.auth.resetPasswordForEmail(email, { redirectTo });
+        if (error) throw error;
+        forgotSuccessEl.textContent = `Reset link sent to ${email}. Check your inbox (and spam folder).`;
+        forgotSuccessEl.classList.add('visible');
+        forgotSubmitBtn.textContent = 'Resend link';
+      } catch (err) {
+        showFormError(forgotErrorEl, humanizeError(err));
+      } finally {
+        setLoading(forgotSubmitBtn, false);
+      }
+    });
+
+    // ——— Google OAuth ———
+    document.getElementById('btnGoogleLogin').addEventListener('click', async () => {
+      const { error } = await sbClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + '/index.html' }
+      });
+      if (error) showFormError(loginErrorEl, humanizeError(error));
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Set new password — Pages</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <script>
+    /* Theme init — FOUC prevention */
+    (function(){try{var t=localStorage.getItem('pages-theme'),s=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(t===null&&s))document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
+  </script>
+  <style>
+    :root {
+      --bg: #F2EFE9;
+      --card-bg: #FAFAF8;
+      --card-border: rgba(0,0,0,0.08);
+      --text: #1a1a1a;
+      --muted: #787878;
+      --input-bg: #fff;
+      --input-border: rgba(0,0,0,0.14);
+      --input-border-focus: rgba(60,100,255,0.55);
+      --btn-bg: #1a1a1a;
+      --btn-text: #fff;
+      --btn-hover: #2e2e2e;
+      --error: #d0393a;
+      --success: #2a7f4f;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1C1C1E;
+      --card-bg: #252528;
+      --card-border: rgba(255,255,255,0.07);
+      --text: #E6E6E6;
+      --muted: #8A8A90;
+      --input-bg: #1C1C1E;
+      --input-border: rgba(255,255,255,0.12);
+      --input-border-focus: rgba(139,157,255,0.6);
+      --btn-bg: #E6E6E6;
+      --btn-text: #1a1a1a;
+      --btn-hover: #d0d0d0;
+      --error: #ff6b6b;
+      --success: #5cb887;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      font-size: 13.5px;
+      font-weight: 400;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+      padding: 24px 16px;
+    }
+
+    /* ——— Logo ——— */
+    .auth-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 32px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .auth-logo-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--text);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .auth-logo-icon svg { color: var(--bg); }
+    .auth-logo-name {
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+    }
+
+    /* ——— Card ——— */
+    .auth-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 32px 28px 28px;
+      box-shadow: 0 1px 12px rgba(0,0,0,0.06), 0 0 0 1px var(--card-border);
+    }
+    [data-theme="dark"] .auth-card {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px var(--card-border);
+    }
+
+    .auth-heading {
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .auth-subheading {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .auth-field { margin-bottom: 14px; }
+    .auth-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    .auth-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+    }
+
+    .auth-input {
+      width: 100%;
+      padding: 9px 12px;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 13.5px;
+      font-weight: 400;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.12s ease-out, box-shadow 0.12s ease-out;
+      -webkit-appearance: none;
+    }
+    .auth-input::placeholder { color: var(--muted); opacity: 0.7; }
+    .auth-input:focus {
+      border-color: var(--input-border-focus);
+      box-shadow: 0 0 0 3px rgba(60,100,255,0.10);
+    }
+    [data-theme="dark"] .auth-input:focus {
+      box-shadow: 0 0 0 3px rgba(139,157,255,0.12);
+    }
+    .auth-input.error {
+      border-color: var(--error);
+    }
+
+    .auth-error-msg {
+      font-size: 11.5px;
+      color: var(--error);
+      margin-top: 4px;
+      display: none;
+    }
+    .auth-error-msg.visible { display: block; }
+
+    .auth-form-error {
+      background: rgba(208,57,58,0.07);
+      border: 1px solid rgba(208,57,58,0.18);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 12.5px;
+      color: var(--error);
+      margin-bottom: 16px;
+      display: none;
+      line-height: 1.45;
+    }
+    [data-theme="dark"] .auth-form-error {
+      background: rgba(255,107,107,0.08);
+      border-color: rgba(255,107,107,0.2);
+    }
+    .auth-form-error.visible { display: block; }
+
+    .auth-btn-primary {
+      display: block;
+      width: 100%;
+      padding: 10px 16px;
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.12s ease-out, transform 0.06s ease-out, opacity 0.12s ease-out;
+      margin-top: 20px;
+      letter-spacing: -0.01em;
+    }
+    .auth-btn-primary:hover { background: var(--btn-hover); }
+    .auth-btn-primary:active { transform: scale(0.98); }
+    .auth-btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+    .auth-btn-primary.loading { opacity: 0.7; pointer-events: none; }
+
+    /* ——— Confirm icon ——— */
+    .auth-confirm-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(42,127,79,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      color: var(--success);
+    }
+    [data-theme="dark"] .auth-confirm-icon { background: rgba(92,184,135,0.12); }
+
+    /* ——— Error state (invalid/expired link) ——— */
+    .auth-error-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(208,57,58,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      color: var(--error);
+    }
+    [data-theme="dark"] .auth-error-icon { background: rgba(255,107,107,0.1); }
+
+    .auth-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12.5px;
+      color: var(--muted);
+      background: none;
+      border: none;
+      font-family: var(--font);
+      cursor: pointer;
+      padding: 0;
+      margin-top: 18px;
+      text-decoration: none;
+    }
+    .auth-back:hover { text-decoration: underline; color: var(--text); }
+
+    /* ——— View management ——— */
+    .auth-view { display: none; }
+    .auth-view.active { display: block; }
+
+    /* ——— Loading state ——— */
+    .auth-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .auth-spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--input-border);
+      border-top-color: var(--muted);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 420px) {
+      .auth-card { padding: 24px 20px 22px; border-radius: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <a class="auth-logo" href="./login.html">
+    <span class="auth-logo-icon">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+      </svg>
+    </span>
+    <span class="auth-logo-name">Pages</span>
+  </a>
+
+  <div class="auth-card">
+
+    <!-- Loading -->
+    <div class="auth-view active" id="viewLoading">
+      <div class="auth-loading">
+        <div class="auth-spinner"></div>
+        <span>Verifying reset link…</span>
+      </div>
+    </div>
+
+    <!-- Set new password form -->
+    <div class="auth-view" id="viewReset">
+      <h1 class="auth-heading">Set new password</h1>
+      <p class="auth-subheading">Choose a strong password for your account.</p>
+
+      <div class="auth-form-error" id="resetError"></div>
+
+      <form id="resetForm" novalidate>
+        <div class="auth-field">
+          <div class="auth-label-row">
+            <label class="auth-label" for="resetPassword">New password</label>
+          </div>
+          <input class="auth-input" type="password" id="resetPassword" placeholder="At least 8 characters" autocomplete="new-password">
+          <div class="auth-error-msg" id="resetPasswordErr"></div>
+        </div>
+
+        <div class="auth-field">
+          <div class="auth-label-row">
+            <label class="auth-label" for="resetPasswordConfirm">Confirm password</label>
+          </div>
+          <input class="auth-input" type="password" id="resetPasswordConfirm" placeholder="Repeat your password" autocomplete="new-password">
+          <div class="auth-error-msg" id="resetPasswordConfirmErr"></div>
+        </div>
+
+        <button type="submit" class="auth-btn-primary" id="resetSubmit">Update password</button>
+      </form>
+    </div>
+
+    <!-- Success -->
+    <div class="auth-view" id="viewSuccess">
+      <div class="auth-confirm-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h1 class="auth-heading">Password updated</h1>
+      <p class="auth-subheading">Your password has been changed successfully.</p>
+      <a href="./login.html" class="auth-btn-primary" style="margin-top:16px; text-decoration:none; display:block; text-align:center; padding:10px 16px;">Go to sign in</a>
+    </div>
+
+    <!-- Invalid / expired link -->
+    <div class="auth-view" id="viewInvalid">
+      <div class="auth-error-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <h1 class="auth-heading">Link expired</h1>
+      <p class="auth-subheading">This password reset link has expired or is invalid. Request a new one from the sign-in page.</p>
+      <a href="./login.html" class="auth-back">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to sign in
+      </a>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    const SB_URL = 'https://kihxztxxpfwmhltangih.supabase.co';
+    const SB_KEY = 'sb_publishable_fPkLRpscUpvTP7h-ogA9yA_uOnD4xVH';
+
+    const { createClient } = window.supabase;
+    const sbClient = createClient(SB_URL, SB_KEY, {
+      auth: { persistSession: true, detectSessionInUrl: true }
+    });
+
+    const views = {
+      loading: document.getElementById('viewLoading'),
+      reset:   document.getElementById('viewReset'),
+      success: document.getElementById('viewSuccess'),
+      invalid: document.getElementById('viewInvalid'),
+    };
+    function showView(name) {
+      Object.values(views).forEach(v => v.classList.remove('active'));
+      views[name].classList.add('active');
+    }
+
+    // ——— Detect recovery session from URL ———
+    // Supabase puts the tokens in the URL hash: #access_token=...&type=recovery
+    // The SDK with detectSessionInUrl:true handles this automatically via onAuthStateChange
+    let recoverySessionReady = false;
+
+    sbClient.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        recoverySessionReady = true;
+        showView('reset');
+      } else if (event === 'SIGNED_IN' && recoverySessionReady) {
+        // Already handled
+      } else if (!session && !recoverySessionReady) {
+        // No recovery token detected after a short wait → invalid link
+        showView('invalid');
+      }
+    });
+
+    // Fallback: if no event fired within 3s, assume invalid link
+    setTimeout(() => {
+      if (!recoverySessionReady) {
+        // Check if we're still on loading view
+        if (views.loading.classList.contains('active')) {
+          showView('invalid');
+        }
+      }
+    }, 3000);
+
+    // ——— Form ———
+    const resetPasswordEl        = document.getElementById('resetPassword');
+    const resetPasswordConfirmEl = document.getElementById('resetPasswordConfirm');
+    const resetPasswordErr       = document.getElementById('resetPasswordErr');
+    const resetPasswordConfirmErr= document.getElementById('resetPasswordConfirmErr');
+    const resetErrorEl           = document.getElementById('resetError');
+    const resetSubmitBtn         = document.getElementById('resetSubmit');
+
+    function setFieldError(inputEl, msgEl, msg) {
+      if (msg) {
+        inputEl.classList.add('error');
+        msgEl.textContent = msg;
+        msgEl.classList.add('visible');
+      } else {
+        inputEl.classList.remove('error');
+        msgEl.textContent = '';
+        msgEl.classList.remove('visible');
+      }
+    }
+
+    function showFormError(el, msg) {
+      el.textContent = msg;
+      el.classList.toggle('visible', !!msg);
+    }
+
+    function setLoading(btn, loading) {
+      btn.disabled = loading;
+      btn.classList.toggle('loading', loading);
+      if (loading) {
+        btn.dataset.originalText = btn.textContent;
+        btn.textContent = 'Updating…';
+      } else {
+        btn.textContent = btn.dataset.originalText || btn.textContent;
+      }
+    }
+
+    resetPasswordEl.addEventListener('input', () => setFieldError(resetPasswordEl, resetPasswordErr, ''));
+    resetPasswordConfirmEl.addEventListener('input', () => setFieldError(resetPasswordConfirmEl, resetPasswordConfirmErr, ''));
+
+    document.getElementById('resetForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showFormError(resetErrorEl, '');
+
+      const password = resetPasswordEl.value;
+      const confirm  = resetPasswordConfirmEl.value;
+      let valid = true;
+
+      if (!password) {
+        setFieldError(resetPasswordEl, resetPasswordErr, 'Password is required.');
+        valid = false;
+      } else if (password.length < 8) {
+        setFieldError(resetPasswordEl, resetPasswordErr, 'Password must be at least 8 characters.');
+        valid = false;
+      }
+      if (!confirm) {
+        setFieldError(resetPasswordConfirmEl, resetPasswordConfirmErr, 'Please confirm your password.');
+        valid = false;
+      } else if (password !== confirm) {
+        setFieldError(resetPasswordConfirmEl, resetPasswordConfirmErr, 'Passwords do not match.');
+        valid = false;
+      }
+      if (!valid) return;
+
+      setLoading(resetSubmitBtn, true);
+      try {
+        const { error } = await sbClient.auth.updateUser({ password });
+        if (error) throw error;
+        showView('success');
+      } catch (err) {
+        showFormError(resetErrorEl, err?.message || 'Could not update password. Please request a new reset link.');
+      } finally {
+        setLoading(resetSubmitBtn, false);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+# Supabase CLI project configuration
+# Run `supabase login` then `supabase link --project-ref kihxztxxpfwmhltangih` to link.
+
+project_id = "kihxztxxpfwmhltangih"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000"]
+
+[functions]
+# Edge functions run in the Deno runtime.
+# Secrets are injected via `supabase secrets set`.

@@ -7,14 +7,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <script>/* Theme init — runs synchronously before first paint to prevent flash */
+    (function(){try{var t=localStorage.getItem('pages-theme'),s=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(t===null&&s))document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
+  </script>
   <style>
     :root {
       --bg-cream: #F2EFE9;
-      --sidebar-bg: #ECEAE4;
+      --sidebar-bg: #F7F7F6;
       --sidebar-text: #1a1a1a;
-      --sidebar-muted: #6b6b6b;
-      --sidebar-active: rgba(0, 0, 0, 0.06);
-      --editor-max: 620px;
+      --sidebar-muted: #7a7a7a;
+      --sidebar-active: rgba(0, 0, 0, 0.04);
+      --editor-max: 740px;
       --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-serif: 'Lora', Georgia, serif;
       --chip-bg: rgba(0, 0, 0, 0.05);
@@ -32,10 +35,10 @@
       font-weight: 400;
       font-size: 13px;
       background: var(--bg-cream);
-      color: #4a4a4a;
+      color: #3a3a3a;
       min-height: 100vh;
       display: flex;
-      line-height: 1.5;
+      line-height: 1.7;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -74,7 +77,7 @@
       border-radius: 6px;
       cursor: pointer;
       font-size: 13px;
-      transition: background 0.15s ease;
+      transition: background 0.12s ease-out, transform 0.06s ease-out;
     }
 
     .top-bar button:hover,
@@ -86,21 +89,83 @@
       width: auto;
       padding: 6px 12px;
       gap: 6px;
-      background: #1C1C1E;
-      color: #fff;
+      background: transparent;
+      color: rgba(50, 50, 50, 0.38);
       font-size: 13px;
       font-weight: 400;
       border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.09);
       margin-left: 4px;
+      transition: background 0.12s ease-out, color 0.12s ease-out, border-color 0.12s ease-out, transform 0.06s ease-out;
     }
 
     .top-bar .btn-share:hover {
-      background: #2C2C2E;
+      background: rgba(0, 0, 0, 0.04);
+      color: #3C3C3C;
+      border-color: rgba(0, 0, 0, 0.15);
     }
 
     .top-bar .btn-share svg {
       opacity: 0.8;
     }
+
+    /* ——— Theme pill toggle (top-right) ——— */
+    .theme-pill {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      width: 48px;
+      height: 26px;
+      background: rgba(0, 0, 0, 0.07);
+      border: 1px solid rgba(0, 0, 0, 0.10);
+      border-radius: 100px;
+      cursor: pointer;
+      padding: 0;
+      margin-right: 4px;
+      flex-shrink: 0;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.06s ease;
+    }
+    .theme-pill:hover { background: rgba(0, 0, 0, 0.11); }
+    .theme-pill:active { transform: scale(0.95); }
+    /* Sliding thumb */
+    .tp-thumb {
+      position: absolute;
+      top: 50%;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.18), 0 0 0 0.5px rgba(0,0,0,0.06);
+      transform: translateY(-50%) translateX(0);
+      transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), background 0.15s ease;
+      pointer-events: none;
+    }
+    /* Side icons */
+    .tp-icon {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      color: rgba(0,0,0,0.45);
+      transition: color 0.15s ease;
+    }
+    .tp-icon svg { width: 10px; height: 10px; }
+    .tp-icon-sun  { left: 5px;  }
+    .tp-icon-moon { right: 5px; }
+    /* Override .top-bar button defaults (width/height/bg/border/radius) */
+    .top-bar .theme-pill {
+      width: 48px;
+      height: 26px;
+      background: rgba(0, 0, 0, 0.07);
+      border: 1px solid rgba(0, 0, 0, 0.10);
+      border-radius: 100px;
+      justify-content: flex-start;
+    }
+    .top-bar .theme-pill:hover { background: rgba(0, 0, 0, 0.11); }
 
     /* ——— Sidebar (beige) ——— */
     .sidebar {
@@ -129,7 +194,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.15s ease, color 0.15s ease;
+      transition: background 0.12s ease-out, color 0.12s ease-out, transform 0.06s ease-out;
       flex-shrink: 0;
     }
     .btn-toggle-sidebar:hover {
@@ -156,7 +221,7 @@
       z-index: 200;
       opacity: 0;
       visibility: hidden;
-      transition: opacity 0.2s ease, visibility 0.2s;
+      transition: opacity 0.2s ease, visibility 0.2s, transform 0.06s ease-out;
       backdrop-filter: blur(4px);
     }
     body.sidebar-hidden .sidebar-reveal-btn {
@@ -250,26 +315,28 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.15s ease;
+      transition: background 0.12s ease-out, transform 0.06s ease-out;
     }
 
     .btn-new-note {
       width: 100%;
-      padding: 8px 14px;
+      padding: 7px 14px;
       margin-bottom: 12px;
-      background: #1C1C1E;
-      color: #fff;
-      border: none;
+      background: transparent;
+      color: var(--sidebar-muted);
+      border: 1px solid rgba(0, 0, 0, 0.10);
       border-radius: 8px;
       font-family: var(--font);
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 400;
       cursor: pointer;
-      transition: background 0.15s ease;
+      transition: background 0.12s ease-out, border-color 0.12s ease-out, color 0.12s ease-out, transform 0.06s ease-out;
     }
 
     .btn-new-note:hover {
-      background: #2C2C2E;
+      background: rgba(0, 0, 0, 0.04);
+      border-color: rgba(0, 0, 0, 0.16);
+      color: var(--sidebar-text);
     }
 
     .doc-list {
@@ -295,10 +362,10 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 8px 10px;
+      padding: 6px 10px;
       border-radius: 6px;
       cursor: pointer;
-      transition: background 0.15s ease;
+      transition: background 0.12s ease-out;
       position: relative;
       margin-bottom: 2px;
       border-left: 2px solid transparent;
@@ -309,8 +376,8 @@
     }
 
     .doc-item.active {
-      background: rgba(0, 0, 0, 0.09);
-      border-left-color: #999;
+      background: rgba(0, 0, 0, 0.05);
+      border-left-color: transparent;
     }
 
     .doc-item.shake {
@@ -370,7 +437,7 @@
       display: flex;
       align-items: center;
       opacity: 0;
-      transition: opacity 0.15s ease;
+      transition: opacity 0.12s ease-out;
     }
 
     .doc-item:hover .doc-item-actions {
@@ -402,11 +469,12 @@
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      padding: 72px 24px 120px;
+      padding: 86px 52px 160px 24px;
       transition: margin-left 0.3s ease;
     }
     body.focus-mode .main {
       margin-left: 0;
+      padding-right: 24px;
     }
     body.sidebar-hidden .sidebar {
       transform: translateX(-100%);
@@ -414,6 +482,7 @@
     }
     body.sidebar-hidden .main {
       margin-left: 0;
+      padding-right: 24px;
     }
 
     .editor-wrap {
@@ -426,9 +495,10 @@
     .editor-title {
       font-family: var(--font-serif);
       font-size: 28px;
-      font-weight: 600;
+      font-weight: 500;
       line-height: 1.3;
-      color: #1a1a1a;
+      letter-spacing: -0.01em;
+      color: #2C2C2C;
       border: none;
       background: transparent;
       width: 100%;
@@ -436,7 +506,7 @@
       resize: none;
       overflow: hidden;
       min-height: 1.3em;
-      margin-bottom: 16px;
+      margin-bottom: 26px;
     }
 
     .editor-title::placeholder {
@@ -444,15 +514,16 @@
     }
 
     .editor-title, .editor-body {
-      caret-color: #000;
+      caret-color: #2C2C2C;
     }
 
     .editor-body {
       font-family: var(--font);
-      font-size: 14px;
-      font-weight: 300;
-      line-height: 1.75;
-      color: #3a3a3a;
+      font-size: 14.5px;
+      font-weight: 400;
+      line-height: 1.7;
+      letter-spacing: -0.003em;
+      color: #2C2C2C;
       border: none;
       background: transparent;
       width: 100%;
@@ -466,75 +537,80 @@
     }
 
     .editor-body h1 {
-      font-size: 18px;
-      font-weight: 700;
-      color: #1a1a1a;
-      margin: 1.5em 0 0.4em;
-      line-height: 1.4;
+      font-size: 19px;
+      font-weight: 600;
+      color: #2C2C2C;
+      margin: 32px 0 8px;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
     }
 
     .editor-body h1::before {
-      content: "# ";
-      color: #bbb;
-      font-weight: 700;
+      content: "";
+      display: none;
     }
 
     .editor-body h2 {
-      font-size: 16px;
-      font-weight: 600;
-      color: #1a1a1a;
-      margin: 1.25em 0 0.35em;
+      font-size: 16.5px;
+      font-weight: 550;
+      color: #2C2C2C;
+      margin: 32px 0 6px;
       line-height: 1.4;
+      letter-spacing: -0.006em;
     }
 
     .editor-body h3 {
       font-size: 15px;
-      font-weight: 600;
-      color: #1a1a1a;
-      margin: 1em 0 0.3em;
+      font-weight: 500;
+      color: #2C2C2C;
+      margin: 32px 0 5px;
       line-height: 1.45;
+      letter-spacing: -0.004em;
     }
 
     .editor-body ul {
-      margin: 0.6em 0;
-      padding-left: 1.5em;
+      margin: 4px 0 15px;
+      padding-left: 1.6em;
       list-style-type: disc;
     }
 
     .editor-body ul li {
-      margin: 0.25em 0;
-      font-size: 14px;
-      font-weight: 300;
-      color: #3a3a3a;
+      margin: 0.2em 0;
+      font-size: 14.5px;
+      font-weight: 400;
+      color: #2C2C2C;
     }
 
     .editor-body ul ul {
       list-style-type: circle;
-      margin: 0.25em 0 0.25em 0.5em;
+      margin: 2px 0 2px 0.4em;
     }
 
     .editor-body ul ul li {
-      font-size: 12px;
-      color: #555;
+      font-size: 13.5px;
+      color: #4a4a4a;
     }
 
     .editor-body ol {
-      margin: 0.6em 0;
-      padding-left: 1.5em;
+      margin: 4px 0 15px;
+      padding-left: 1.6em;
     }
 
     .editor-body ol li {
-      margin: 0.25em 0;
-      font-size: 14px;
-      font-weight: 300;
-      color: #3a3a3a;
+      margin: 0.2em 0;
+      font-size: 14.5px;
+      font-weight: 400;
+      color: #2C2C2C;
     }
 
     .editor-body p {
-      margin: 0.5em 0;
-      font-size: 14px;
-      font-weight: 300;
-      color: #3a3a3a;
+      margin: 0 0 15px;
+      font-size: 14.5px;
+      font-weight: 400;
+      color: #2C2C2C;
+    }
+    .editor-body p:last-child {
+      margin-bottom: 0;
     }
 
     .editor-body:empty::before {
@@ -573,15 +649,15 @@
       gap: 0;
       opacity: 0;
       visibility: hidden;
-      transform: scale(0.96) translateY(6px);
+      transform: translateY(4px);
       transform-origin: top center;
-      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+      transition: opacity 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.14s;
     }
 
     .floating-chat.visible {
       opacity: 1;
       visibility: visible;
-      transform: scale(1) translateY(0);
+      transform: translateY(0);
     }
 
     /* Arrow pointing toward the selection */
@@ -650,6 +726,7 @@
       font-size: 13px;
       font-weight: 500;
       color: #6B7FD4;
+      transition: background 0.12s ease-out, transform 0.06s ease-out;
     }
 
     .floating-chat-mood-btn:hover {
@@ -691,7 +768,7 @@
       color: #1a1a1a;
       text-align: left;
       cursor: pointer;
-      transition: background 0.1s ease;
+      transition: background 0.12s ease-out;
     }
 
     .floating-chat-mood-option:hover {
@@ -734,10 +811,10 @@
       box-shadow: 0 8px 40px rgba(0, 0, 0, 0.14), 0 0 0 1px rgba(0, 0, 0, 0.04);
       z-index: 1101;
       padding: 20px;
-      transform: translateY(-8px);
+      transform: translateY(-4px);
       opacity: 0;
       visibility: hidden;
-      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+      transition: opacity 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.14s;
     }
 
     .share-panel.visible {
@@ -850,7 +927,7 @@
       padding: 5px 12px;
       border-radius: 7px;
       cursor: pointer;
-      transition: background 0.15s ease;
+      transition: background 0.12s ease-out, transform 0.06s ease-out;
     }
 
     .share-invite-btn:hover {
@@ -892,7 +969,7 @@
       cursor: pointer;
       padding: 2px 4px;
       border-radius: 4px;
-      transition: color 0.15s ease;
+      transition: color 0.12s ease-out, transform 0.06s ease-out;
     }
 
     .share-link-copy:hover {
@@ -915,7 +992,7 @@
       border-radius: 12px;
       background: #fff;
       cursor: pointer;
-      transition: border-color 0.15s ease, background 0.15s ease;
+      transition: border-color 0.12s ease-out, background 0.12s ease-out, transform 0.06s ease-out;
       text-decoration: none;
     }
 
@@ -950,7 +1027,7 @@
       align-items: center;
       justify-content: center;
       font-size: 16px;
-      transition: color 0.15s ease, background 0.15s ease;
+      transition: color 0.12s ease-out, background 0.12s ease-out, transform 0.06s ease-out;
       line-height: 1;
     }
 
@@ -1004,7 +1081,7 @@
       opacity: 0;
       visibility: hidden;
       transform: translateY(4px);
-      transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+      transition: opacity 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.14s;
     }
     .diff-actions.visible {
       opacity: 1;
@@ -1061,7 +1138,7 @@
       opacity: 0;
       visibility: hidden;
       transform: translateY(4px);
-      transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+      transition: opacity 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.14s;
     }
     .slash-menu.visible {
       opacity: 1;
@@ -1132,7 +1209,7 @@
       padding: 3px 9px;
       cursor: pointer;
       user-select: none;
-      transition: background 0.15s ease;
+      transition: background 0.12s ease-out, transform 0.06s ease-out;
       position: relative;
     }
     .versions-chip:hover { background: rgba(0,0,0,0.08); }
@@ -1149,7 +1226,7 @@
       opacity: 0;
       visibility: hidden;
       transform: translateY(4px);
-      transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+      transition: opacity 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.14s;
     }
     .versions-dropdown.visible {
       opacity: 1;
@@ -1224,26 +1301,12 @@
     .quote-toast-no { color: #aaa; }
     .quote-toast-no:hover { background: #f5f5f5; }
     .editor-body blockquote {
-      border-left: 3px solid #C8C4BC;
-      padding-left: 16px;
-      margin: 0.8em 0;
+      border-left: 2px solid #D4D0C9;
+      padding-left: 18px;
+      margin: 24px 0;
       font-style: italic;
-      color: #666;
-    }
-
-    /* ——— Saved indicator — hidden, keep element for JS ——— */
-    #savedIndicator {
-      display: none !important;
-      font-size: 11px;
-      font-weight: 400;
-      color: transparent;
-      transition: color 0.2s ease;
-      pointer-events: none;
-      margin-left: 8px;
-    }
-
-    #savedIndicator.visible {
-      color: #4caf50;
+      color: #5a5a5a;
+      line-height: 1.7;
     }
 
     /* ——— Empty state ——— */
@@ -1304,153 +1367,101 @@
       align-items: center;
     }
 
-    /* ─── Draft composer — inline, inside main canvas ─────────────── */
-
-    /* Overlay lives inside .editor-wrap (position: relative) */
-    .draft-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 10;
+    /* ——— AI helper (floating bottom bar) ——— */
+    .ai-helper {
+      position: fixed;
+      bottom: 24px;
+      left: calc(120px + 50%);
+      transform: translateX(-50%) translateY(4px);
+      width: calc(100% - 340px);
+      max-width: 480px;
+      background: rgba(242, 239, 233, 0.97);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid #E6E6E6;
+      border-radius: 10px;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+      padding: 9px 11px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: var(--bg-cream);
+      gap: 6px;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.18s ease;
+      transition: opacity 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1);
+      z-index: 200;
     }
 
-    .draft-overlay.visible {
+    body.sidebar-hidden .ai-helper,
+    body.focus-mode .ai-helper {
+      left: 50%;
+    }
+
+    .ai-helper.visible {
       opacity: 1;
       pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
     }
 
-    /* Hero prompt */
-    .draft-hero-title {
-      font-family: var(--font-serif);
-      font-size: 22px;
-      font-weight: 600;
-      color: #1a1a1a;
-      text-align: center;
-      margin-bottom: 20px;
-      line-height: 1.3;
-      letter-spacing: -0.01em;
+    .ai-helper-label {
+      font-size: 11px;
+      color: #b8b8b8;
+      line-height: 1.4;
+      user-select: none;
+      letter-spacing: 0.002em;
     }
 
-    /* Composer inner block — constrained width, centered */
-    .draft-composer {
-      width: 100%;
-      max-width: 480px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    /* Search pill */
-    .draft-search-wrap {
-      width: 100%;
-      position: relative;
-    }
-
-    .draft-pill {
-      width: 100%;
-      background: rgba(255,255,255,0.85);
-      border: 1px solid rgba(0,0,0,0.10);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 0 0 3px rgba(0,0,0,0.03);
-      border-radius: 10px;
+    .ai-helper-pill {
       display: flex;
       align-items: center;
-      padding: 10px 8px 10px 14px;
       gap: 6px;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      border-radius: 7px;
+      padding: 5px 5px 5px 9px;
     }
 
-    .draft-pill:focus-within {
-      border-color: rgba(0,0,0,0.18);
-      box-shadow: 0 1px 6px rgba(0,0,0,0.08), 0 0 0 3px rgba(0,0,0,0.05);
-    }
-
-    /* Main textarea */
-    .draft-chat-textarea {
+    .ai-helper-textarea {
       flex: 1;
       border: none;
       outline: none;
       background: transparent;
       font-family: var(--font);
-      font-size: 14px;
+      font-size: 13px;
       color: #1a1a1a;
       resize: none;
       line-height: 1.5;
-      min-height: 22px;
-      max-height: 120px;
+      min-height: 20px;
+      max-height: 80px;
       overflow-y: auto;
       padding: 0;
       scrollbar-width: none;
     }
 
-    .draft-chat-textarea::-webkit-scrollbar { display: none; }
-    .draft-chat-textarea::placeholder { color: #aaa; }
+    .ai-helper-textarea::-webkit-scrollbar { display: none; }
+    .ai-helper-textarea::placeholder { color: #c0c0c0; }
 
-    /* Right icon group inside pill */
-    .draft-pill-actions {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      flex-shrink: 0;
-    }
-
-    /* Clip / attach icon button */
-    .draft-attach-btn {
+    .ai-helper-send {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      background: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 5px;
+      background: rgba(0, 0, 0, 0.55);
       border: none;
       cursor: pointer;
-      color: #aaa;
+      color: rgba(255,255,255,0.90);
       flex-shrink: 0;
-      transition: color 0.12s ease, background 0.12s ease;
+      transition: background 0.1s ease, opacity 0.1s ease;
       outline: none;
     }
 
-    .draft-attach-btn:hover { color: #555; background: rgba(0,0,0,0.05); }
+    .ai-helper-send:hover { background: rgba(0, 0, 0, 0.72); }
+    .ai-helper-send:disabled { opacity: 0.25; cursor: default; }
 
-    /* Voice / send toggle button */
-    .draft-send-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 30px;
-      height: 30px;
-      border-radius: 7px;
-      background: #1C1C1E;
-      border: none;
-      cursor: pointer;
-      color: #fff;
-      flex-shrink: 0;
-      transition: background 0.12s ease, opacity 0.12s ease;
-      outline: none;
-    }
-
-    .draft-send-btn:hover { background: #2C2C2E; }
-    .draft-send-btn:disabled { opacity: 0.35; cursor: default; }
-
-    /* Default: show mic, hide arrow */
-    .draft-send-btn .icon-mic  { display: block; }
-    .draft-send-btn .send-arrow { display: none; }
-
-    /* When textarea has content: hide mic, show arrow */
-    .draft-send-btn.has-input .icon-mic  { display: none; }
-    .draft-send-btn.has-input .send-arrow { display: block; }
-
-    /* Spinner overrides both */
-    .draft-send-btn .btn-spinner {
-      width: 13px;
-      height: 13px;
+    .ai-helper-spinner {
+      width: 11px;
+      height: 11px;
       border: 1.5px solid rgba(255,255,255,0.3);
       border-top-color: #fff;
       border-radius: 50%;
@@ -1458,68 +1469,1261 @@
       display: none;
     }
 
-    .draft-send-btn.loading .btn-spinner { display: block; }
-    .draft-send-btn.loading .icon-mic,
-    .draft-send-btn.loading .send-arrow { display: none; }
+    .ai-helper-send.loading .ai-helper-spinner { display: block; }
+    .ai-helper-send.loading .ai-helper-arrow { display: none; }
 
     @keyframes btnSpin { to { transform: rotate(360deg); } }
 
-    /* Loading — inline, below pill */
-    .draft-loading {
-      display: none;
-      align-items: center;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .draft-loading.visible { display: flex; }
-    .draft-dots { display: flex; gap: 4px; }
-
-    .draft-dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: rgba(0,0,0,0.25);
-      animation: draftPulse 1.2s ease-in-out infinite;
-    }
-
-    .draft-dot:nth-child(2) { animation-delay: 0.2s; }
-    .draft-dot:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes draftPulse {
-      0%, 80%, 100% { transform: scale(0.6); opacity: 0.25; }
-      40% { transform: scale(1); opacity: 0.7; }
-    }
-
-    .draft-loading-text { font-size: 12px; color: var(--sidebar-muted); }
-
-    /* "Start from scratch" — styled like .btn-share (top-bar style) */
-    .draft-scratch-btn {
+    /* Saved indicator badge */
+    #savedIndicator {
       position: absolute;
-      bottom: 28px;
+      top: 8px;
       right: 0;
-      display: inline-flex;
+      font-size: 11px;
+      font-family: var(--font);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      pointer-events: none;
+    }
+
+    #savedIndicator.visible {
+      opacity: 1;
+    }
+
+    /* Editor title placeholder (color overridden below) */
+    .editor-title:empty::before {
+      content: attr(data-placeholder);
+      pointer-events: none;
+    }
+
+    /* ——— Link styling inside editor (overridden below) ——— */
+
+    /* ═══════════════════════════════════════════════
+       FLOATING FORMAT TOOLBAR
+    ═══════════════════════════════════════════════ */
+    .fmt-bar {
+      position: fixed;
+      display: flex;
+      align-items: center;
+      gap: 1px;
+      background: #1a1a1a;
+      border-radius: 8px;
+      padding: 4px 5px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.22), 0 0 0 1px rgba(255,255,255,0.05);
+      z-index: 1100;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(5px) translateX(-50%);
+      transition: opacity 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.14s;
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+    .fmt-bar.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) translateX(-50%);
+      pointer-events: auto;
+    }
+    .fmt-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 28px;
+      border-radius: 5px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.78);
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      transition: background 0.12s ease-out, color 0.12s ease-out, transform 0.06s ease-out;
+      outline: none;
+    }
+    .fmt-btn:hover { background: rgba(255,255,255,0.11); color: #fff; }
+    .fmt-btn:focus-visible { outline: 2px solid rgba(255,255,255,0.4); outline-offset: 1px; }
+    .fmt-btn.active { color: #fff; background: rgba(255,255,255,0.16); }
+    .fmt-sep {
+      width: 1px;
+      height: 16px;
+      background: rgba(255,255,255,0.12);
+      margin: 0 3px;
+      flex-shrink: 0;
+    }
+    .fmt-ai-btn { font-size: 14px; width: 28px; color: rgba(255,255,255,0.55); }
+    .fmt-ai-btn:hover { color: #fff; }
+
+    /* Link input panel (appears below fmt-bar) */
+    .fmt-link-panel {
+      position: fixed;
+      display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 13px;
-      font-family: var(--font);
-      font-weight: 400;
-      color: #fff;
-      background: #1C1C1E;
-      border: none;
+      background: #1a1a1a;
       border-radius: 8px;
+      padding: 5px 6px 5px 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.22);
+      z-index: 1101;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(4px) translateX(-50%);
+      transition: opacity 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.14s;
+      min-width: 260px;
+      pointer-events: none;
+    }
+    .fmt-link-panel.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) translateX(-50%);
+      pointer-events: auto;
+    }
+    .fmt-link-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: #fff;
+      font-family: var(--font);
+      font-size: 12.5px;
+      outline: none;
+      min-width: 0;
+    }
+    .fmt-link-input::placeholder { color: rgba(255,255,255,0.3); }
+    .fmt-link-apply {
+      flex-shrink: 0;
+      border: none;
+      background: rgba(255,255,255,0.11);
+      color: rgba(255,255,255,0.85);
+      border-radius: 5px;
+      padding: 4px 10px;
+      font-family: var(--font);
+      font-size: 11.5px;
+      cursor: pointer;
+      outline: none;
+      transition: background 0.1s ease;
+    }
+    .fmt-link-apply:hover { background: rgba(255,255,255,0.20); }
+
+    /* ═══════════════════════════════════════════════
+       PARAGRAPH HANDLE (drag + type)
+    ═══════════════════════════════════════════════ */
+    #paraHandle {
+      position: fixed;
+      width: 18px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.12s ease;
+      z-index: 60;
+      color: #ccc;
+      border-radius: 3px;
+    }
+    #paraHandle.visible { opacity: 1; pointer-events: auto; }
+    #paraHandle:hover { color: #888; background: rgba(0,0,0,0.06); }
+    #paraHandle:active { cursor: grabbing; }
+
+    /* Block type context menu */
+    #blockTypeMenu {
+      position: fixed;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 6px 28px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05);
+      padding: 5px 0;
+      z-index: 1100;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(4px);
+      transition: opacity 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.14s;
+      min-width: 168px;
+    }
+    #blockTypeMenu.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+    .btype-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       padding: 6px 14px;
       cursor: pointer;
-      transition: background 0.15s ease;
+      font-family: var(--font);
+      font-size: 12.5px;
+      color: #1a1a1a;
+      transition: background 0.08s ease;
+    }
+    .btype-item:hover { background: #f5f5f5; }
+    .btype-item.active { background: #f0f0f0; font-weight: 500; }
+    .btype-icon { font-size: 10.5px; font-weight: 700; color: #999; width: 20px; text-align: center; flex-shrink: 0; }
+
+    /* ═══════════════════════════════════════════════
+       DRAG REORDER
+    ═══════════════════════════════════════════════ */
+    #dragInsertLine {
+      position: fixed;
+      height: 2px;
+      background: #6B7FD4;
+      border-radius: 1px;
+      z-index: 1200;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.08s ease;
+    }
+    #dragInsertLine.visible { opacity: 1; }
+
+    #dragDeleteZone {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      background: linear-gradient(to top, rgba(210,64,64,0.10), transparent);
+      border-top: 1.5px dashed rgba(210,64,64,0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      z-index: 1200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+      font-family: var(--font);
+      font-size: 11.5px;
+      color: rgba(210,64,64,0.55);
+    }
+    #dragDeleteZone.visible { opacity: 1; }
+    #dragDeleteZone.active {
+      background: linear-gradient(to top, rgba(210,64,64,0.20), transparent);
+      border-top-color: rgba(210,64,64,0.45);
+      color: rgba(210,64,64,0.85);
+    }
+
+    .drag-ghost {
+      position: fixed;
+      pointer-events: none;
+      z-index: 1300;
+      opacity: 0.78;
+      background: #fff;
+      border-radius: 6px;
+      padding: 6px 12px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.16);
+      transform: rotate(1deg) scale(0.97);
+      font-family: var(--font);
+      font-size: 13.5px;
+      color: #3a3a3a;
+      max-width: 420px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .block-dragging { opacity: 0.28; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fmt-bar, .fmt-link-panel, #blockTypeMenu, #paraHandle,
+      #dragInsertLine, #dragDeleteZone { transition: none; }
+    }
+
+    /* ═══════════════════════════════════════════════
+       SELECTION + WRITING FEEDBACK
+    ═══════════════════════════════════════════════ */
+    ::selection {
+      background: rgba(60, 100, 255, 0.18);
+    }
+    .editor-body ::selection,
+    .editor-title ::selection {
+      background: rgba(60, 100, 255, 0.20);
+    }
+
+    /* ═══════════════════════════════════════════════
+       EDITOR BODY — LIST SPACING
+    ═══════════════════════════════════════════════ */
+    .editor-body ul,
+    .editor-body ol {
+      margin: 4px 0 15px;
+      padding-left: 1.6em;
+    }
+    .editor-body ul ul,
+    .editor-body ol ol {
+      margin: 2px 0 2px 0.4em;
+    }
+
+    /* ═══════════════════════════════════════════════
+       LINK STYLE — SOFTER
+    ═══════════════════════════════════════════════ */
+    .editor-body a {
+      color: #4a5ec4;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      text-decoration-color: rgba(74, 94, 196, 0.35);
+    }
+    .editor-body a:hover {
+      color: #3548ad;
+      text-decoration-color: rgba(53, 72, 173, 0.55);
+    }
+
+    /* ═══════════════════════════════════════════════
+       TITLE PLACEHOLDER — SOFTER
+    ═══════════════════════════════════════════════ */
+    .editor-title:empty::before {
+      color: #c8c8c8;
+    }
+
+    /* ═══════════════════════════════════════════════
+       MICRO-INTERACTIONS
+    ═══════════════════════════════════════════════ */
+
+    /* ── Press feedback: scale(0.98) on :active, 60ms snap ── */
+    /* Principle: fast physical acknowledgment, no bounce */
+    .top-bar button:active,
+    .top-bar .top-bar-btn:active,
+    .top-bar .btn-share:active,
+    .btn-toggle-sidebar:active,
+    .sidebar-reveal-btn:active,
+    .btn-new-note:active,
+    .btn-delete-doc:active,
+    .btn-theme-toggle:active,
+    .empty-create-btn:active,
+    .share-invite-btn:active,
+    .share-link-copy:active,
+    .share-social-btn:active,
+    .share-panel-close:active,
+    .diff-btn:active,
+    .quote-toast-btn:active,
+    .version-item:active,
+    .floating-chat-mood-btn:active,
+    .fmt-link-apply:active {
+      transform: scale(0.98);
+      transition: transform 0.06s ease-out !important;
+    }
+
+    /* Fmt-bar buttons — tighter press (contained in dark bar) */
+    .fmt-btn:active {
+      transform: scale(0.97);
+      transition: transform 0.06s ease-out !important;
+    }
+
+    /* Para handle — keep :active grabbing cursor, add scale */
+    #paraHandle:active {
+      cursor: grabbing;
+      transform: scale(0.92);
+      transition: transform 0.06s ease-out !important;
+    }
+
+    /* ── Format-applied feedback flash ── */
+    /* Applied to .editor-wrap via JS after execCommand */
+    @keyframes fmtFlash {
+      0%   { opacity: 1; }
+      20%  { opacity: 0.88; }
+      100% { opacity: 1; }
+    }
+    .editor-wrap.fmt-feedback {
+      animation: fmtFlash 280ms ease-out forwards;
+    }
+    /* The ::after overlay renders the tint (opacity-only animation = GPU, no layout) */
+    .editor-wrap.fmt-feedback::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 6px;
+      background: rgba(60, 100, 255, 0.05);
+      pointer-events: none;
+      animation: fmtFlashOverlay 280ms ease-out forwards;
+      z-index: 0;
+    }
+    @keyframes fmtFlashOverlay {
+      0%   { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* ── AI generation pulse (replaces center-spinner feel) ── */
+    /* Applied to .ai-helper-send.loading */
+    @keyframes generatePulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.72; }
+    }
+    .ai-helper-send.loading {
+      animation: generatePulse 1.4s ease-in-out infinite;
+    }
+
+    /* Floating chat send button pulse during generation */
+    @keyframes chatSendPulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.74; }
+    }
+    .floating-chat-send.loading {
+      animation: chatSendPulse 1.4s ease-in-out infinite;
+    }
+
+    /* ── Slash menu items: instant hover (no lag) ── */
+    .slash-item { transition: background 0.08s ease-out; }
+    .btype-item  { transition: background 0.08s ease-out; }
+
+    /* ── Theme toggle: icon opacity feedback ── */
+    .btn-theme-toggle .theme-icon {
+      transition: opacity 0.12s ease-out;
+    }
+    .btn-theme-toggle:hover .theme-icon { opacity: 1; }
+
+    /* ── Diff action buttons ── */
+    .diff-btn { transition: background 0.12s ease-out, transform 0.06s ease-out; }
+
+    /* ── Version items ── */
+    .version-item { transition: background 0.08s ease-out; }
+
+    /* ── Share social buttons ── */
+    .share-social-btn {
+      transition: border-color 0.12s ease-out, background 0.12s ease-out, transform 0.06s ease-out;
+    }
+
+    /* ── Btype items: add transition explicitly ── */
+    .btype-item { transition: background 0.08s ease-out; }
+
+    /* ── Share invite btn ── */
+    .share-invite-btn {
+      transition: background 0.12s ease-out, transform 0.06s ease-out;
+    }
+
+    /* ── Dark mode: pulse adapts to surface ── */
+    [data-theme="dark"] .editor-wrap.fmt-feedback::after {
+      background: rgba(139, 157, 255, 0.07);
+    }
+
+    /* ═══════════════════════════════════════════════
+       SIDEBAR FOOTER (theme toggle — fixed at bottom)
+    ═══════════════════════════════════════════════ */
+    .sidebar-footer {
+      flex-shrink: 0;
+      padding: 0 2px 2px;
+    }
+    .sidebar-footer-divider {
+      height: 1px;
+      background: rgba(0, 0, 0, 0.07);
+      margin: 0 8px 6px;
+    }
+    /* Email shown at the very bottom of the sidebar */
+    .sidebar-email {
+      padding: 3px 10px 10px;
+      font-size: 10px;
+      color: var(--sidebar-muted);
+      opacity: 0.50;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* ═══════════════════════════════════════════════
+       USER PROFILE WIDGET (sidebar footer)
+    ═══════════════════════════════════════════════ */
+    .user-widget {
+      position: relative;
+      margin-bottom: 2px;
+    }
+    .btn-user-profile {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 7px 10px;
+      background: none;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: 12.5px;
+      font-weight: 400;
+      color: var(--sidebar-text);
+      text-align: left;
+      transition: background 0.12s ease-out, transform 0.06s ease-out;
+      min-width: 0; /* allow truncation */
+    }
+    .btn-user-profile:hover { background: var(--sidebar-active); }
+    .btn-user-profile:active { transform: scale(0.98); }
+
+    /* Avatar circle */
+    .user-avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0;
+      color: #fff;
+      background: #7a7a7a; /* default; overridden by JS */
+    }
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    /* Name + email */
+    .user-name-text {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--sidebar-text);
+      font-size: 12.5px;
+      opacity: 0.85;
+    }
+
+    /* Chevron */
+    .user-chevron {
+      flex-shrink: 0;
+      opacity: 0.35;
+      transition: opacity 0.12s ease-out;
+    }
+    .btn-user-profile:hover .user-chevron { opacity: 0.6; }
+
+    /* ——— User popover ——— */
+    .user-popover {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 4px;
+      right: 4px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.10);
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.06);
+      padding: 4px;
+      z-index: 200;
+      opacity: 0;
+      transform: translateY(4px);
+      pointer-events: none;
+      transition: opacity 0.14s cubic-bezier(0.2,0.8,0.2,1), transform 0.14s cubic-bezier(0.2,0.8,0.2,1);
+    }
+    .user-popover.open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* Popover: user info header */
+    .user-popover-header {
+      padding: 9px 10px 8px;
+      border-bottom: 1px solid rgba(0,0,0,0.07);
+      margin-bottom: 4px;
+    }
+    .user-popover-email {
+      font-size: 11.5px;
+      color: var(--sidebar-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Popover items */
+    .user-popover-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 7px 10px;
+      background: none;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: 12.5px;
+      font-weight: 400;
+      color: var(--sidebar-text);
+      text-align: left;
+      transition: background 0.12s ease-out, transform 0.06s ease-out;
+    }
+    .user-popover-item:hover { background: rgba(0,0,0,0.05); }
+    .user-popover-item:active { transform: scale(0.98); }
+    .user-popover-item.danger { color: #d0393a; }
+    .user-popover-item.danger:hover { background: rgba(208,57,58,0.07); }
+    .user-popover-item svg { opacity: 0.6; flex-shrink: 0; }
+    .user-popover-item.danger svg { opacity: 0.75; }
+
+    /* ═══════════════════════════════════════════════
+       THEME TRANSITION (applied only during manual toggle)
+    ═══════════════════════════════════════════════ */
+    .theme-transition,
+    .theme-transition * {
+      transition-property: background-color, color, border-color, fill, stroke !important;
+      transition-duration: 0.1s !important;
+      transition-timing-function: ease !important;
+    }
+
+    /* ═══════════════════════════════════════════════
+       DARK MODE  [data-theme="dark"]
+       Intentional editorial dark — NOT an inversion
+    ═══════════════════════════════════════════════ */
+
+    /* Core surfaces */
+    html[data-theme="dark"],
+    [data-theme="dark"] body {
+      background: #1C1C1E;
+      color: #E6E6E6;
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar        { background: #202022; color: #E6E6E6; }
+    [data-theme="dark"] .btn-toggle-sidebar { color: rgba(255,255,255,0.38); }
+    [data-theme="dark"] .btn-toggle-sidebar:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.72); }
+    [data-theme="dark"] .window-icon    { border-color: rgba(255,255,255,0.08); background: rgba(255,255,255,0.05); }
+    [data-theme="dark"] .search-wrap    { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .search-wrap input { color: #E6E6E6; }
+    [data-theme="dark"] .search-wrap input::placeholder { color: rgba(255,255,255,0.28); }
+    [data-theme="dark"] .search-shortcut { color: rgba(255,255,255,0.3); }
+
+    [data-theme="dark"] .btn-new-note {
+      color: rgba(255,255,255,0.42);
+      border-color: rgba(255,255,255,0.09);
+      background: transparent;
+    }
+    [data-theme="dark"] .btn-new-note:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.78);
+    }
+
+    [data-theme="dark"] .doc-item:hover  { background: rgba(255,255,255,0.05); }
+    [data-theme="dark"] .doc-item.active { background: rgba(255,255,255,0.07); border-left-color: transparent; }
+    [data-theme="dark"] .doc-item-title  { color: #D8D8D8; }
+    [data-theme="dark"] .doc-item-title.untitled { color: rgba(255,255,255,0.32); }
+    [data-theme="dark"] .doc-item-preview       { color: rgba(255,255,255,0.32); }
+    [data-theme="dark"] .doc-item-preview.empty { color: rgba(255,255,255,0.2); }
+    [data-theme="dark"] .doc-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+    [data-theme="dark"] .btn-delete-doc { color: rgba(255,255,255,0.28); }
+    [data-theme="dark"] .btn-delete-doc:hover { color: #e08080; background: rgba(192,57,43,0.15); }
+    [data-theme="dark"] #searchEmpty    { color: rgba(255,255,255,0.25); }
+
+    [data-theme="dark"] .sidebar-reveal-btn {
+      background: rgba(42,42,46,0.92);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.06);
+      color: #A1A1AA;
+    }
+
+    /* Sidebar footer */
+    [data-theme="dark"] .sidebar-footer-divider { background: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .sidebar-email { color: rgba(255,255,255,0.28); opacity: 1; }
+
+    /* Theme pill — dark mode: thumb slides right */
+    [data-theme="dark"] .theme-pill,
+    [data-theme="dark"] .top-bar .theme-pill {
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.12);
+    }
+    [data-theme="dark"] .theme-pill:hover,
+    [data-theme="dark"] .top-bar .theme-pill:hover { background: rgba(255,255,255,0.16); }
+    [data-theme="dark"] .tp-thumb {
+      background: #4a4a4a;
+      transform: translateY(-50%) translateX(22px);
+    }
+    [data-theme="dark"] .tp-icon { color: rgba(255,255,255,0.50); }
+
+    /* User profile widget — dark */
+    [data-theme="dark"] .btn-user-profile        { color: #E6E6E6; }
+    [data-theme="dark"] .btn-user-profile:hover  { background: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .user-name-text          { color: #E6E6E6; }
+    [data-theme="dark"] .user-popover {
+      background: #2A2A2E;
+      border-color: rgba(255,255,255,0.09);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.07);
+    }
+    [data-theme="dark"] .user-popover-header     { border-color: rgba(255,255,255,0.08); }
+    [data-theme="dark"] .user-popover-email      { color: rgba(255,255,255,0.38); }
+    [data-theme="dark"] .user-popover-item       { color: #E6E6E6; }
+    [data-theme="dark"] .user-popover-item:hover { background: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .user-popover-item.danger         { color: #ff6b6b; }
+    [data-theme="dark"] .user-popover-item.danger:hover   { background: rgba(255,107,107,0.1); }
+
+    /* Top bar */
+    [data-theme="dark"] .top-bar button,
+    [data-theme="dark"] .top-bar .top-bar-btn { color: #A1A1AA; }
+    [data-theme="dark"] .top-bar button:hover,
+    [data-theme="dark"] .top-bar .top-bar-btn:hover { background: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .top-bar .btn-share {
+      color: rgba(200,200,200,0.32);
+      border-color: rgba(255,255,255,0.09);
+      background: transparent;
+    }
+    [data-theme="dark"] .top-bar .btn-share:hover {
+      background: rgba(255,255,255,0.07);
+      color: #C0C0C0;
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    /* Editor title + body */
+    [data-theme="dark"] .editor-title { color: #E6E6E6; }
+    [data-theme="dark"] .editor-title::placeholder { color: rgba(255,255,255,0.2); }
+    [data-theme="dark"] .editor-title:empty::before { color: rgba(255,255,255,0.2) !important; }
+    [data-theme="dark"] .editor-title,
+    [data-theme="dark"] .editor-body   { caret-color: #E6E6E6; }
+    [data-theme="dark"] .editor-body   { color: #E6E6E6; }
+    [data-theme="dark"] .editor-body p { color: #E6E6E6; }
+    [data-theme="dark"] .editor-body h1,
+    [data-theme="dark"] .editor-body h2,
+    [data-theme="dark"] .editor-body h3 { color: #E0E0E0; }
+    [data-theme="dark"] .editor-body ul li,
+    [data-theme="dark"] .editor-body ol li { color: #E6E6E6; }
+    [data-theme="dark"] .editor-body ul ul li,
+    [data-theme="dark"] .editor-body ol ol li { color: #C0C0C0; }
+    [data-theme="dark"] .editor-body blockquote {
+      border-left-color: rgba(255,255,255,0.14);
+      color: #A1A1AA;
+    }
+    [data-theme="dark"] .editor-body a {
+      color: #8B9DFF;
+      text-decoration-color: rgba(139,157,255,0.35);
+    }
+    [data-theme="dark"] .editor-body a:hover {
+      color: #a3b0ff;
+      text-decoration-color: rgba(163,176,255,0.55);
+    }
+    [data-theme="dark"] .editor-body:empty::before { color: rgba(255,255,255,0.22); }
+    [data-theme="dark"] #savedIndicator { color: #A1A1AA; }
+
+    /* Dark selection */
+    [data-theme="dark"] ::selection,
+    [data-theme="dark"] .editor-body ::selection,
+    [data-theme="dark"] .editor-title ::selection { background: rgba(139,157,255,0.25); }
+
+    /* Versions chip */
+    [data-theme="dark"] .versions-chip {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.09);
+      color: rgba(255,255,255,0.45);
+    }
+    [data-theme="dark"] .versions-chip:hover   { background: rgba(255,255,255,0.10); }
+    [data-theme="dark"] .versions-dropdown {
+      background: #252528;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.07);
+    }
+    [data-theme="dark"] .version-item          { color: #E6E6E6; }
+    [data-theme="dark"] .version-item:hover    { background: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .version-item-time     { color: rgba(255,255,255,0.35); }
+
+    /* Floating AI chat */
+    [data-theme="dark"] .floating-chat {
+      background: #252528;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07);
+    }
+    [data-theme="dark"] .floating-chat::before { background: #252528; filter: none; }
+    [data-theme="dark"] .floating-chat-input   { color: #E6E6E6; }
+    [data-theme="dark"] .floating-chat-input::placeholder { color: rgba(255,255,255,0.25); }
+    [data-theme="dark"] .floating-chat-sep     { background: rgba(255,255,255,0.08); }
+    [data-theme="dark"] .floating-chat-mood-btn {
+      background: rgba(139,157,255,0.14);
+      color: #8B9DFF;
+    }
+    [data-theme="dark"] .floating-chat-mood-btn:hover { background: rgba(139,157,255,0.22); }
+    [data-theme="dark"] .floating-chat-mood-dropdown {
+      background: #2A2A2E;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    [data-theme="dark"] .floating-chat-mood-option       { color: #E6E6E6; }
+    [data-theme="dark"] .floating-chat-mood-option:hover { background: rgba(255,255,255,0.07); }
+
+    /* AI helper */
+    [data-theme="dark"] .ai-helper {
+      background: rgba(255,255,255,0.025);
+      border-color: rgba(255,255,255,0.07);
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+    [data-theme="dark"] .ai-helper-label    { color: rgba(255,255,255,0.28); }
+    [data-theme="dark"] .ai-helper-pill     { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+    [data-theme="dark"] .ai-helper-textarea { color: #E6E6E6; }
+    [data-theme="dark"] .ai-helper-textarea::placeholder { color: rgba(255,255,255,0.22); }
+    [data-theme="dark"] .ai-helper-send     { background: rgba(255,255,255,0.10); color: rgba(255,255,255,0.82); }
+    [data-theme="dark"] .ai-helper-send:hover { background: rgba(255,255,255,0.18); }
+
+    /* Slash menu */
+    [data-theme="dark"] .slash-menu {
+      background: #252528;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.07);
+    }
+    [data-theme="dark"] .slash-item:hover,
+    [data-theme="dark"] .slash-item.active    { background: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .slash-item-icon      { background: rgba(255,255,255,0.08); color: #A1A1AA; }
+    [data-theme="dark"] .slash-item-label     { color: #E6E6E6; }
+    [data-theme="dark"] .slash-item-desc      { color: rgba(255,255,255,0.35); }
+
+    /* Block type menu */
+    [data-theme="dark"] #blockTypeMenu {
+      background: #252528;
+      box-shadow: 0 6px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.07);
+    }
+    [data-theme="dark"] .btype-item        { color: #E6E6E6; }
+    [data-theme="dark"] .btype-item:hover  { background: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .btype-item.active { background: rgba(255,255,255,0.10); }
+    [data-theme="dark"] .btype-icon        { color: rgba(255,255,255,0.35); }
+
+    /* Drag ghost */
+    [data-theme="dark"] .drag-ghost {
+      background: #2A2A2E;
+      color: #E6E6E6;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.4);
+    }
+
+    /* Diff review */
+    [data-theme="dark"] .diff-old          { background: rgba(192,57,43,0.20); color: #e08080; }
+    [data-theme="dark"] .diff-new          { background: rgba(39,174,96,0.18); color: #72d99a; }
+    [data-theme="dark"] .diff-btn {
+      background: #2A2A2E;
+      color: #E6E6E6;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.07);
+    }
+    [data-theme="dark"] .diff-btn:hover    { background: #343438; }
+
+    /* Focus hint + word count */
+    [data-theme="dark"] .focus-hint        { color: rgba(255,255,255,0.28); }
+    [data-theme="dark"] .word-count        { color: rgba(255,255,255,0.2); }
+
+    /* Share panel */
+    [data-theme="dark"] .share-backdrop    { background: rgba(0,0,0,0.55); }
+    [data-theme="dark"] .share-panel {
+      background: #252528;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07);
+    }
+    [data-theme="dark"] .share-section-label   { color: rgba(255,255,255,0.35); }
+    [data-theme="dark"] .share-person-name     { color: #E6E6E6; }
+    [data-theme="dark"] .share-person-email    { color: rgba(255,255,255,0.4); }
+    [data-theme="dark"] .share-access-chip     { background: rgba(255,255,255,0.08); color: #A1A1AA; }
+    [data-theme="dark"] .share-invite-row      { background: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .share-invite-input    { color: #E6E6E6; }
+    [data-theme="dark"] .share-invite-input::placeholder { color: rgba(255,255,255,0.25); }
+    [data-theme="dark"] .share-invite-btn      { background: rgba(255,255,255,0.12); color: #E6E6E6; }
+    [data-theme="dark"] .share-invite-btn:hover { background: rgba(255,255,255,0.18); }
+    [data-theme="dark"] .share-divider         { background: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .share-link-row        { background: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .share-link-url        { color: rgba(255,255,255,0.38); }
+    [data-theme="dark"] .share-link-copy       { color: #8B9DFF; }
+    [data-theme="dark"] .share-link-copy:hover { color: #a3b0ff; }
+    [data-theme="dark"] .share-social-btn      { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+    [data-theme="dark"] .share-social-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.12); }
+    [data-theme="dark"] .share-social-btn span { color: rgba(255,255,255,0.5); }
+    [data-theme="dark"] .share-panel-close     { color: rgba(255,255,255,0.3); }
+    [data-theme="dark"] .share-panel-close:hover { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .share-copied-toast    { background: #3A3A3E; color: #E6E6E6; }
+
+    /* Quote toast */
+    [data-theme="dark"] .quote-toast {
+      background: #252528;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.07);
+      color: #E6E6E6;
+    }
+    [data-theme="dark"] .quote-toast-yes       { color: #8B9DFF; }
+    [data-theme="dark"] .quote-toast-yes:hover { background: rgba(139,157,255,0.12); }
+    [data-theme="dark"] .quote-toast-no        { color: rgba(255,255,255,0.35); }
+    [data-theme="dark"] .quote-toast-no:hover  { background: rgba(255,255,255,0.07); }
+
+    /* Empty state */
+    [data-theme="dark"] .empty-state-text { color: rgba(255,255,255,0.28); }
+    [data-theme="dark"] .empty-create-btn { color: #8B9DFF; }
+
+    /* ═══════════════════════════════════════════════
+       AI EDIT BAR  — shown on text selection (below selection)
+    ═══════════════════════════════════════════════ */
+    .ai-edit-bar {
+      position: fixed;
+      display: flex;
+      align-items: center;
+      gap: 1px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.10);
+      border-radius: 9px;
+      padding: 4px 5px;
+      box-shadow: 0 2px 14px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.04);
+      z-index: 1102;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(4px) translateX(-50%);
+      transition: opacity 0.14s cubic-bezier(0.2,0.8,0.2,1),
+                  transform 0.14s cubic-bezier(0.2,0.8,0.2,1),
+                  visibility 0.14s;
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+    .ai-edit-bar.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) translateX(-50%);
+      pointer-events: auto;
+    }
+    .ai-edit-bar-label {
+      font-size: 10px;
+      font-weight: 500;
+      color: rgba(0,0,0,0.30);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0 6px 0 4px;
+      flex-shrink: 0;
+    }
+    .ai-edit-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 4px 8px;
+      height: 28px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: #1a1a1a;
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 450;
+      letter-spacing: -0.01em;
+      transition: background 0.12s ease-out, color 0.12s ease-out, transform 0.06s ease-out;
       outline: none;
       white-space: nowrap;
     }
+    .ai-edit-action-btn:hover { background: rgba(0,0,0,0.06); color: #000; }
+    .ai-edit-action-btn:active {
+      transform: scale(0.98);
+      transition: transform 0.06s ease-out !important;
+    }
+    .ai-edit-action-btn.loading {
+      opacity: 0.5;
+      pointer-events: none;
+      animation: generatePulse 1.4s ease-in-out infinite;
+    }
+    .ai-edit-chevron { opacity: 0.45; flex-shrink: 0; }
+    .ai-edit-sep {
+      width: 1px;
+      height: 14px;
+      background: rgba(0,0,0,0.09);
+      margin: 0 3px;
+      flex-shrink: 0;
+    }
+    .ai-edit-close-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 5px;
+      border: none;
+      background: transparent;
+      color: rgba(0,0,0,0.30);
+      cursor: pointer;
+      transition: background 0.12s ease-out, color 0.12s ease-out, transform 0.06s ease-out;
+      outline: none;
+      flex-shrink: 0;
+    }
+    .ai-edit-close-btn:hover { background: rgba(0,0,0,0.06); color: rgba(0,0,0,0.65); }
+    .ai-edit-close-btn:active { transform: scale(0.98); }
 
-    .draft-scratch-btn:hover { background: #2C2C2E; }
+    /* ——— Tone / More dropdowns ——— */
+    .ai-edit-dd-wrap { position: relative; }
+    .ai-edit-dd {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.10);
+      border-radius: 9px;
+      padding: 4px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.11), 0 0 0 1px rgba(0,0,0,0.04);
+      min-width: 138px;
+      z-index: 1104;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(4px);
+      transition: opacity 0.14s cubic-bezier(0.2,0.8,0.2,1),
+                  transform 0.14s cubic-bezier(0.2,0.8,0.2,1),
+                  visibility 0.14s;
+      pointer-events: none;
+    }
+    .ai-edit-dd.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .ai-edit-dd-item {
+      display: block;
+      width: 100%;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      font-family: var(--font);
+      font-size: 12px;
+      color: #1a1a1a;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.12s ease-out, transform 0.06s ease-out;
+      outline: none;
+      white-space: nowrap;
+    }
+    .ai-edit-dd-item:hover { background: rgba(0,0,0,0.06); }
+    .ai-edit-dd-item:active { transform: scale(0.98); }
+
+    /* ═══════════════════════════════════════════════
+       AI EDIT RESULTS PANEL
+    ═══════════════════════════════════════════════ */
+    .ai-edit-results {
+      position: fixed;
+      width: 370px;
+      max-width: calc(100vw - 32px);
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.09);
+      border-radius: 12px;
+      padding: 0;
+      box-shadow: 0 6px 28px rgba(0,0,0,0.11), 0 0 0 1px rgba(0,0,0,0.04);
+      z-index: 1103;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(4px) translateX(-50%);
+      transition: opacity 0.14s cubic-bezier(0.2,0.8,0.2,1),
+                  transform 0.14s cubic-bezier(0.2,0.8,0.2,1),
+                  visibility 0.14s;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .ai-edit-results.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) translateX(-50%);
+      pointer-events: auto;
+    }
+
+    /* Loading row */
+    .ai-edit-loading-row {
+      display: none;
+      align-items: center;
+      gap: 9px;
+      padding: 13px 14px;
+      font-size: 12.5px;
+      color: #999;
+    }
+    .ai-edit-loading-row.on { display: flex; }
+    .ai-edit-result-spinner {
+      width: 13px;
+      height: 13px;
+      border: 1.5px solid rgba(0,0,0,0.10);
+      border-top-color: #888;
+      border-radius: 50%;
+      animation: btnSpin 0.8s linear infinite;
+      flex-shrink: 0;
+    }
+
+    /* Alternatives list */
+    .ai-edit-alts-list { display: none; }
+    .ai-edit-alts-list.on { display: block; }
+
+    .ai-edit-alt-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 11px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      transition: background 0.12s ease-out;
+    }
+    .ai-edit-alt-row:last-child { border-bottom: none; }
+    .ai-edit-alt-row:hover { background: rgba(0,0,0,0.025); }
+    .ai-edit-alt-row.sel { background: rgba(60,100,255,0.05); }
+    .ai-edit-alt-row.sel:hover { background: rgba(60,100,255,0.075); }
+
+    /* Radio dot */
+    .ai-edit-alt-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(0,0,0,0.18);
+      flex-shrink: 0;
+      margin-top: 2px;
+      transition: border-color 0.12s ease, background 0.12s ease;
+      position: relative;
+    }
+    .ai-edit-alt-row.sel .ai-edit-alt-dot {
+      border-color: #3C64FF;
+      background: #3C64FF;
+    }
+    .ai-edit-alt-row.sel .ai-edit-alt-dot::after {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    .ai-edit-alt-body { flex: 1; min-width: 0; }
+    .ai-edit-alt-tag {
+      font-size: 10px;
+      font-weight: 500;
+      color: rgba(0,0,0,0.32);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 3px;
+    }
+    .ai-edit-alt-row.sel .ai-edit-alt-tag { color: #3C64FF; }
+    .ai-edit-alt-text {
+      font-size: 13px;
+      line-height: 1.55;
+      color: #1a1a1a;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+    }
+    .ai-edit-alt-row.expanded .ai-edit-alt-text { -webkit-line-clamp: unset; }
+    .ai-edit-alt-expand {
+      font-size: 11px;
+      color: rgba(0,0,0,0.35);
+      background: none;
+      border: none;
+      padding: 2px 0 0;
+      cursor: pointer;
+      font-family: var(--font);
+      display: none;
+      transition: color 0.12s ease-out;
+    }
+    .ai-edit-alt-expand.show { display: inline; }
+    .ai-edit-alt-expand:hover { color: rgba(0,0,0,0.6); text-decoration: underline; }
+
+    /* Error row */
+    .ai-edit-error-row {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      font-size: 12.5px;
+      color: #999;
+    }
+    .ai-edit-error-row.on { display: flex; }
+    .ai-edit-retry-btn {
+      flex-shrink: 0;
+      font-size: 12px;
+      color: #3C64FF;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font);
+      padding: 0;
+      transition: opacity 0.12s ease;
+    }
+    .ai-edit-retry-btn:hover { opacity: 0.7; }
+
+    /* Footer */
+    .ai-edit-results-footer {
+      display: none;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 10px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+      background: rgba(0,0,0,0.015);
+    }
+    .ai-edit-results-footer.on { display: flex; }
+    .ai-edit-apply {
+      display: flex;
+      align-items: center;
+      height: 27px;
+      padding: 0 10px;
+      border-radius: 6px;
+      border: none;
+      font-family: var(--font);
+      font-size: 11.5px;
+      font-weight: 450;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.12s ease-out, transform 0.06s ease-out;
+      outline: none;
+    }
+    .ai-edit-apply:active { transform: scale(0.98); }
+    .ai-edit-apply-replace {
+      background: #1a1a1a;
+      color: #fff;
+    }
+    .ai-edit-apply-replace:hover { background: #2e2e2e; }
+    .ai-edit-apply-insert {
+      background: rgba(0,0,0,0.06);
+      color: #1a1a1a;
+    }
+    .ai-edit-apply-insert:hover { background: rgba(0,0,0,0.10); }
+    .ai-edit-apply-cancel {
+      background: transparent;
+      color: rgba(0,0,0,0.40);
+      margin-left: auto;
+    }
+    .ai-edit-apply-cancel:hover { background: rgba(0,0,0,0.04); color: rgba(0,0,0,0.65); }
+
+    /* ——— AI Edit Bar — dark mode ——— */
+    [data-theme="dark"] .ai-edit-bar {
+      background: #2A2A2E;
+      border-color: rgba(255,255,255,0.09);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.40), 0 0 0 1px rgba(255,255,255,0.06);
+    }
+    [data-theme="dark"] .ai-edit-bar-label       { color: rgba(255,255,255,0.28); }
+    [data-theme="dark"] .ai-edit-action-btn      { color: rgba(255,255,255,0.75); }
+    [data-theme="dark"] .ai-edit-action-btn:hover{ background: rgba(255,255,255,0.09); color: #fff; }
+    [data-theme="dark"] .ai-edit-sep             { background: rgba(255,255,255,0.10); }
+    [data-theme="dark"] .ai-edit-close-btn       { color: rgba(255,255,255,0.30); }
+    [data-theme="dark"] .ai-edit-close-btn:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.65); }
+    [data-theme="dark"] .ai-edit-dd {
+      background: #2A2A2E;
+      border-color: rgba(255,255,255,0.09);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.07);
+    }
+    [data-theme="dark"] .ai-edit-dd-item       { color: rgba(255,255,255,0.75); }
+    [data-theme="dark"] .ai-edit-dd-item:hover { background: rgba(255,255,255,0.08); }
+
+    /* Results panel — dark */
+    [data-theme="dark"] .ai-edit-results {
+      background: #252528;
+      border-color: rgba(255,255,255,0.08);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.07);
+    }
+    [data-theme="dark"] .ai-edit-loading-row   { color: rgba(255,255,255,0.38); }
+    [data-theme="dark"] .ai-edit-result-spinner{ border-color: rgba(255,255,255,0.10); border-top-color: rgba(255,255,255,0.55); }
+    [data-theme="dark"] .ai-edit-alt-row       { border-color: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .ai-edit-alt-row:hover { background: rgba(255,255,255,0.04); }
+    [data-theme="dark"] .ai-edit-alt-row.sel   { background: rgba(139,157,255,0.10); }
+    [data-theme="dark"] .ai-edit-alt-row.sel:hover { background: rgba(139,157,255,0.14); }
+    [data-theme="dark"] .ai-edit-alt-dot       { border-color: rgba(255,255,255,0.20); }
+    [data-theme="dark"] .ai-edit-alt-row.sel .ai-edit-alt-dot { border-color: #8B9DFF; background: #8B9DFF; }
+    [data-theme="dark"] .ai-edit-alt-tag       { color: rgba(255,255,255,0.32); }
+    [data-theme="dark"] .ai-edit-alt-row.sel .ai-edit-alt-tag { color: #8B9DFF; }
+    [data-theme="dark"] .ai-edit-alt-text      { color: #E6E6E6; }
+    [data-theme="dark"] .ai-edit-alt-expand    { color: rgba(255,255,255,0.28); }
+    [data-theme="dark"] .ai-edit-alt-expand:hover { color: rgba(255,255,255,0.58); }
+    [data-theme="dark"] .ai-edit-error-row     { color: rgba(255,255,255,0.38); }
+    [data-theme="dark"] .ai-edit-retry-btn     { color: #8B9DFF; }
+    [data-theme="dark"] .ai-edit-results-footer{ background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .ai-edit-apply-replace { background: #E6E6E6; color: #1a1a1a; }
+    [data-theme="dark"] .ai-edit-apply-replace:hover { background: #d4d4d4; }
+    [data-theme="dark"] .ai-edit-apply-insert  { background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.75); }
+    [data-theme="dark"] .ai-edit-apply-insert:hover { background: rgba(255,255,255,0.14); }
+    [data-theme="dark"] .ai-edit-apply-cancel  { color: rgba(255,255,255,0.30); }
+    [data-theme="dark"] .ai-edit-apply-cancel:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.60); }
   </style>
 </head>
 <body>
   <header class="top-bar">
     <div class="top-bar-inner">
+      <!-- Theme pill toggle -->
+      <button type="button" class="theme-pill" id="themePill" title="Toggle appearance" aria-label="Toggle light/dark mode">
+        <!-- Sun icon (left = light side) -->
+        <span class="tp-icon tp-icon-sun" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </span>
+        <!-- Moon icon (right = dark side) -->
+        <span class="tp-icon tp-icon-moon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </span>
+        <!-- Sliding thumb -->
+        <span class="tp-thumb"></span>
+      </button>
       <button type="button" class="btn-share" title="Compartir">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         Share
@@ -1550,6 +2754,31 @@
 
     <nav class="doc-list" id="docList"></nav>
     <div id="searchEmpty">No encontramos nada</div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-divider"></div>
+
+      <!-- User profile widget -->
+      <div class="user-widget" id="userWidget">
+        <button type="button" class="btn-user-profile" id="btnUserProfile" title="Account">
+          <span class="user-avatar" id="userAvatar"></span>
+          <span class="user-name-text" id="userNameText">…</span>
+          <svg class="user-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
+        </button>
+        <div class="user-popover" id="userPopover" role="menu" aria-label="Account menu">
+          <div class="user-popover-header">
+            <div class="user-popover-email" id="userPopoverEmail"></div>
+          </div>
+          <button type="button" class="user-popover-item danger" id="btnLogout" role="menuitem">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Log out
+          </button>
+        </div>
+      </div>
+
+      <!-- User email shown at the bottom of sidebar -->
+      <div class="sidebar-email" id="sidebarEmail"></div>
+    </div>
   </aside>
 
   <!-- Floating button to reveal hidden sidebar -->
@@ -1565,78 +2794,33 @@
     </div>
     <div class="editor-wrap">
       <div class="editor-title" id="editorTitle" contenteditable="true" data-placeholder="Sin título"></div>
-      <div style="display:flex;align-items:center;margin-bottom:16px;margin-top:-8px;">
-        <span id="savedIndicator"></span>
-      </div>
+      <span id="savedIndicator"></span>
       <div class="editor-body" id="editorBody" contenteditable="true" data-placeholder="Escribí algo…"></div>
 
-      <!-- Draft composer — inline in main canvas, sidebar always visible -->
-      <div class="draft-overlay" id="draftOverlay" role="region" aria-label="New note">
-
-        <div class="draft-composer">
-          <h2 class="draft-hero-title">What do you want to write today?</h2>
-
-          <div class="draft-search-wrap">
-            <!-- Hidden file input for attachment -->
-            <input type="file" id="draftFileInput" style="display:none" multiple accept="*/*" aria-hidden="true" tabindex="-1">
-
-            <div class="draft-pill">
-              <textarea
-                class="draft-chat-textarea"
-                id="draftTextarea"
-                placeholder="Describe your note and Claude will structure it…"
-                rows="1"
-                autocomplete="off"
-                spellcheck="true"
-                aria-label="Note topic"
-              ></textarea>
-
-              <div class="draft-pill-actions">
-                <!-- Clip / attach -->
-                <button type="button" class="draft-attach-btn" id="draftAttachBtn" aria-label="Attach file">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66L9.41 17.41a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-                  </svg>
-                </button>
-
-                <!-- Send / mic toggle -->
-                <button type="button" class="draft-send-btn" id="draftGenerateBtn" aria-label="Generate draft">
-                  <span class="btn-spinner"></span>
-                  <!-- Mic icon (default, no input) -->
-                  <svg class="icon-mic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <rect x="9" y="2" width="6" height="11" rx="3"/>
-                    <path d="M19 10a7 7 0 0 1-14 0"/>
-                    <line x1="12" y1="19" x2="12" y2="22"/>
-                    <line x1="8" y1="22" x2="16" y2="22"/>
-                  </svg>
-                  <!-- Arrow (shown when typing) -->
-                  <svg class="send-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <!-- Loading -->
-            <div class="draft-loading" id="draftLoading">
-              <div class="draft-dots">
-                <div class="draft-dot"></div>
-                <div class="draft-dot"></div>
-                <div class="draft-dot"></div>
-              </div>
-              <span class="draft-loading-text">Claude is writing your draft…</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Start from scratch — styled like Share button -->
-        <button type="button" class="draft-scratch-btn" id="draftScratchBtn" aria-label="Start from scratch">
-          Start from scratch
-        </button>
-
-      </div>
     </div>
   </main>
+
+  <!-- AI helper — floating bottom bar (shown on new note) -->
+  <div class="ai-helper" id="aiHelper" role="complementary" aria-label="AI writing assistant">
+    <p class="ai-helper-label">Start anywhere. I can help shape it.</p>
+    <div class="ai-helper-pill">
+      <textarea
+        class="ai-helper-textarea"
+        id="aiHelperInput"
+        placeholder="Describe what you want to write…"
+        rows="1"
+        autocomplete="off"
+        spellcheck="true"
+        aria-label="AI writing prompt"
+      ></textarea>
+      <button type="button" class="ai-helper-send" id="aiHelperSend" aria-label="Generate">
+        <span class="ai-helper-spinner"></span>
+        <svg class="ai-helper-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
 
   <!-- Share panel -->
   <div class="share-backdrop" id="shareBackdrop"></div>
@@ -1720,23 +2904,31 @@
   <div class="slash-menu" id="slashMenu">
     <div class="slash-item" data-cmd="h1">
       <div class="slash-item-icon">H1</div>
-      <div><div class="slash-item-label">Título grande</div><div class="slash-item-desc">Encabezado principal</div></div>
+      <div><div class="slash-item-label">Heading 1</div><div class="slash-item-desc">Large title</div></div>
     </div>
     <div class="slash-item" data-cmd="h2">
       <div class="slash-item-icon">H2</div>
-      <div><div class="slash-item-label">Título mediano</div><div class="slash-item-desc">Encabezado secundario</div></div>
+      <div><div class="slash-item-label">Heading 2</div><div class="slash-item-desc">Section title</div></div>
+    </div>
+    <div class="slash-item" data-cmd="h3">
+      <div class="slash-item-icon">H3</div>
+      <div><div class="slash-item-label">Heading 3</div><div class="slash-item-desc">Sub-section</div></div>
     </div>
     <div class="slash-item" data-cmd="ul">
       <div class="slash-item-icon">•</div>
-      <div><div class="slash-item-label">Bullet list</div><div class="slash-item-desc">Lista simple</div></div>
+      <div><div class="slash-item-label">Bullet list</div><div class="slash-item-desc">Unordered list</div></div>
+    </div>
+    <div class="slash-item" data-cmd="ol">
+      <div class="slash-item-icon">1.</div>
+      <div><div class="slash-item-label">Numbered list</div><div class="slash-item-desc">Ordered list</div></div>
     </div>
     <div class="slash-item" data-cmd="quote">
       <div class="slash-item-icon">"</div>
-      <div><div class="slash-item-label">Quote</div><div class="slash-item-desc">Bloque de cita</div></div>
+      <div><div class="slash-item-label">Quote</div><div class="slash-item-desc">Block quote</div></div>
     </div>
     <div class="slash-item" data-cmd="divider">
       <div class="slash-item-icon">—</div>
-      <div><div class="slash-item-label">Divider</div><div class="slash-item-desc">Línea separadora</div></div>
+      <div><div class="slash-item-label">Divider</div><div class="slash-item-desc">Horizontal rule</div></div>
     </div>
   </div>
 
@@ -1753,8 +2945,6 @@
     <button type="button" class="quote-toast-btn quote-toast-no" id="quoteToastNo">No</button>
   </div>
 
-  <!-- Draft chat moved into editor-wrap below -->
-
   <div class="format-toolbar" id="formatToolbar">
     <button type="button" id="btnBold" title="Negrita">B</button>
     <button type="button" id="btnItalic" title="Cursiva">I</button>
@@ -1765,6 +2955,120 @@
     <button type="button" id="btnLink" title="Enlace">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
     </button>
+  </div>
+
+  <!-- Floating Format Toolbar (selection-based) -->
+  <div class="fmt-bar" id="fmtBar" role="toolbar" aria-label="Text formatting">
+    <button type="button" class="fmt-btn" data-cmd="bold" aria-label="Bold (⌘B)" title="Bold (⌘B)"><b>B</b></button>
+    <button type="button" class="fmt-btn" data-cmd="italic" aria-label="Italic (⌘I)" title="Italic (⌘I)"><i style="font-style:italic">I</i></button>
+    <button type="button" class="fmt-btn" data-cmd="underline" aria-label="Underline (⌘U)" title="Underline (⌘U)"><u>U</u></button>
+    <div class="fmt-sep"></div>
+    <button type="button" class="fmt-btn" data-cmd="link" aria-label="Link (⌘K)" title="Link (⌘K)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    </button>
+    <button type="button" class="fmt-btn" data-cmd="removeFormat" aria-label="Clear formatting" title="Clear formatting">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12"/></svg>
+    </button>
+    <div class="fmt-sep"></div>
+    <button type="button" class="fmt-btn fmt-ai-btn" data-cmd="ai" aria-label="Edit with AI" title="Edit with AI">✦</button>
+  </div>
+
+  <!-- Link input panel (shown below fmt-bar) -->
+  <div class="fmt-link-panel" id="fmtLinkPanel">
+    <input type="url" class="fmt-link-input" id="fmtLinkInput" placeholder="https://…" autocomplete="off" aria-label="URL">
+    <button type="button" class="fmt-link-apply" id="fmtLinkApply">Apply</button>
+  </div>
+
+  <!-- ═══ AI EDIT BAR (shown below selection, one-click quick actions) ═══ -->
+  <div class="ai-edit-bar" id="aiEditBar" role="toolbar" aria-label="AI quick edit actions">
+    <span class="ai-edit-bar-label">AI</span>
+    <div class="ai-edit-sep"></div>
+    <!-- Quick action buttons -->
+    <button type="button" class="ai-edit-action-btn" data-edit-action="rewrite">Rewrite</button>
+    <button type="button" class="ai-edit-action-btn" data-edit-action="shorter">Shorter</button>
+    <button type="button" class="ai-edit-action-btn" data-edit-action="clearer">Clearer</button>
+    <button type="button" class="ai-edit-action-btn" data-edit-action="fix">Fix</button>
+    <div class="ai-edit-sep"></div>
+    <!-- Tone dropdown -->
+    <div class="ai-edit-dd-wrap" id="aiEditToneWrap">
+      <button type="button" class="ai-edit-action-btn ai-edit-dd-trigger" id="aiEditToneBtn" aria-haspopup="true" aria-expanded="false">
+        Tone
+        <svg class="ai-edit-chevron" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="ai-edit-dd" id="aiEditToneDropdown" role="menu">
+        <button type="button" class="ai-edit-dd-item" data-tone="Professional" role="menuitem">Professional</button>
+        <button type="button" class="ai-edit-dd-item" data-tone="Casual"        role="menuitem">Casual</button>
+        <button type="button" class="ai-edit-dd-item" data-tone="Strong"        role="menuitem">Strong</button>
+        <button type="button" class="ai-edit-dd-item" data-tone="Friendly"      role="menuitem">Friendly</button>
+      </div>
+    </div>
+    <!-- More dropdown -->
+    <div class="ai-edit-dd-wrap" id="aiEditMoreWrap">
+      <button type="button" class="ai-edit-action-btn ai-edit-dd-trigger" id="aiEditMoreBtn" aria-haspopup="true" aria-expanded="false">
+        More
+        <svg class="ai-edit-chevron" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="ai-edit-dd" id="aiEditMoreDropdown" role="menu">
+        <button type="button" class="ai-edit-dd-item" data-edit-action="expand"  role="menuitem">Expand</button>
+        <button type="button" class="ai-edit-dd-item" data-edit-action="bullets" role="menuitem">Convert to bullets</button>
+      </div>
+    </div>
+    <div class="ai-edit-sep"></div>
+    <!-- Dismiss -->
+    <button type="button" class="ai-edit-close-btn" id="aiEditClose" aria-label="Dismiss AI edit bar">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <!-- ═══ AI EDIT RESULTS PANEL (alternatives, shown below the edit bar) ═══ -->
+  <div class="ai-edit-results" id="aiEditResults" role="listbox" aria-label="AI edit alternatives">
+    <!-- Loading -->
+    <div class="ai-edit-loading-row" id="aiEditLoadingRow">
+      <span class="ai-edit-result-spinner"></span>
+      <span>Generating alternatives…</span>
+    </div>
+    <!-- Alternatives list (populated by JS) -->
+    <div class="ai-edit-alts-list" id="aiEditAltsList"></div>
+    <!-- Error -->
+    <div class="ai-edit-error-row" id="aiEditErrorRow">
+      <span id="aiEditErrorMsg">Couldn't generate alternatives.</span>
+      <button type="button" class="ai-edit-retry-btn" id="aiEditRetryBtn">Try again</button>
+    </div>
+    <!-- Footer actions -->
+    <div class="ai-edit-results-footer" id="aiEditFooter">
+      <button type="button" class="ai-edit-apply ai-edit-apply-replace" id="aiEditApplyReplace">Replace selection</button>
+      <button type="button" class="ai-edit-apply ai-edit-apply-insert"  id="aiEditApplyInsert">Insert below</button>
+      <button type="button" class="ai-edit-apply ai-edit-apply-cancel"  id="aiEditApplyCancel">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Block paragraph handle (drag + type selector) -->
+  <div id="paraHandle" aria-label="Block handle — drag to reorder, click for type" title="Drag to reorder · click for type">
+    <svg width="8" height="14" viewBox="0 0 8 14" fill="currentColor" aria-hidden="true">
+      <circle cx="2" cy="2" r="1.5"/><circle cx="6" cy="2" r="1.5"/>
+      <circle cx="2" cy="7" r="1.5"/><circle cx="6" cy="7" r="1.5"/>
+      <circle cx="2" cy="12" r="1.5"/><circle cx="6" cy="12" r="1.5"/>
+    </svg>
+  </div>
+
+  <!-- Block type context menu -->
+  <div id="blockTypeMenu" role="menu" aria-label="Block type">
+    <div class="btype-item" data-btype="p"          role="menuitem"><span class="btype-icon">¶</span>Text</div>
+    <div class="btype-item" data-btype="h1"         role="menuitem"><span class="btype-icon">H1</span>Heading 1</div>
+    <div class="btype-item" data-btype="h2"         role="menuitem"><span class="btype-icon">H2</span>Heading 2</div>
+    <div class="btype-item" data-btype="h3"         role="menuitem"><span class="btype-icon">H3</span>Heading 3</div>
+    <div class="btype-item" data-btype="ul"         role="menuitem"><span class="btype-icon">•</span>Bullet list</div>
+    <div class="btype-item" data-btype="ol"         role="menuitem"><span class="btype-icon">1.</span>Numbered</div>
+    <div class="btype-item" data-btype="blockquote" role="menuitem"><span class="btype-icon">"</span>Quote</div>
+  </div>
+
+  <!-- Drag insertion indicator line -->
+  <div id="dragInsertLine" aria-hidden="true"></div>
+
+  <!-- Drag-to-delete zone (shown during block drag) -->
+  <div id="dragDeleteZone" aria-hidden="true">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+    Drop here to delete
   </div>
 
   <div class="floating-chat-backdrop" id="floatingChatBackdrop"></div>
@@ -1783,6 +3087,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
     // ——— Share panel ———
     const shareBackdrop = document.getElementById('shareBackdrop');
@@ -1862,6 +3167,11 @@
     };
     const ACTIVE_KEY = 'pages-active-id';
 
+    // ——— Supabase Auth client ———
+    const sbClient = window.supabase
+      ? window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, detectSessionInUrl: true } })
+      : null;
+
     async function sbFetch(path, options = {}) {
       const res = await fetch(SB_URL + path, {
         ...options,
@@ -1878,6 +3188,7 @@
     // ——— App ———
     let documents = [];   // local cache; shape: { id, title, body, updatedAt }
     let currentId = null;
+    let currentUserId = null;   // set after auth; used to scope note inserts to owner
     let saveTimeout = null;
     const SAVE_DELAY = 800;
     const pendingDeletes = {};
@@ -1940,9 +3251,12 @@
 
     async function createDoc(defaultTitle = '', defaultBody = '<p></p>') {
       try {
+        // user_id is required by the RLS INSERT policy (user_id = auth.uid())
+        const payload = { title: defaultTitle, content: defaultBody };
+        if (currentUserId) payload.user_id = currentUserId;
         const rows = await sbFetch('/rest/v1/notes', {
           method: 'POST',
-          body: JSON.stringify({ title: defaultTitle, content: defaultBody })
+          body: JSON.stringify(payload)
         });
         const doc = rowToDoc(Array.isArray(rows) ? rows[0] : rows);
         documents.unshift(doc);
@@ -2156,8 +3470,8 @@
       }
     });
 
-    document.getElementById('btnNewNote').addEventListener('click', openDraftChat);
-    document.getElementById('emptyCreateBtn').addEventListener('click', openDraftChat);
+    document.getElementById('btnNewNote').addEventListener('click', openNewNote);
+    document.getElementById('emptyCreateBtn').addEventListener('click', openNewNote);
 
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', updateSearchFilter);
@@ -2314,27 +3628,45 @@
 
     // ——— Selection triggers ———
 
-    // Drag: open on mouseup after dragging within editor
+    // Drag: show format bar on mouseup after dragging within editor
     editorBody.addEventListener('mousedown', () => { isDragging = true; });
     document.addEventListener('mouseup', (e) => {
       if (!isDragging) return;
       isDragging = false;
-      if (floatingChat.classList.contains('visible')) return;
       // Small delay to let browser finalize selection
-      setTimeout(tryOpenChat, 10);
+      setTimeout(checkAndShowFmtBar, 10);
     });
 
-    // Double-click: word selection
+    // Double-click: word selection → format bar
     editorBody.addEventListener('dblclick', () => {
-      if (floatingChat.classList.contains('visible')) return;
-      setTimeout(tryOpenChat, 10);
+      setTimeout(checkAndShowFmtBar, 10);
     });
 
-    // Triple-click: paragraph selection
+    // Triple-click: paragraph selection → format bar
     editorBody.addEventListener('click', (e) => {
       if (e.detail === 3) {
-        if (floatingChat.classList.contains('visible')) return;
-        setTimeout(tryOpenChat, 10);
+        setTimeout(checkAndShowFmtBar, 10);
+      }
+    });
+
+    // Ctrl/Cmd+Z → undo; Ctrl/Cmd+Shift+Z or Ctrl+Y → redo
+    function handleUndoRedo(e) {
+      if (!(e.metaKey || e.ctrlKey)) return;
+      if (e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        document.execCommand('undo');
+      } else if ((e.key === 'z' && e.shiftKey) || e.key === 'y') {
+        e.preventDefault();
+        document.execCommand('redo');
+      }
+    }
+    editorBody.addEventListener('keydown', handleUndoRedo);
+    editorTitle.addEventListener('keydown', handleUndoRedo);
+
+    // Keyboard selection (shift+arrow etc.) → format bar
+    editorBody.addEventListener('keyup', (e) => {
+      if (e.shiftKey || e.key === 'a' && (e.metaKey || e.ctrlKey)) {
+        checkAndShowFmtBar();
       }
     });
 
@@ -2578,8 +3910,12 @@
         document.execCommand('formatBlock', false, 'h1');
       } else if (cmd === 'h2') {
         document.execCommand('formatBlock', false, 'h2');
+      } else if (cmd === 'h3') {
+        document.execCommand('formatBlock', false, 'h3');
       } else if (cmd === 'ul') {
         document.execCommand('insertUnorderedList');
+      } else if (cmd === 'ol') {
+        document.execCommand('insertOrderedList');
       } else if (cmd === 'quote') {
         document.execCommand('formatBlock', false, 'blockquote');
       } else if (cmd === 'divider') {
@@ -2836,105 +4172,51 @@
       window.open('https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F' + encodeURIComponent(MOCK_SHARE_LINK), '_blank');
     });
 
-    // ——— Draft composer ———
-    const draftOverlay     = document.getElementById('draftOverlay');
-    const draftTextarea    = document.getElementById('draftTextarea');
-    const draftGenerateBtn = document.getElementById('draftGenerateBtn');
-    const draftLoading     = document.getElementById('draftLoading');
-    const draftScratchBtn  = document.getElementById('draftScratchBtn');
-    const draftAttachBtn   = document.getElementById('draftAttachBtn');
-    const draftFileInput   = document.getElementById('draftFileInput');
+    // ——— AI helper ———
+    const aiHelperEl    = document.getElementById('aiHelper');
+    const aiHelperInput = document.getElementById('aiHelperInput');
+    const aiHelperSend  = document.getElementById('aiHelperSend');
 
-    // ID of the blank doc created when the user clicks "+ Nueva nota".
-    let draftDocId = null;
-
-    function updateSendIcon() {
-      const hasText = draftTextarea.value.trim().length > 0;
-      draftGenerateBtn.classList.toggle('has-input', hasText);
+    function showAiHelper() {
+      aiHelperEl.classList.add('visible');
     }
 
-    function resetDraftUI() {
-      draftTextarea.value = '';
-      draftTextarea.style.height = '';
-      draftLoading.classList.remove('visible');
-      draftGenerateBtn.classList.remove('loading', 'has-input');
-      draftGenerateBtn.disabled = false;
+    function hideAiHelper() {
+      aiHelperEl.classList.remove('visible');
+      aiHelperInput.value = '';
+      aiHelperInput.style.height = '';
     }
 
-    async function openDraftChat() {
-      // 1. Create the blank note in Supabase immediately
+    async function openNewNote() {
+      // Immediately create blank note — editor appears at once, no modal
       await createDoc('', '<p></p>');
-      draftDocId = currentId;
-
-      // 2. Show the composer
-      resetDraftUI();
-      requestAnimationFrame(() => {
-        draftOverlay.classList.add('visible');
-        setTimeout(() => draftTextarea.focus(), 80);
-      });
+      // Show subtle AI helper at bottom (non-blocking)
+      showAiHelper();
     }
 
-    function closeDraftChat(keepDoc = true) {
-      draftOverlay.classList.remove('visible');
-      if (!keepDoc && draftDocId) {
-        _deleteDocById(draftDocId);
-      }
-      draftDocId = null;
-    }
-
-    // Silently delete a doc by id without the shake guard
-    function _deleteDocById(id) {
-      documents = documents.filter(d => d.id !== id);
-      if (currentId === id) {
-        currentId = documents.length ? documents[0].id : null;
-        if (currentId) { showDoc(currentId); }
-        else { updateEmptyState(); }
-      }
-      renderDocList();
-      sbFetch('/rest/v1/notes?id=eq.' + id, { method: 'DELETE' }).catch(() => {});
-    }
-
-    // ── Attach / clip button → open file picker ───
-    draftAttachBtn.addEventListener('click', () => draftFileInput.click());
-
-    // ── "Start from scratch" — hide composer, keep blank doc ──
-    draftScratchBtn.addEventListener('click', () => closeDraftChat(true));
-
-    // ── Textarea: auto-resize + mic↔send toggle ──
-    draftTextarea.addEventListener('input', () => {
-      draftTextarea.style.height = 'auto';
-      draftTextarea.style.height = Math.min(draftTextarea.scrollHeight, 120) + 'px';
-      updateSendIcon();
+    // Auto-resize textarea
+    aiHelperInput.addEventListener('input', () => {
+      aiHelperInput.style.height = 'auto';
+      aiHelperInput.style.height = Math.min(aiHelperInput.scrollHeight, 80) + 'px';
     });
 
-    draftTextarea.addEventListener('keydown', (e) => {
+    aiHelperInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        triggerGenerate();
+        triggerAiHelper();
       } else if (e.key === 'Escape') {
-        if (draftTextarea.value.trim()) {
-          draftTextarea.value = '';
-          draftTextarea.style.height = '';
-          updateSendIcon();
-          draftTextarea.focus();
-        } else {
-          closeDraftChat(true);
-        }
+        hideAiHelper();
       }
     });
 
-    draftGenerateBtn.addEventListener('click', triggerGenerate);
+    aiHelperSend.addEventListener('click', triggerAiHelper);
 
-    async function triggerGenerate() {
-      const topic = draftTextarea.value.trim();
-      if (!topic) { draftTextarea.focus(); return; }
+    async function triggerAiHelper() {
+      const topic = aiHelperInput.value.trim();
+      if (!topic) { aiHelperInput.focus(); return; }
 
-      // Loading state
-      draftGenerateBtn.classList.add('loading');
-      draftGenerateBtn.disabled = true;
-      draftLoading.classList.add('visible');
-
-      const savedDraftDocId = draftDocId; // capture before closeDraftChat clears it
+      aiHelperSend.classList.add('loading');
+      aiHelperSend.disabled = true;
 
       let draft;
       try {
@@ -2946,49 +4228,484 @@
         if (!res.ok) throw new Error('status ' + res.status);
         draft = await res.json();
       } catch (err) {
-        console.error('generate error:', err);
-        draftLoading.classList.remove('visible');
-        draftGenerateBtn.classList.remove('loading');
-        draftGenerateBtn.disabled = false;
-        showSyncError('Could not generate. Please try again.');
+        console.error('ai helper error:', err);
+        showSyncError('Could not generate. Try again.');
+        aiHelperSend.classList.remove('loading');
+        aiHelperSend.disabled = false;
         return;
       }
 
-      // Hide composer, keep the blank doc
-      closeDraftChat(true);
+      const titleText = (editorTitle.textContent || '').trim();
+      const bodyText  = stripHtml(editorBody.innerHTML || '').trim();
+      const isEmpty   = !titleText && (!bodyText || bodyText === '');
 
-      // Patch the already-created blank doc with Claude's content
-      const doc = documents.find(d => d.id === savedDraftDocId || d.id === currentId);
-      if (doc) {
-        doc.title = draft.title || '';
-        doc.body  = draft.body  || '<p></p>';
-        doc.updatedAt = new Date().toISOString();
-        editorTitle.textContent = doc.title;
-        editorBody.innerHTML    = doc.body;
-        renderDocList();
-        updateWordCount();
-        sbFetch('/rest/v1/notes?id=eq.' + doc.id, {
-          method: 'PATCH',
-          body: JSON.stringify({ title: doc.title, content: doc.body, updated_at: doc.updatedAt })
-        }).then(() => showSavedIndicator()).catch(console.error);
+      if (isEmpty) {
+        // Blank document — populate title and body fully
+        editorTitle.textContent = draft.title || '';
+        editorBody.innerHTML    = draft.body  || '<p></p>';
+        const doc = getCurrentDoc();
+        if (doc) {
+          doc.title = editorTitle.textContent;
+          doc.body  = editorBody.innerHTML;
+        }
+        // Cursor at end of body so user can keep writing
+        requestAnimationFrame(() => {
+          editorBody.focus();
+          const r = document.createRange();
+          r.selectNodeContents(editorBody);
+          r.collapse(false);
+          const sel = window.getSelection();
+          if (sel) { sel.removeAllRanges(); sel.addRange(r); }
+        });
+      } else {
+        // Existing content — insert generated text at caret position
+        editorBody.focus();
+        const sel = window.getSelection();
+        let range;
+        if (sel && sel.rangeCount > 0 && editorBody.contains(sel.anchorNode)) {
+          range = sel.getRangeAt(0);
+        } else {
+          range = document.createRange();
+          range.selectNodeContents(editorBody);
+          range.collapse(false);
+        }
+        range.deleteContents();
+        const tmp  = document.createElement('div');
+        tmp.innerHTML = draft.body || '';
+        const frag = document.createDocumentFragment();
+        while (tmp.firstChild) frag.appendChild(tmp.firstChild);
+        range.insertNode(frag);
+        range.collapse(false);
+        if (sel) { sel.removeAllRanges(); sel.addRange(range); }
       }
 
-      // Cursor at end of body
-      requestAnimationFrame(() => {
-        editorBody.focus();
-        const range = document.createRange();
-        range.selectNodeContents(editorBody);
-        range.collapse(false);
-        window.getSelection().removeAllRanges();
-        window.getSelection().addRange(range);
+      // Reset helper input, keep helper visible for follow-up
+      aiHelperInput.value = '';
+      aiHelperInput.style.height = '';
+      aiHelperSend.classList.remove('loading');
+      aiHelperSend.disabled = false;
+
+      renderDocList();
+      updateWordCount();
+      scheduleSave();
+    }
+
+    // ═══════════════════════════════════════════════
+    // 7. FLOATING FORMAT BAR
+    // ═══════════════════════════════════════════════
+    const fmtBar       = document.getElementById('fmtBar');
+    const fmtLinkPanel = document.getElementById('fmtLinkPanel');
+    const fmtLinkInput = document.getElementById('fmtLinkInput');
+    const fmtLinkApply = document.getElementById('fmtLinkApply');
+    let fmtBarSelRange = null; // stored selection for format commands
+
+    function checkAndShowFmtBar() {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed || sel.rangeCount === 0) { hideFmtBar(); return; }
+      const range = sel.getRangeAt(0);
+      if (!editorBody.contains(range.commonAncestorContainer)) { hideFmtBar(); return; }
+      if (sel.toString().trim().length === 0) { hideFmtBar(); return; }
+      showFmtBar(range);
+    }
+
+    function showFmtBar(range) {
+      const rect = range.getBoundingClientRect();
+      if (!rect || rect.width === 0) return;
+      fmtBarSelRange = range.cloneRange();
+
+      const GAP = 8;
+      const barH = 38;
+      const viewW = window.innerWidth;
+
+      // Center horizontally on selection
+      let left = rect.left + rect.width / 2;
+      left = Math.max(130, Math.min(left, viewW - 130));
+
+      // Prefer above; fall back to below
+      let top = rect.top - barH - GAP;
+      if (top < 8) top = rect.bottom + GAP;
+
+      fmtBar.style.left = left + 'px';
+      fmtBar.style.top  = top  + 'px';
+      fmtBar.classList.add('visible');
+      updateFmtBarState();
+
+      // Show the AI Edit Bar on the opposite side of the selection
+      showAiEditBar(range, rect);
+    }
+
+    function hideFmtBar() {
+      fmtBar.classList.remove('visible');
+      hideFmtLinkPanel();
+      fmtBarSelRange = null;
+      hideAiEditBar(); // also dismiss the AI Edit Bar
+    }
+
+    function updateFmtBarState() {
+      fmtBar.querySelectorAll('[data-cmd]').forEach(btn => {
+        const cmd = btn.dataset.cmd;
+        if (cmd === 'bold' || cmd === 'italic' || cmd === 'underline') {
+          try { btn.classList.toggle('active', document.queryCommandState(cmd)); } catch (_) {}
+        }
       });
     }
+
+    function hideFmtLinkPanel() {
+      fmtLinkPanel.classList.remove('visible');
+      fmtLinkInput.value = '';
+    }
+
+    function showFmtLinkPanel() {
+      const barRect = fmtBar.getBoundingClientRect();
+      fmtLinkPanel.style.left = fmtBar.style.left;
+      fmtLinkPanel.style.top  = (barRect.bottom + 6) + 'px';
+      fmtLinkPanel.classList.add('visible');
+      // Pre-fill if caret is inside a link
+      if (fmtBarSelRange) {
+        const anchor = fmtBarSelRange.startContainer.parentNode &&
+                       fmtBarSelRange.startContainer.parentNode.closest &&
+                       fmtBarSelRange.startContainer.parentNode.closest('a');
+        if (anchor) fmtLinkInput.value = anchor.href || '';
+      }
+      setTimeout(() => fmtLinkInput.focus(), 20);
+    }
+
+    function applyFmtLink() {
+      const url = fmtLinkInput.value.trim();
+      hideFmtLinkPanel();
+      if (!fmtBarSelRange) return;
+      editorBody.focus();
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(fmtBarSelRange);
+      if (url) {
+        document.execCommand('createLink', false, url);
+        // Make link open in new tab
+        const anchor = sel.anchorNode && sel.anchorNode.parentNode &&
+                       sel.anchorNode.parentNode.closest('a');
+        if (anchor) anchor.target = '_blank';
+      } else {
+        document.execCommand('unlink', false, null);
+      }
+      hideFmtBar();
+      scheduleSave();
+    }
+
+    // Format bar button handler — mousedown to preserve selection
+    fmtBar.addEventListener('mousedown', (e) => {
+      const btn = e.target.closest('[data-cmd]');
+      if (!btn) { e.preventDefault(); return; }
+      e.preventDefault(); // ← keeps the selection alive
+      const cmd = btn.dataset.cmd;
+
+      if (cmd === 'link') {
+        // Save current selection before link panel steals focus
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount) fmtBarSelRange = sel.getRangeAt(0).cloneRange();
+        showFmtLinkPanel();
+        return;
+      }
+
+      if (cmd === 'ai') {
+        // Hand off to the AI floating chat
+        hideFmtBar();
+        // Restore selection so tryOpenChat can read it
+        if (fmtBarSelRange) {
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(fmtBarSelRange);
+        }
+        tryOpenChat();
+        return;
+      }
+
+      // Restore selection before executing format command
+      if (fmtBarSelRange) {
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(fmtBarSelRange);
+      }
+      document.execCommand(cmd, false, null);
+      editorBody.focus();
+      hideFmtBar();
+      scheduleSave();
+      // Format feedback flash (opacity + subtle tint, GPU-only, 280ms)
+      const edWrap = editorBody.closest('.editor-wrap') || document.querySelector('.editor-wrap');
+      if (edWrap) {
+        edWrap.classList.remove('fmt-feedback');
+        void edWrap.offsetWidth; // force reflow to restart animation
+        edWrap.classList.add('fmt-feedback');
+        const onEnd = () => { edWrap.classList.remove('fmt-feedback'); };
+        edWrap.addEventListener('animationend', onEnd, { once: true });
+      }
+    });
+
+    // Link panel handlers
+    fmtLinkInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter')  { e.preventDefault(); applyFmtLink(); }
+      if (e.key === 'Escape') { hideFmtLinkPanel(); }
+    });
+    fmtLinkApply.addEventListener('mousedown', (e) => { e.preventDefault(); applyFmtLink(); });
+    fmtLinkPanel.addEventListener('mousedown', (e) => e.stopPropagation());
+
+    // Hide fmt bar when selection collapses (typing, clicking elsewhere)
+    document.addEventListener('selectionchange', () => {
+      if (!fmtBar.classList.contains('visible')) return;
+      if (fmtLinkPanel.classList.contains('visible')) return; // keep open for link input
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed || sel.toString().trim().length === 0) hideFmtBar();
+    });
+
+    // Escape closes fmt bar
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && fmtBar.classList.contains('visible')) hideFmtBar();
+    });
+
+    // Click outside closes fmt bar
+    document.addEventListener('mousedown', (e) => {
+      if (!fmtBar.contains(e.target) && !fmtLinkPanel.contains(e.target)) hideFmtBar();
+    });
+
+    // ═══════════════════════════════════════════════
+    // 8. BLOCK HANDLE + DRAG REORDER
+    // ═══════════════════════════════════════════════
+    const paraHandle    = document.getElementById('paraHandle');
+    const blockTypeMenu = document.getElementById('blockTypeMenu');
+    const dragInsertLine = document.getElementById('dragInsertLine');
+    const dragDeleteZone = document.getElementById('dragDeleteZone');
+    let handleBlock    = null; // block currently hovered
+    let dragState      = null; // { block, ghost, insertBefore }
+    let handleHideTimer = null;
+
+    function getTopBlock(node) {
+      while (node && node.parentNode !== editorBody) node = node.parentNode;
+      return (node && node !== editorBody) ? node : null;
+    }
+
+    function positionHandle(block) {
+      const rect = block.getBoundingClientRect();
+      paraHandle.style.top  = Math.round(rect.top + rect.height / 2 - 11) + 'px';
+      paraHandle.style.left = Math.round(rect.left - 28) + 'px';
+      handleBlock = block;
+      paraHandle.classList.add('visible');
+    }
+
+    function hideHandle() {
+      paraHandle.classList.remove('visible');
+      handleBlock = null;
+    }
+
+    editorBody.addEventListener('mouseover', (e) => {
+      if (dragState) return;
+      clearTimeout(handleHideTimer);
+      const block = getTopBlock(e.target);
+      if (block) positionHandle(block);
+    });
+    editorBody.addEventListener('mouseleave', () => {
+      if (dragState) return;
+      handleHideTimer = setTimeout(hideHandle, 300);
+    });
+    paraHandle.addEventListener('mouseenter', () => clearTimeout(handleHideTimer));
+    paraHandle.addEventListener('mouseleave', () => {
+      if (!blockTypeMenu.classList.contains('visible')) {
+        handleHideTimer = setTimeout(hideHandle, 300);
+      }
+    });
+
+    // Click handle → open block type menu
+    paraHandle.addEventListener('click', (e) => {
+      if (dragState) return;
+      e.stopPropagation();
+      if (blockTypeMenu.classList.contains('visible')) {
+        blockTypeMenu.classList.remove('visible');
+        return;
+      }
+      const r = paraHandle.getBoundingClientRect();
+      blockTypeMenu.style.left = (r.right + 6) + 'px';
+      blockTypeMenu.style.top  = r.top + 'px';
+      blockTypeMenu.classList.add('visible');
+      // Mark current block type active
+      const tag = (handleBlock ? handleBlock.tagName : 'P').toLowerCase();
+      const normTag = (tag === 'ul' || tag === 'ol') ? tag : tag;
+      blockTypeMenu.querySelectorAll('.btype-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.btype === normTag);
+      });
+    });
+
+    // Block type menu → apply
+    blockTypeMenu.addEventListener('mousedown', (e) => {
+      const item = e.target.closest('.btype-item');
+      if (!item || !handleBlock) return;
+      e.preventDefault();
+      blockTypeMenu.classList.remove('visible');
+      editorBody.focus();
+      const range = document.createRange();
+      range.selectNodeContents(handleBlock);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      const btype = item.dataset.btype;
+      if (btype === 'ul')         document.execCommand('insertUnorderedList');
+      else if (btype === 'ol')    document.execCommand('insertOrderedList');
+      else                        document.execCommand('formatBlock', false, btype);
+      scheduleSave();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!blockTypeMenu.contains(e.target) && e.target !== paraHandle) {
+        blockTypeMenu.classList.remove('visible');
+      }
+    });
+
+    // ——— Drag reorder ———
+    paraHandle.addEventListener('mousedown', (e) => {
+      if (e.button !== 0 || !handleBlock) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const block = handleBlock;
+      const br    = block.getBoundingClientRect();
+
+      const ghost = document.createElement('div');
+      ghost.className = 'drag-ghost';
+      ghost.textContent = (block.innerText || '').slice(0, 80) +
+                          (block.innerText && block.innerText.length > 80 ? '…' : '');
+      ghost.style.width = br.width + 'px';
+      ghost.style.top   = e.clientY + 'px';
+      ghost.style.left  = br.left + 'px';
+      document.body.appendChild(ghost);
+
+      block.classList.add('block-dragging');
+      dragDeleteZone.classList.add('visible');
+      blockTypeMenu.classList.remove('visible');
+      hideHandle();
+
+      dragState = { block, ghost, insertBefore: null };
+      document.addEventListener('mousemove', onDragMove, { passive: true });
+      document.addEventListener('mouseup',   onDragEnd);
+    });
+
+    function onDragMove(e) {
+      if (!dragState) return;
+      const { ghost, block } = dragState;
+      ghost.style.top  = (e.clientY - 14) + 'px';
+      ghost.style.left = block.getBoundingClientRect().left + 'px';
+
+      const siblings = [...editorBody.children].filter(b => b !== block);
+      let insertBefore = null;
+      for (const b of siblings) {
+        const r = b.getBoundingClientRect();
+        if (e.clientY < r.top + r.height * 0.5) { insertBefore = b; break; }
+      }
+      dragState.insertBefore = insertBefore;
+
+      if (insertBefore) {
+        const r = insertBefore.getBoundingClientRect();
+        dragInsertLine.style.top   = (r.top - 1) + 'px';
+        dragInsertLine.style.left  = r.left + 'px';
+        dragInsertLine.style.width = r.width + 'px';
+        dragInsertLine.classList.add('visible');
+      } else {
+        const last = siblings[siblings.length - 1];
+        if (last) {
+          const r = last.getBoundingClientRect();
+          dragInsertLine.style.top   = (r.bottom + 1) + 'px';
+          dragInsertLine.style.left  = r.left + 'px';
+          dragInsertLine.style.width = r.width + 'px';
+          dragInsertLine.classList.add('visible');
+        } else {
+          dragInsertLine.classList.remove('visible');
+        }
+      }
+
+      const dz = dragDeleteZone.getBoundingClientRect();
+      dragDeleteZone.classList.toggle('active', e.clientY > dz.top);
+    }
+
+    function onDragEnd(e) {
+      if (!dragState) return;
+      const { block, ghost, insertBefore } = dragState;
+      ghost.remove();
+      block.classList.remove('block-dragging');
+      dragInsertLine.classList.remove('visible');
+      dragDeleteZone.classList.remove('visible', 'active');
+      dragState = null;
+      document.removeEventListener('mousemove', onDragMove);
+      document.removeEventListener('mouseup',   onDragEnd);
+
+      const dz = dragDeleteZone.getBoundingClientRect();
+      if (e.clientY > dz.top - 56) {
+        block.remove();
+      } else if (insertBefore) {
+        editorBody.insertBefore(block, insertBefore);
+      } else {
+        editorBody.appendChild(block);
+      }
+      renderDocList();
+      updateWordCount();
+      scheduleSave();
+    }
+
+    // ═══════════════════════════════════════════════
+    // 9. EDITOR KEYBOARD SHORTCUTS
+    // ═══════════════════════════════════════════════
+    editorBody.addEventListener('keydown', (e) => {
+      const mod = e.metaKey || e.ctrlKey;
+
+      // Tab / Shift+Tab → indent / outdent (lists)
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        document.execCommand(e.shiftKey ? 'outdent' : 'indent');
+        scheduleSave();
+        return;
+      }
+
+      // Cmd/Ctrl+K → Insert or edit link
+      if (mod && e.key === 'k') {
+        e.preventDefault();
+        const sel = window.getSelection();
+        if (sel && !sel.isCollapsed && sel.rangeCount > 0 &&
+            editorBody.contains(sel.anchorNode)) {
+          const range = sel.getRangeAt(0).cloneRange();
+          showFmtBar(range);
+          showFmtLinkPanel();
+        }
+        return;
+      }
+
+      // Cmd/Ctrl+B/I/U — let browser handle natively but also close fmt bar + flash
+      if (mod && (e.key === 'b' || e.key === 'i' || e.key === 'u')) {
+        hideFmtBar();
+        // browser default executes bold/italic/underline
+        requestAnimationFrame(() => {
+          const edWrap = document.querySelector('.editor-wrap');
+          if (edWrap) {
+            edWrap.classList.remove('fmt-feedback');
+            void edWrap.offsetWidth;
+            edWrap.classList.add('fmt-feedback');
+            edWrap.addEventListener('animationend', () => edWrap.classList.remove('fmt-feedback'), { once: true });
+          }
+        });
+      }
+
+      // Backspace/Delete when whole block is selected via handle
+      if ((e.key === 'Backspace' || e.key === 'Delete') && handleBlock) {
+        const sel = window.getSelection();
+        if (!sel || !sel.rangeCount) return;
+        const range = sel.getRangeAt(0);
+        if (!range.collapsed && range.toString() === (handleBlock.innerText || '')) {
+          e.preventDefault();
+          handleBlock.remove();
+          hideHandle();
+          scheduleSave();
+        }
+      }
+    });
 
     // ——— Global keyboard shortcuts ———
     document.addEventListener('keydown', (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
         e.preventDefault();
-        openDraftChat();
+        openNewNote();
       } else if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
         e.preventDefault();
         const si = document.getElementById('searchInput');
@@ -2997,10 +4714,622 @@
       }
     });
 
-    // ——— Init ———
-    updateEmptyState();
-    updateWordCount();
-    loadDocuments(); // async — populates UI once Supabase responds
+    // ═══════════════════════════════════════════════════════════════════════
+    // AI EDIT BAR  — selection quick actions + alternatives panel
+    // ═══════════════════════════════════════════════════════════════════════
+    (function () {
+
+      // ── Element refs ──────────────────────────────────────────────────────
+      const aiEditBar       = document.getElementById('aiEditBar');
+      const aiEditResults   = document.getElementById('aiEditResults');
+      const aiEditLoadingRow= document.getElementById('aiEditLoadingRow');
+      const aiEditAltsList  = document.getElementById('aiEditAltsList');
+      const aiEditErrorRow  = document.getElementById('aiEditErrorRow');
+      const aiEditErrorMsg  = document.getElementById('aiEditErrorMsg');
+      const aiEditRetryBtn  = document.getElementById('aiEditRetryBtn');
+      const aiEditFooter    = document.getElementById('aiEditFooter');
+      const aiEditToneWrap  = document.getElementById('aiEditToneWrap');
+      const aiEditToneBtn   = document.getElementById('aiEditToneBtn');
+      const aiEditToneDd    = document.getElementById('aiEditToneDropdown');
+      const aiEditMoreWrap  = document.getElementById('aiEditMoreWrap');
+      const aiEditMoreBtn   = document.getElementById('aiEditMoreBtn');
+      const aiEditMoreDd    = document.getElementById('aiEditMoreDropdown');
+      const aiEditClose     = document.getElementById('aiEditClose');
+      const aiEditApplyRepl = document.getElementById('aiEditApplyReplace');
+      const aiEditApplyIns  = document.getElementById('aiEditApplyInsert');
+      const aiEditApplyCncl = document.getElementById('aiEditApplyCancel');
+
+      // ── State ─────────────────────────────────────────────────────────────
+      let selRange    = null;   // cloned Range saved at bar-show time
+      let selText     = '';     // plain-text backup (survives if Range is GC'd)
+      let alts        = [];     // current alternatives array
+      let selectedIdx = 0;      // which card is selected
+      let lastAction  = null;   // for retry
+      let lastTone    = null;
+
+      // ── Prevent clicks on bar/panel from clearing the editor selection ───
+      // e.preventDefault()  → prevents editor blur (keeps selection alive)
+      // e.stopPropagation() → prevents document-level mousedown from calling
+      //                        hideFmtBar → hideAiEditBar before click fires,
+      //                        which would null selRange and silence the click.
+      aiEditBar.addEventListener('mousedown',     e => { e.preventDefault(); e.stopPropagation(); });
+      aiEditResults.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); });
+
+      // ── Public: called by showFmtBar ──────────────────────────────────────
+      // Exposed on window so showFmtBar (defined above) can call it.
+      window.showAiEditBar = function showAiEditBar(range, selRect) {
+        selRange = range.cloneRange();
+        selText  = range.toString();
+
+        // Position: below selection (or above if near bottom)
+        const rect  = selRect || range.getBoundingClientRect();
+        const GAP   = 8;
+        const barH  = 36;
+        const viewW = window.innerWidth;
+        const viewH = window.innerHeight;
+
+        let left = rect.left + rect.width / 2;
+        left = Math.max(185, Math.min(left, viewW - 185));
+
+        let top = rect.bottom + GAP;
+        // If the fmt-bar ended up below (rect.top - barH - 8 < 8), we also put
+        // the AI bar below — just add extra gap so they don't overlap.
+        const fmtIsAbove = (rect.top - barH - 8) >= 8;
+        if (!fmtIsAbove) {
+          // fmt-bar is BELOW → put AI bar further below (+44px for fmt-bar height)
+          top = rect.bottom + GAP + 44;
+        }
+        if (top + barH > viewH - 8) {
+          // Not enough room below → go above selection
+          top = rect.top - barH - GAP;
+        }
+
+        aiEditBar.style.left = left + 'px';
+        aiEditBar.style.top  = top + 'px';
+        aiEditBar._anchorLeft = left;
+        aiEditBar._anchorBottom = top + barH;
+        aiEditBar._selRect = rect;
+        aiEditBar.classList.add('visible');
+      };
+
+      // ── Public: called by hideFmtBar ──────────────────────────────────────
+      window.hideAiEditBar = function hideAiEditBar() {
+        aiEditBar.classList.remove('visible');
+        aiEditResults.classList.remove('visible');
+        closeDropdowns();
+        selRange    = null;
+        selText     = '';
+        alts        = [];
+        lastAction  = null;
+        lastTone    = null;
+      };
+
+      // ── Dropdown helpers ──────────────────────────────────────────────────
+      function closeDropdowns() {
+        aiEditToneDd.classList.remove('open');
+        aiEditMoreDd.classList.remove('open');
+        aiEditToneBtn.setAttribute('aria-expanded', 'false');
+        aiEditMoreBtn.setAttribute('aria-expanded', 'false');
+      }
+
+      function toggleDropdown(dd, triggerBtn) {
+        const isOpen = dd.classList.contains('open');
+        closeDropdowns();
+        if (!isOpen) {
+          dd.classList.add('open');
+          triggerBtn.setAttribute('aria-expanded', 'true');
+        }
+      }
+
+      // ── Close button ──────────────────────────────────────────────────────
+      aiEditClose.addEventListener('click', window.hideAiEditBar);
+
+      // ── Quick action buttons ───────────────────────────────────────────────
+      aiEditBar.querySelectorAll('[data-edit-action]').forEach(btn => {
+        btn.addEventListener('click', () =>
+          triggerAction(btn.dataset.editAction, null, btn)
+        );
+      });
+
+      // ── Tone dropdown ──────────────────────────────────────────────────────
+      aiEditToneBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        toggleDropdown(aiEditToneDd, aiEditToneBtn);
+      });
+      aiEditToneDd.querySelectorAll('[data-tone]').forEach(item => {
+        item.addEventListener('click', () => {
+          closeDropdowns();
+          triggerAction('tone', item.dataset.tone, aiEditToneBtn);
+        });
+      });
+
+      // ── More dropdown ──────────────────────────────────────────────────────
+      aiEditMoreBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        toggleDropdown(aiEditMoreDd, aiEditMoreBtn);
+      });
+      aiEditMoreDd.querySelectorAll('[data-edit-action]').forEach(item => {
+        item.addEventListener('click', () => {
+          closeDropdowns();
+          triggerAction(item.dataset.editAction, null, aiEditMoreBtn);
+        });
+      });
+
+      // ── Close dropdowns on outside click ──────────────────────────────────
+      document.addEventListener('click', e => {
+        if (!aiEditToneWrap.contains(e.target)) aiEditToneDd.classList.remove('open');
+        if (!aiEditMoreWrap.contains(e.target)) aiEditMoreDd.classList.remove('open');
+      });
+
+      // ── ESC to close ──────────────────────────────────────────────────────
+      document.addEventListener('keydown', e => {
+        if (e.key !== 'Escape') return;
+        if (aiEditResults.classList.contains('visible')) {
+          aiEditResults.classList.remove('visible');
+        } else if (aiEditBar.classList.contains('visible')) {
+          window.hideAiEditBar();
+        }
+      });
+
+      // ── Retry ─────────────────────────────────────────────────────────────
+      aiEditRetryBtn.addEventListener('click', () => {
+        if (lastAction) triggerAction(lastAction, lastTone, null);
+      });
+
+      // ── Apply / Cancel ─────────────────────────────────────────────────────
+      aiEditApplyRepl.addEventListener('click', () => applyEdit('replace'));
+      aiEditApplyIns.addEventListener('click',  () => applyEdit('insertBelow'));
+      aiEditApplyCncl.addEventListener('click', window.hideAiEditBar);
+
+      // ── Core: trigger an edit action ──────────────────────────────────────
+      async function triggerAction(action, tone, triggerBtn) {
+        // DEV LOG — fires immediately on click; if you don't see this, the
+        // event handler is not attached or blocked by an overlay.
+        console.log('[AI_EDIT] click', action, tone || '');
+
+        // Resolve selected text: prefer live Range, fall back to saved plain-text
+        const resolvedText = (selRange ? selRange.toString() : selText).trim();
+        if (!resolvedText) {
+          console.warn('[AI_EDIT] no selection text — bar may have been closed before click');
+          return;
+        }
+
+        lastAction = action;
+        lastTone   = tone;
+
+        // Reset results panel to loading state
+        aiEditLoadingRow.classList.add('on');
+        aiEditAltsList.classList.remove('on');
+        aiEditAltsList.innerHTML = '';
+        aiEditErrorRow.classList.remove('on');
+        aiEditFooter.classList.remove('on');
+
+        // Position and show results panel
+        positionResults();
+        aiEditResults.classList.add('visible');
+
+        // Pulse the trigger button while loading
+        if (triggerBtn) triggerBtn.classList.add('loading');
+
+        try {
+          const data = await fetchAlts(action, tone, resolvedText);
+
+          if (data.error || !data.alternatives || !data.alternatives.length) {
+            showError(data.error === 'parse_failed'
+              ? 'AI returned unexpected format. Try again.'
+              : 'Couldn\'t generate alternatives. Try again.');
+            return;
+          }
+
+          renderAlts(data.alternatives);
+          // Re-position now that content height is known
+          positionResults();
+
+        } catch (err) {
+          console.error('[AI_EDIT] error', err);
+          showError('Generation failed. Check your connection.');
+        } finally {
+          aiEditLoadingRow.classList.remove('on');
+          if (triggerBtn) triggerBtn.classList.remove('loading');
+        }
+      }
+
+      // ── Fetch via Supabase Edge Function (full note context) ──────────────
+      // Calls: POST https://<project>.supabase.co/functions/v1/ai-edit
+      // Uses sbClient.functions.invoke so auth token + apikey are set automatically.
+      async function fetchAlts(action, tone, selectedText) {
+        // ── 1. Gather current note ────────────────────────────────────────
+        const doc       = (typeof getCurrentDoc === 'function') ? getCurrentDoc() : null;
+        const noteTitle = doc ? (doc.title || '') : '';
+
+        // Strip HTML → plain text so the model sees clean prose
+        const noteContent = (() => {
+          if (!doc || !doc.body) return '';
+          const tmp = document.createElement('div');
+          tmp.innerHTML = doc.body;
+          return (tmp.innerText || tmp.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
+        })();
+
+        // ── 2. Surrounding context (up to 800 chars before/after selection) ─
+        let before = '', after = '';
+        try {
+          const bodyEl   = document.getElementById('editorBody');
+          const fullText = bodyEl ? (bodyEl.innerText || '') : '';
+          const idx      = fullText.indexOf(selectedText);
+          if (idx >= 0) {
+            before = fullText.slice(Math.max(0, idx - 800), idx);
+            after  = fullText.slice(idx + selectedText.length,
+                                    idx + selectedText.length + 800);
+          }
+        } catch (_) { /* non-fatal */ }
+
+        // ── 3. Build payload (flat — matches edge function contract) ──────
+        const payload = {
+          action,
+          tone:         tone || null,
+          noteTitle,
+          noteContent,
+          selectedText,
+          before,
+          after,
+          languageHint: null,   // server keeps source language automatically
+        };
+        console.log('[AI_EDIT] request:start', payload);
+
+        // ── 4. Call Supabase Edge Function ────────────────────────────────
+        // sbClient.functions.invoke automatically adds:
+        //   apikey: <SB_KEY>
+        //   authorization: Bearer <session access_token>
+        if (!sbClient) throw new Error('Supabase client not initialised');
+
+        const { data, error } = await sbClient.functions.invoke('ai-edit', {
+          body: payload,
+        });
+
+        console.log('[AI_EDIT] request:done', error ? ('error: ' + error.message) : 200);
+
+        if (error) {
+          console.error('[AI_EDIT] error', error);
+          throw new Error(error.message || 'Edge function error');
+        }
+        return data;
+      }
+
+      // ── Show error state ──────────────────────────────────────────────────
+      function showError(msg) {
+        aiEditLoadingRow.classList.remove('on');
+        aiEditAltsList.classList.remove('on');
+        aiEditFooter.classList.remove('on');
+        aiEditErrorMsg.textContent = msg;
+        aiEditErrorRow.classList.add('on');
+      }
+
+      // ── Render alternatives ────────────────────────────────────────────────
+      function renderAlts(alternatives) {
+        alts = alternatives;
+        selectedIdx = 0;
+        aiEditAltsList.innerHTML = '';
+
+        alternatives.forEach((alt, i) => {
+          const row = document.createElement('div');
+          row.className = 'ai-edit-alt-row' + (i === 0 ? ' sel' : '');
+          row.setAttribute('role', 'option');
+          row.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+
+          const isLong = alt.text.length > 180;
+          row.innerHTML =
+            '<span class="ai-edit-alt-dot"></span>' +
+            '<div class="ai-edit-alt-body">' +
+              '<div class="ai-edit-alt-tag">' + escapeHtml(alt.label) + '</div>' +
+              '<div class="ai-edit-alt-text">' + escapeHtml(alt.text) + '</div>' +
+              (isLong ? '<button type="button" class="ai-edit-alt-expand show">Show more</button>' : '') +
+            '</div>';
+
+          // Expand toggle
+          const expandBtn = row.querySelector('.ai-edit-alt-expand');
+          if (expandBtn) {
+            expandBtn.addEventListener('click', e => {
+              e.stopPropagation();
+              row.classList.toggle('expanded');
+              expandBtn.textContent = row.classList.contains('expanded') ? 'Show less' : 'Show more';
+            });
+          }
+
+          // Select on click
+          row.addEventListener('click', () => selectAlt(i));
+
+          aiEditAltsList.appendChild(row);
+        });
+
+        aiEditAltsList.classList.add('on');
+        aiEditFooter.classList.add('on');
+        aiEditErrorRow.classList.remove('on');
+      }
+
+      // ── Select an alternative card ─────────────────────────────────────────
+      function selectAlt(idx) {
+        selectedIdx = idx;
+        aiEditAltsList.querySelectorAll('.ai-edit-alt-row').forEach((row, i) => {
+          row.classList.toggle('sel', i === idx);
+          row.setAttribute('aria-selected', i === idx ? 'true' : 'false');
+        });
+      }
+
+      // ── Position results panel below the bar ───────────────────────────────
+      function positionResults() {
+        const barRect = aiEditBar.getBoundingClientRect();
+        const viewW   = window.innerWidth;
+        const viewH   = window.innerHeight;
+        const GAP     = 6;
+        const panelW  = 370;
+
+        // Same center X as the bar
+        let left = parseFloat(aiEditBar.style.left);
+        left = Math.max(16 + panelW / 2, Math.min(left, viewW - 16 - panelW / 2));
+        aiEditResults.style.left = left + 'px';
+
+        // Below bar; shift above if near bottom
+        let top = barRect.bottom + GAP;
+        if (top + 260 > viewH - 12) {
+          const selRect = aiEditBar._selRect || {};
+          top = Math.max(12, (selRect.top || barRect.top) - 260 - GAP);
+        }
+        aiEditResults.style.top = top + 'px';
+      }
+
+      // ── Apply edit to the document ─────────────────────────────────────────
+      function applyEdit(mode) {
+        const alt = alts[selectedIdx];
+        if (!alt || !selRange) return;
+
+        const text = alt.text;
+        const sel  = window.getSelection();
+
+        if (mode === 'replace') {
+          // Restore the saved selection, then insertText for proper undo
+          sel.removeAllRanges();
+          sel.addRange(selRange);
+          document.execCommand('insertText', false, text);
+
+        } else if (mode === 'insertBelow') {
+          // Walk up to find the nearest block ancestor
+          let node = selRange.endContainer;
+          const BLOCKS = ['P','DIV','H1','H2','H3','H4','H5','H6','LI','BLOCKQUOTE'];
+          let blockEl = null;
+          while (node && node !== editorBody) {
+            if (BLOCKS.includes(node.nodeName)) { blockEl = node; break; }
+            node = node.parentNode;
+          }
+
+          if (blockEl) {
+            // Move caret just after the block, then insert a new paragraph
+            const r = document.createRange();
+            r.setStartAfter(blockEl);
+            r.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(r);
+            // Use insertHTML so we get a proper <p> and undo stays single-step
+            const safeHtml = '<p>' + escapeHtml(text) + '</p>';
+            document.execCommand('insertHTML', false, safeHtml);
+          } else {
+            // Fallback: plain text after the selection
+            const r = selRange.cloneRange();
+            r.collapse(false);
+            sel.removeAllRanges();
+            sel.addRange(r);
+            document.execCommand('insertText', false, '\n' + text);
+          }
+        }
+
+        window.hideAiEditBar();
+        if (typeof scheduleSave === 'function') scheduleSave();
+      }
+
+    })(); // end AI Edit Bar IIFE
+
+    // ——— Theme management ———
+    (function () {
+      const THEME_KEY = 'pages-theme';
+
+      function applyTheme(theme, animate) {
+        if (animate) {
+          document.body.classList.add('theme-transition');
+          window.setTimeout(function() {
+            document.body.classList.remove('theme-transition');
+          }, 130);
+        }
+        if (theme === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+        }
+      }
+
+      function getCurrentTheme() {
+        return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      }
+
+      // Respect system preference changes (only when user hasn't manually overridden)
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        if (!localStorage.getItem(THEME_KEY)) {
+          applyTheme(e.matches ? 'dark' : 'light', true);
+        }
+      });
+
+      // Theme pill toggle (top-right corner)
+      var themePill = document.getElementById('themePill');
+      if (themePill) {
+        themePill.addEventListener('click', function() {
+          var newTheme = getCurrentTheme() === 'dark' ? 'light' : 'dark';
+          applyTheme(newTheme, true);
+          localStorage.setItem(THEME_KEY, newTheme);
+        });
+      }
+    })();
+
+    // ——— User profile widget ———
+    const userWidgetEl   = document.getElementById('userWidget');
+    const btnUserProfile = document.getElementById('btnUserProfile');
+    const userAvatarEl   = document.getElementById('userAvatar');
+    const userNameTextEl = document.getElementById('userNameText');
+    const userPopoverEl  = document.getElementById('userPopover');
+    const userEmailEl    = document.getElementById('userPopoverEmail');
+    const sidebarEmailEl = document.getElementById('sidebarEmail');
+    const btnLogout      = document.getElementById('btnLogout');
+
+    // Palette for initials avatars (same hue across light/dark)
+    const AVATAR_COLORS = ['#5B7FE0','#7B68C8','#5BA08A','#C97A4A','#B05B7A','#4A91B0','#7A9B5B'];
+    function avatarColor(str) {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xFFFFFF;
+      return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+    }
+
+    // Paint the sidebar profile widget.
+    // Eagerly renders from auth metadata, then upgrades with data from
+    // public.profiles (which may have a richer full_name / avatar_url).
+    async function renderUserProfile(user) {
+      if (!user) return;
+      const meta = user.user_metadata || {};
+
+      // ── 1. Render immediately from auth metadata (fast path) ──
+      let displayName = meta.full_name || meta.name || user.email || 'Account';
+      let email       = user.email || '';
+      let avatarUrl   = meta.avatar_url || null;
+
+      applyProfileUI(displayName, email, avatarUrl);
+
+      // ── 2. Upgrade from public.profiles (accurate after migration) ──
+      try {
+        const rows = await sbFetch(
+          '/rest/v1/profiles?id=eq.' + encodeURIComponent(user.id) +
+          '&select=email,full_name,avatar_url&limit=1'
+        );
+        if (rows && rows.length > 0) {
+          const p = rows[0];
+          // Only override if the profile has richer data
+          if (p.full_name) displayName = p.full_name;
+          if (p.email)     email       = p.email;
+          if (p.avatar_url) avatarUrl  = p.avatar_url;
+          applyProfileUI(displayName, email, avatarUrl);
+        }
+      } catch (e) {
+        // public.profiles might not exist yet (pre-migration) — silently ignore
+      }
+    }
+
+    function applyProfileUI(displayName, email, avatarUrl) {
+      userNameTextEl.textContent = displayName;
+      if (userEmailEl) userEmailEl.textContent = email;
+      if (sidebarEmailEl) sidebarEmailEl.textContent = email;
+
+      if (avatarUrl) {
+        const img = document.createElement('img');
+        img.src = avatarUrl;
+        img.alt = displayName;
+        img.onerror = () => { img.remove(); setInitialsAvatar(displayName); };
+        userAvatarEl.textContent = '';
+        userAvatarEl.appendChild(img);
+      } else {
+        setInitialsAvatar(displayName);
+      }
+    }
+
+    function setInitialsAvatar(name) {
+      const parts = name.trim().split(/\s+/);
+      const initials = parts.length >= 2
+        ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+        : name.slice(0, 2).toUpperCase();
+      userAvatarEl.textContent = initials;
+      userAvatarEl.style.background = avatarColor(name.toLowerCase());
+    }
+
+    // Toggle popover
+    if (btnUserProfile) {
+      btnUserProfile.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userPopoverEl.classList.toggle('open');
+      });
+    }
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (userPopoverEl && userPopoverEl.classList.contains('open') &&
+          !userWidgetEl.contains(e.target)) {
+        userPopoverEl.classList.remove('open');
+      }
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && userPopoverEl && userPopoverEl.classList.contains('open')) {
+        userPopoverEl.classList.remove('open');
+        btnUserProfile.focus();
+      }
+    });
+
+    // Logout
+    if (btnLogout) {
+      btnLogout.addEventListener('click', async () => {
+        userPopoverEl.classList.remove('open');
+        try {
+          if (sbClient) await sbClient.auth.signOut();
+        } catch (err) {
+          console.error('signOut error:', err);
+        } finally {
+          window.location.replace('./login.html');
+        }
+      });
+    }
+
+    // ——— Auth guard + init ———
+    (async function initApp() {
+      updateEmptyState();
+      updateWordCount();
+
+      if (!sbClient) {
+        // SDK not available — run without auth guard (dev fallback)
+        console.warn('Supabase SDK not loaded; skipping auth guard.');
+        loadDocuments();
+        return;
+      }
+
+      try {
+        const { data: { session } } = await sbClient.auth.getSession();
+        if (!session) {
+          window.location.replace('./login.html');
+          return;
+        }
+
+        // Update REST Authorization header to use the user's JWT
+        // (RLS on the server will scope all queries to this user automatically)
+        SB_HEADERS['Authorization'] = 'Bearer ' + session.access_token;
+
+        // Store uid so createDoc can include user_id in the INSERT body
+        currentUserId = session.user.id;
+
+        // Render the sidebar user profile widget (async — upgrades from profiles table)
+        renderUserProfile(session.user); // fire-and-forget; UI updates in two passes
+
+        // Listen for auth state changes (token refresh, sign-out)
+        sbClient.auth.onAuthStateChange((event, newSession) => {
+          if (!newSession) {
+            currentUserId = null;
+            window.location.replace('./login.html');
+          } else if (newSession.access_token) {
+            SB_HEADERS['Authorization'] = 'Bearer ' + newSession.access_token;
+            currentUserId = newSession.user.id;
+          }
+        });
+
+        // Load documents now that auth is confirmed (RLS filters to current user)
+        loadDocuments();
+      } catch (err) {
+        console.error('Auth init error:', err);
+        // On error, still try to load (degrade gracefully)
+        loadDocuments();
+      }
+    })();
   </script>
 </body>
 </html>
