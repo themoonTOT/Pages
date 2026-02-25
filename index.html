@@ -2706,6 +2706,332 @@
     [data-theme="dark"] .ai-edit-apply-insert:hover { background: rgba(255,255,255,0.14); }
     [data-theme="dark"] .ai-edit-apply-cancel  { color: rgba(255,255,255,0.30); }
     [data-theme="dark"] .ai-edit-apply-cancel:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.60); }
+
+    /* ═══════════════════════════════════════════════
+       PROFILE & AI TRAINING PANEL
+    ═══════════════════════════════════════════════ */
+
+    .profile-panel-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0);
+      z-index: 400; pointer-events: none;
+      transition: background 0.22s ease;
+    }
+    .profile-panel-backdrop.open { background: rgba(0,0,0,0.18); pointer-events: auto; }
+
+    .profile-panel {
+      position: fixed; top: 0; right: 0; bottom: 0; width: 420px;
+      background: #fff; border-left: 1px solid rgba(0,0,0,0.09);
+      box-shadow: -8px 0 40px rgba(0,0,0,0.10);
+      z-index: 500; display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+      overflow: hidden;
+    }
+    .profile-panel.open { transform: translateX(0); }
+
+    .pp-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 20px 16px; border-bottom: 1px solid rgba(0,0,0,0.07);
+      flex-shrink: 0;
+    }
+    .pp-title { font-size: 14px; font-weight: 600; color: #1a1a1a; letter-spacing: -0.01em; }
+    .pp-close {
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 7px;
+      border: none; background: none; cursor: pointer;
+      color: rgba(0,0,0,0.38);
+      transition: background 0.12s ease, color 0.12s ease;
+    }
+    .pp-close:hover { background: rgba(0,0,0,0.06); color: rgba(0,0,0,0.7); }
+
+    .pp-tabs {
+      display: flex; padding: 0 16px; border-bottom: 1px solid rgba(0,0,0,0.07);
+      flex-shrink: 0; overflow-x: auto; gap: 0;
+    }
+    .pp-tab {
+      padding: 10px 12px; font-size: 12px; font-weight: 500;
+      color: rgba(0,0,0,0.42); background: none; border: none;
+      border-bottom: 2px solid transparent; cursor: pointer;
+      white-space: nowrap; font-family: var(--font); margin-bottom: -1px;
+      transition: color 0.12s ease, border-color 0.12s ease;
+    }
+    .pp-tab:hover { color: rgba(0,0,0,0.72); }
+    .pp-tab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; font-weight: 600; }
+
+    .pp-body { flex: 1; overflow-y: auto; padding: 0; }
+    .pp-section { display: none; padding: 20px; }
+    .pp-section.active { display: block; }
+
+    .pp-field { margin-bottom: 18px; }
+    .pp-label {
+      display: block; font-size: 11px; font-weight: 600;
+      color: rgba(0,0,0,0.40); text-transform: uppercase;
+      letter-spacing: 0.06em; margin-bottom: 7px;
+    }
+    .pp-select, .pp-input, .pp-textarea {
+      width: 100%; padding: 9px 11px;
+      background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.09);
+      border-radius: 8px; font-family: var(--font); font-size: 13px;
+      color: #1a1a1a; appearance: none; -webkit-appearance: none;
+      outline: none; box-sizing: border-box;
+      transition: border-color 0.12s ease, background 0.12s ease;
+    }
+    .pp-select:focus, .pp-input:focus, .pp-textarea:focus {
+      border-color: rgba(0,0,0,0.22); background: #fff;
+    }
+    .pp-textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+    .pp-select-wrap { position: relative; }
+    .pp-select-wrap::after {
+      content: ''; position: absolute; right: 11px; top: 50%;
+      transform: translateY(-50%); pointer-events: none;
+      width: 0; height: 0;
+      border-left: 4px solid transparent; border-right: 4px solid transparent;
+      border-top: 5px solid rgba(0,0,0,0.32);
+    }
+
+    .pp-intent-group { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pp-intent-btn {
+      padding: 6px 14px; border-radius: 20px;
+      border: 1px solid rgba(0,0,0,0.12);
+      background: rgba(0,0,0,0.03);
+      font-family: var(--font); font-size: 12px; font-weight: 500;
+      color: rgba(0,0,0,0.52); cursor: pointer;
+      transition: all 0.12s ease;
+    }
+    .pp-intent-btn:hover { border-color: rgba(0,0,0,0.22); color: #1a1a1a; background: rgba(0,0,0,0.06); }
+    .pp-intent-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+
+    .pp-lang-wrap {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      padding: 7px 8px; background: rgba(0,0,0,0.03);
+      border: 1px solid rgba(0,0,0,0.09); border-radius: 8px;
+      min-height: 38px; align-items: center;
+    }
+    .pp-lang-tag {
+      display: flex; align-items: center; gap: 4px;
+      padding: 3px 8px; background: rgba(0,0,0,0.08);
+      border-radius: 5px; font-size: 12px; color: rgba(0,0,0,0.68);
+    }
+    .pp-lang-tag button {
+      border: none; background: none; cursor: pointer;
+      color: rgba(0,0,0,0.38); font-size: 14px;
+      line-height: 1; padding: 0; display: flex; align-items: center;
+    }
+    .pp-lang-add {
+      border: none; background: none; font-family: var(--font);
+      font-size: 12px; color: rgba(0,0,0,0.35); cursor: pointer; padding: 2px 4px;
+    }
+    .pp-lang-add:hover { color: rgba(0,0,0,0.62); }
+    .pp-lang-dropdown {
+      background: #fff; border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 9px; box-shadow: 0 4px 18px rgba(0,0,0,0.11);
+      z-index: 600; max-height: 200px; overflow-y: auto; min-width: 160px;
+    }
+    .pp-lang-opt { padding: 8px 12px; font-size: 13px; cursor: pointer; color: #1a1a1a; }
+    .pp-lang-opt:hover { background: rgba(0,0,0,0.05); }
+
+    .pp-save-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; background: #1a1a1a; color: #fff;
+      border: none; border-radius: 8px;
+      font-family: var(--font); font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: background 0.12s ease, transform 0.06s ease;
+    }
+    .pp-save-btn:hover { background: #333; }
+    .pp-save-btn:active { transform: scale(0.98); }
+    .pp-save-btn.saved { background: #2a7a44; }
+    .pp-save-btn:disabled { opacity: 0.5; cursor: default; }
+
+    .pp-source-card {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 14px; background: rgba(0,0,0,0.025);
+      border: 1px solid rgba(0,0,0,0.08); border-radius: 10px;
+      margin-bottom: 10px; transition: border-color 0.12s ease;
+    }
+    .pp-source-card:hover { border-color: rgba(0,0,0,0.14); }
+    .pp-source-left { display: flex; align-items: center; gap: 10px; }
+    .pp-source-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(0,0,0,0.06);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .pp-source-name { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+    .pp-source-status { font-size: 11.5px; color: rgba(0,0,0,0.38); margin-top: 2px; }
+    .pp-source-status.connected { color: #2a7a44; }
+    .pp-connect-btn {
+      padding: 6px 12px; border-radius: 7px;
+      border: 1px solid rgba(0,0,0,0.13); background: #fff;
+      font-family: var(--font); font-size: 12px; font-weight: 500;
+      color: rgba(0,0,0,0.60); cursor: pointer; transition: all 0.12s ease;
+    }
+    .pp-connect-btn:hover { border-color: rgba(0,0,0,0.24); color: #1a1a1a; }
+    .pp-connect-btn.connected { background: #f0fdf4; border-color: rgba(42,122,68,0.4); color: #2a7a44; }
+
+    .pp-toggle-row {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 14px; background: rgba(0,0,0,0.025);
+      border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; gap: 16px;
+    }
+    .pp-toggle-info { flex: 1; }
+    .pp-toggle-label { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+    .pp-toggle-desc { font-size: 12px; color: rgba(0,0,0,0.42); margin-top: 3px; line-height: 1.45; }
+    .pp-toggle { position: relative; width: 38px; height: 22px; flex-shrink: 0; margin-top: 1px; }
+    .pp-toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .pp-toggle-track {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.15);
+      border-radius: 11px; cursor: pointer; transition: background 0.15s ease;
+    }
+    .pp-toggle input:checked + .pp-toggle-track { background: #2a7a44; }
+    .pp-toggle-track::after {
+      content: ''; position: absolute; left: 3px; top: 3px;
+      width: 16px; height: 16px; background: #fff; border-radius: 50%;
+      transition: transform 0.15s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .pp-toggle input:checked + .pp-toggle-track::after { transform: translateX(16px); }
+
+    .pp-status-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 14px; border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .pp-status-row:last-child { border-bottom: none; }
+    .pp-status-source { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #1a1a1a; }
+    .pp-status-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(0,0,0,0.18); flex-shrink: 0; }
+    .pp-status-dot.connected { background: #2a7a44; }
+    .pp-status-meta { font-size: 11.5px; color: rgba(0,0,0,0.36); }
+    .pp-status-remove {
+      border: none; background: none; font-size: 11.5px;
+      color: rgba(208,57,58,0.65); cursor: pointer; padding: 4px 8px;
+      border-radius: 5px; font-family: var(--font);
+      transition: background 0.1s ease;
+    }
+    .pp-status-remove:hover { background: rgba(208,57,58,0.08); color: #d0393a; }
+
+    .pp-upload-area {
+      border: 1.5px dashed rgba(0,0,0,0.13); border-radius: 10px;
+      padding: 20px; text-align: center; cursor: pointer;
+      transition: border-color 0.12s ease, background 0.12s ease;
+    }
+    .pp-upload-area:hover { border-color: rgba(0,0,0,0.24); background: rgba(0,0,0,0.02); }
+    .pp-upload-label { font-size: 12.5px; color: rgba(0,0,0,0.42); line-height: 1.5; }
+    .pp-upload-label strong { color: rgba(0,0,0,0.68); }
+
+    .pp-divider { height: 1px; background: rgba(0,0,0,0.06); margin: 20px 0; }
+    .pp-section-note { font-size: 11.5px; color: rgba(0,0,0,0.36); line-height: 1.55; margin-bottom: 16px; }
+
+    .pp-empty { text-align: center; padding: 32px 16px; color: rgba(0,0,0,0.30); font-size: 13px; }
+
+    .pp-stat-row { display: flex; gap: 10px; margin-bottom: 16px; }
+    .pp-stat-card {
+      flex: 1; background: rgba(0,0,0,0.025);
+      border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; padding: 12px 14px;
+    }
+    .pp-stat-value { font-size: 22px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.03em; }
+    .pp-stat-label { font-size: 11px; color: rgba(0,0,0,0.38); margin-top: 2px; }
+
+    .pp-file-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 10px; background: rgba(0,0,0,0.03);
+      border-radius: 7px; margin-bottom: 5px; font-size: 12px;
+    }
+    .pp-file-name { color: rgba(0,0,0,0.65); }
+    .pp-file-size { color: rgba(0,0,0,0.34); margin-left: 4px; }
+
+    /* Source connection stub modal */
+    .pp-modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+      z-index: 700; display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.15s ease;
+    }
+    .pp-modal-backdrop.open { opacity: 1; pointer-events: auto; }
+    .pp-modal {
+      background: #fff; border-radius: 14px; padding: 24px;
+      width: 360px; max-width: 90vw;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+      transform: scale(0.96); transition: transform 0.15s ease;
+    }
+    .pp-modal-backdrop.open .pp-modal { transform: scale(1); }
+    .pp-modal-title { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }
+    .pp-modal-desc { font-size: 13px; color: rgba(0,0,0,0.48); line-height: 1.55; margin-bottom: 20px; }
+    .pp-modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .pp-modal-cancel {
+      padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.12);
+      background: none; font-family: var(--font); font-size: 13px;
+      cursor: pointer; color: rgba(0,0,0,0.62);
+    }
+    .pp-modal-cancel:hover { background: rgba(0,0,0,0.05); }
+    .pp-modal-confirm {
+      padding: 8px 14px; border-radius: 8px; border: none;
+      background: #1a1a1a; color: #fff;
+      font-family: var(--font); font-size: 13px; font-weight: 500; cursor: pointer;
+    }
+    .pp-modal-confirm:hover { background: #333; }
+
+    /* ── Dark mode — Profile Panel ── */
+    [data-theme="dark"] .profile-panel { background: #1C1C1E; border-left-color: rgba(255,255,255,0.07); box-shadow: -8px 0 40px rgba(0,0,0,0.45); }
+    [data-theme="dark"] .pp-header { border-bottom-color: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .pp-title { color: #E6E6E6; }
+    [data-theme="dark"] .pp-close { color: rgba(255,255,255,0.32); }
+    [data-theme="dark"] .pp-close:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.72); }
+    [data-theme="dark"] .pp-tabs { border-bottom-color: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .pp-tab { color: rgba(255,255,255,0.32); }
+    [data-theme="dark"] .pp-tab:hover { color: rgba(255,255,255,0.68); }
+    [data-theme="dark"] .pp-tab.active { color: #E6E6E6; border-bottom-color: rgba(255,255,255,0.75); }
+    [data-theme="dark"] .pp-label { color: rgba(255,255,255,0.32); }
+    [data-theme="dark"] .pp-select, [data-theme="dark"] .pp-input, [data-theme="dark"] .pp-textarea { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.09); color: #E6E6E6; }
+    [data-theme="dark"] .pp-select:focus, [data-theme="dark"] .pp-input:focus, [data-theme="dark"] .pp-textarea:focus { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
+    [data-theme="dark"] .pp-select option { background: #2A2A2E; color: #E6E6E6; }
+    [data-theme="dark"] .pp-select-wrap::after { border-top-color: rgba(255,255,255,0.32); }
+    [data-theme="dark"] .pp-intent-btn { border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.42); }
+    [data-theme="dark"] .pp-intent-btn:hover { border-color: rgba(255,255,255,0.24); color: #E6E6E6; background: rgba(255,255,255,0.09); }
+    [data-theme="dark"] .pp-intent-btn.active { background: rgba(230,230,230,0.92); color: #1a1a1a; border-color: rgba(230,230,230,0.92); }
+    [data-theme="dark"] .pp-lang-wrap { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.09); }
+    [data-theme="dark"] .pp-lang-tag { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.68); }
+    [data-theme="dark"] .pp-lang-tag button { color: rgba(255,255,255,0.35); }
+    [data-theme="dark"] .pp-lang-add { color: rgba(255,255,255,0.28); }
+    [data-theme="dark"] .pp-lang-add:hover { color: rgba(255,255,255,0.58); }
+    [data-theme="dark"] .pp-lang-dropdown { background: #252528; border-color: rgba(255,255,255,0.10); }
+    [data-theme="dark"] .pp-lang-opt { color: #E6E6E6; }
+    [data-theme="dark"] .pp-lang-opt:hover { background: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .pp-save-btn { background: rgba(230,230,230,0.90); color: #1a1a1a; }
+    [data-theme="dark"] .pp-save-btn:hover { background: #E6E6E6; }
+    [data-theme="dark"] .pp-save-btn.saved { background: #2a7a44; color: #fff; }
+    [data-theme="dark"] .pp-source-card { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+    [data-theme="dark"] .pp-source-card:hover { border-color: rgba(255,255,255,0.13); }
+    [data-theme="dark"] .pp-source-icon { background: rgba(255,255,255,0.08); }
+    [data-theme="dark"] .pp-source-name { color: #E6E6E6; }
+    [data-theme="dark"] .pp-source-status { color: rgba(255,255,255,0.32); }
+    [data-theme="dark"] .pp-source-status.connected { color: #4ade80; }
+    [data-theme="dark"] .pp-connect-btn { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.60); }
+    [data-theme="dark"] .pp-connect-btn:hover { border-color: rgba(255,255,255,0.24); color: #E6E6E6; }
+    [data-theme="dark"] .pp-connect-btn.connected { background: rgba(42,122,68,0.18); border-color: rgba(74,222,128,0.35); color: #4ade80; }
+    [data-theme="dark"] .pp-toggle-row { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+    [data-theme="dark"] .pp-toggle-label { color: #E6E6E6; }
+    [data-theme="dark"] .pp-toggle-desc { color: rgba(255,255,255,0.32); }
+    [data-theme="dark"] .pp-toggle-track { background: rgba(255,255,255,0.15); }
+    [data-theme="dark"] .pp-status-row { border-bottom-color: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .pp-status-source { color: #E6E6E6; }
+    [data-theme="dark"] .pp-status-meta { color: rgba(255,255,255,0.30); }
+    [data-theme="dark"] .pp-status-remove { color: rgba(255,107,107,0.58); }
+    [data-theme="dark"] .pp-status-remove:hover { background: rgba(255,107,107,0.10); color: #ff6b6b; }
+    [data-theme="dark"] .pp-upload-area { border-color: rgba(255,255,255,0.12); }
+    [data-theme="dark"] .pp-upload-area:hover { border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.03); }
+    [data-theme="dark"] .pp-upload-label { color: rgba(255,255,255,0.32); }
+    [data-theme="dark"] .pp-upload-label strong { color: rgba(255,255,255,0.58); }
+    [data-theme="dark"] .pp-divider { background: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .pp-section-note { color: rgba(255,255,255,0.28); }
+    [data-theme="dark"] .pp-empty { color: rgba(255,255,255,0.22); }
+    [data-theme="dark"] .pp-stat-card { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+    [data-theme="dark"] .pp-stat-value { color: #E6E6E6; }
+    [data-theme="dark"] .pp-stat-label { color: rgba(255,255,255,0.32); }
+    [data-theme="dark"] .pp-file-name { color: rgba(255,255,255,0.62); }
+    [data-theme="dark"] .pp-file-size { color: rgba(255,255,255,0.28); }
+    [data-theme="dark"] .pp-modal { background: #252528; }
+    [data-theme="dark"] .pp-modal-title { color: #E6E6E6; }
+    [data-theme="dark"] .pp-modal-desc { color: rgba(255,255,255,0.42); }
+    [data-theme="dark"] .pp-modal-cancel { border-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.58); }
+    [data-theme="dark"] .pp-modal-cancel:hover { background: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .pp-modal-confirm { background: rgba(230,230,230,0.90); color: #1a1a1a; }
+    [data-theme="dark"] .pp-modal-confirm:hover { background: #E6E6E6; }
   </style>
 </head>
 <body>
@@ -2769,6 +3095,10 @@
           <div class="user-popover-header">
             <div class="user-popover-email" id="userPopoverEmail"></div>
           </div>
+          <button type="button" class="user-popover-item" id="btnOpenProfile" role="menuitem">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            Profile &amp; AI Training
+          </button>
           <button type="button" class="user-popover-item danger" id="btnLogout" role="menuitem">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             Log out
@@ -4934,9 +5264,8 @@
         }
       }
 
-      // ── Fetch via Supabase Edge Function (full note context) ──────────────
-      // Calls: POST https://<project>.supabase.co/functions/v1/ai-edit
-      // Uses sbClient.functions.invoke so auth token + apikey are set automatically.
+      // ── Fetch via Vercel Edge Function (same-origin — no CORS needed) ───────
+      // Calls: POST /api/ai-edit  (relative URL, co-hosted with the app on Vercel)
       async function fetchAlts(action, tone, selectedText) {
         // ── 1. Gather current note ────────────────────────────────────────
         const doc       = (typeof getCurrentDoc === 'function') ? getCurrentDoc() : null;
@@ -4963,34 +5292,38 @@
           }
         } catch (_) { /* non-fatal */ }
 
-        // ── 3. Build payload (flat — matches edge function contract) ──────
+        // ── 3. Build payload (matches /api/ai-edit contract) ─────────────
         const payload = {
           action,
-          tone:         tone || null,
+          tone:             tone || null,
           noteTitle,
           noteContent,
           selectedText,
-          before,
-          after,
-          languageHint: null,   // server keeps source language automatically
+          selectionContext: { before, after },
+          languageHint:     null,
+          userProfile:      (typeof window.getProfileSettings === 'function') ? window.getProfileSettings() : null,
         };
         console.log('[AI_EDIT] request:start', payload);
 
-        // ── 4. Call Supabase Edge Function ────────────────────────────────
-        // sbClient.functions.invoke automatically adds:
-        //   apikey: <SB_KEY>
-        //   authorization: Bearer <session access_token>
-        if (!sbClient) throw new Error('Supabase client not initialised');
-
-        const { data, error } = await sbClient.functions.invoke('ai-edit', {
-          body: payload,
+        // ── 4. POST to same-origin Vercel Edge Function ───────────────────
+        const res = await fetch('/api/ai-edit', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(payload),
         });
 
-        console.log('[AI_EDIT] request:done', error ? ('error: ' + error.message) : 200);
+        console.log('[AI_EDIT] request:done', res.status);
 
-        if (error) {
-          console.error('[AI_EDIT] error', error);
-          throw new Error(error.message || 'Edge function error');
+        if (!res.ok) {
+          const errText = await res.text().catch(() => '');
+          console.error('[AI_EDIT] HTTP error', res.status, errText);
+          throw new Error('API error ' + res.status);
+        }
+
+        const data = await res.json();
+        if (data.error) {
+          console.error('[AI_EDIT] API returned error', data.error);
+          throw new Error(data.error);
         }
         return data;
       }
@@ -5330,6 +5663,648 @@
         loadDocuments();
       }
     })();
+
+    // ═══════════════════════════════════════════════
+    // PROFILE & AI TRAINING PANEL — module
+    // ═══════════════════════════════════════════════
+    (function profilePanelModule() {
+      'use strict';
+
+      // ── State ──────────────────────────────────────────────────────────────
+      let profileSettings = {
+        tone:                 'Professional',
+        languages:            ['en'],
+        audience:             '',
+        intent:               'Explain',
+        style_notes:          '',
+        use_notes_as_context: false,
+      };
+      let connectedSources = [];
+
+      // ── DOM refs ───────────────────────────────────────────────────────────
+      const ppBackdrop     = document.getElementById('profilePanelBackdrop');
+      const ppPanel        = document.getElementById('profilePanel');
+      const ppBtnClose     = document.getElementById('btnCloseProfilePanel');
+      const ppBtnOpen      = document.getElementById('btnOpenProfile');
+      const ppTabs         = document.querySelectorAll('.pp-tab');
+      const ppSections     = document.querySelectorAll('.pp-section');
+      const ppModalBd      = document.getElementById('ppModalBackdrop');
+      const ppModalTitle   = document.getElementById('ppModalTitle');
+      const ppModalDesc    = document.getElementById('ppModalDesc');
+      const ppModalCancel  = document.getElementById('ppModalCancel');
+      const ppModalConfirm = document.getElementById('ppModalConfirm');
+
+      const ppToneEl       = document.getElementById('ppTone');
+      const ppAudienceEl   = document.getElementById('ppAudience');
+      const ppStyleEl      = document.getElementById('ppStyleNotes');
+      const ppIntentGroup  = document.getElementById('ppIntentGroup');
+      const ppSaveBtn      = document.getElementById('ppSaveIdentity');
+
+      const ppLangWrap     = document.getElementById('ppLangWrap');
+      const ppLangAddBtn   = document.getElementById('ppLangAddBtn');
+      const ppLangDD       = document.getElementById('ppLangDropdown');
+
+      const ppToggleNotes  = document.getElementById('ppToggleNotes');
+
+      const ppUploadArea   = document.getElementById('ppUploadArea');
+      const ppFileInput    = document.getElementById('ppFileInput');
+      const ppUploadedList = document.getElementById('ppUploadedList');
+
+      const ppStatSources  = document.getElementById('ppStatSources');
+      const ppStatContent  = document.getElementById('ppStatContent');
+      const ppStatusList   = document.getElementById('ppStatusList');
+      const ppStatusEmpty  = document.getElementById('ppStatusEmpty');
+
+      // ── Language catalogue ─────────────────────────────────────────────────
+      const LANGS = [
+        { code: 'en', label: 'English' },
+        { code: 'es', label: 'Spanish' },
+        { code: 'fr', label: 'French' },
+        { code: 'de', label: 'German' },
+        { code: 'pt', label: 'Portuguese' },
+        { code: 'it', label: 'Italian' },
+        { code: 'nl', label: 'Dutch' },
+        { code: 'ja', label: 'Japanese' },
+        { code: 'zh', label: 'Chinese' },
+        { code: 'ar', label: 'Arabic' },
+      ];
+
+      // ── Source display info ────────────────────────────────────────────────
+      const SRC_META = {
+        drive:    { name: 'Google Drive', desc: 'OAuth integration coming soon. Your Drive content will be indexed privately and used only for AI writing assistance.' },
+        substack: { name: 'Substack',     desc: 'Enter your Substack URL to import posts. Integration coming soon.' },
+        x:        { name: 'X (Twitter)',  desc: 'Connect your X account to import tweets and threads as writing samples.' },
+      };
+
+      // ── Open / Close ───────────────────────────────────────────────────────
+      function openPanel() {
+        ppPanel.classList.add('open');
+        ppBackdrop.classList.add('open');
+        loadSettings();
+        loadSources();
+      }
+
+      function closePanel() {
+        ppPanel.classList.remove('open');
+        ppBackdrop.classList.remove('open');
+        closeLangDD();
+      }
+
+      // ── Tab switching ──────────────────────────────────────────────────────
+      function switchTab(name) {
+        ppTabs.forEach(t => {
+          t.classList.toggle('active', t.dataset.tab === name);
+          t.setAttribute('aria-selected', t.dataset.tab === name ? 'true' : 'false');
+        });
+        ppSections.forEach(s => s.classList.toggle('active', s.dataset.section === name));
+        if (name === 'status') renderStatus();
+      }
+
+      // ── Load settings ──────────────────────────────────────────────────────
+      async function loadSettings() {
+        if (!currentUserId) return;
+        try {
+          const rows = await sbFetch(
+            '/rest/v1/user_profile_settings?user_id=eq.' +
+            encodeURIComponent(currentUserId) + '&select=*&limit=1'
+          );
+          if (rows && rows.length > 0) {
+            const r = rows[0];
+            profileSettings = {
+              tone:                 r.tone                 || 'Professional',
+              languages:            r.languages            || ['en'],
+              audience:             r.audience             || '',
+              intent:               r.intent               || 'Explain',
+              style_notes:          r.style_notes          || '',
+              use_notes_as_context: r.use_notes_as_context || false,
+            };
+          }
+        } catch (e) {
+          // Table may not exist yet — silently ignore
+        }
+        applyToUI();
+      }
+
+      function applyToUI() {
+        if (ppToneEl)    ppToneEl.value    = profileSettings.tone;
+        if (ppAudienceEl) ppAudienceEl.value = profileSettings.audience;
+        if (ppStyleEl)   ppStyleEl.value   = profileSettings.style_notes;
+        if (ppToggleNotes) ppToggleNotes.checked = profileSettings.use_notes_as_context;
+        document.querySelectorAll('.pp-intent-btn').forEach(b =>
+          b.classList.toggle('active', b.dataset.intent === profileSettings.intent)
+        );
+        renderLangTags();
+      }
+
+      // ── Save identity ──────────────────────────────────────────────────────
+      async function saveIdentity() {
+        if (!currentUserId) return;
+        ppSaveBtn.disabled = true;
+        ppSaveBtn.textContent = 'Saving…';
+
+        profileSettings.tone        = ppToneEl    ? ppToneEl.value    : profileSettings.tone;
+        profileSettings.audience    = ppAudienceEl ? ppAudienceEl.value : profileSettings.audience;
+        profileSettings.style_notes = ppStyleEl   ? ppStyleEl.value   : profileSettings.style_notes;
+
+        try {
+          await fetch(SB_URL + '/rest/v1/user_profile_settings', {
+            method: 'POST',
+            headers: { ...SB_HEADERS, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
+            body: JSON.stringify({
+              user_id:              currentUserId,
+              tone:                 profileSettings.tone,
+              languages:            profileSettings.languages,
+              audience:             profileSettings.audience,
+              intent:               profileSettings.intent,
+              style_notes:          profileSettings.style_notes,
+              use_notes_as_context: profileSettings.use_notes_as_context,
+              updated_at:           new Date().toISOString(),
+            }),
+          });
+          ppSaveBtn.textContent = 'Saved!';
+          ppSaveBtn.classList.add('saved');
+          setTimeout(() => {
+            ppSaveBtn.textContent = 'Save Identity';
+            ppSaveBtn.classList.remove('saved');
+            ppSaveBtn.disabled = false;
+          }, 2000);
+        } catch (e) {
+          console.error('[profile] save failed', e);
+          ppSaveBtn.textContent = 'Save Identity';
+          ppSaveBtn.disabled = false;
+        }
+      }
+
+      // ── Auto-save knowledge toggle ─────────────────────────────────────────
+      async function saveToggle(val) {
+        profileSettings.use_notes_as_context = val;
+        if (!currentUserId) return;
+        try {
+          await fetch(SB_URL + '/rest/v1/user_profile_settings', {
+            method: 'POST',
+            headers: { ...SB_HEADERS, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
+            body: JSON.stringify({
+              user_id:              currentUserId,
+              use_notes_as_context: val,
+              updated_at:           new Date().toISOString(),
+            }),
+          });
+        } catch (e) { /* non-fatal */ }
+      }
+
+      // ── Language multi-select ──────────────────────────────────────────────
+      function renderLangTags() {
+        if (!ppLangWrap) return;
+        ppLangWrap.querySelectorAll('.pp-lang-tag').forEach(t => t.remove());
+        profileSettings.languages.forEach(code => {
+          const lang = LANGS.find(l => l.code === code);
+          if (!lang) return;
+          const tag = document.createElement('span');
+          tag.className = 'pp-lang-tag';
+          tag.innerHTML =
+            escapeHtml(lang.label) +
+            '<button type="button" title="Remove" aria-label="Remove ' + escapeHtml(lang.label) + '" data-code="' + code + '">×</button>';
+          tag.querySelector('button').addEventListener('click', () => {
+            profileSettings.languages = profileSettings.languages.filter(c => c !== code);
+            renderLangTags();
+          });
+          ppLangWrap.insertBefore(tag, ppLangAddBtn);
+        });
+      }
+
+      function openLangDD() {
+        if (!ppLangDD) return;
+        ppLangDD.innerHTML = '';
+        const available = LANGS.filter(l => !profileSettings.languages.includes(l.code));
+        if (available.length === 0) {
+          ppLangDD.innerHTML = '<div class="pp-lang-opt" style="opacity:.45;cursor:default">All languages added</div>';
+        } else {
+          available.forEach(lang => {
+            const opt = document.createElement('div');
+            opt.className = 'pp-lang-opt';
+            opt.textContent = lang.label;
+            opt.addEventListener('click', () => {
+              profileSettings.languages.push(lang.code);
+              renderLangTags();
+              closeLangDD();
+            });
+            ppLangDD.appendChild(opt);
+          });
+        }
+        const rect = ppLangWrap.getBoundingClientRect();
+        Object.assign(ppLangDD.style, {
+          display: 'block',
+          top:     (rect.bottom + 4) + 'px',
+          left:    rect.left + 'px',
+          width:   rect.width + 'px',
+        });
+      }
+
+      function closeLangDD() {
+        if (ppLangDD) ppLangDD.style.display = 'none';
+      }
+
+      // ── Load sources ───────────────────────────────────────────────────────
+      async function loadSources() {
+        if (!currentUserId) return;
+        try {
+          const rows = await sbFetch(
+            '/rest/v1/user_connected_sources?user_id=eq.' +
+            encodeURIComponent(currentUserId) + '&select=*&order=created_at.asc'
+          );
+          connectedSources = rows || [];
+        } catch (e) {
+          connectedSources = [];
+        }
+        renderSourceStatuses();
+        renderUploadedFiles();
+      }
+
+      function renderSourceStatuses() {
+        updateSrcCard('drive',    document.getElementById('ppSrcDriveStatus'));
+        updateSrcCard('substack', document.getElementById('ppSrcSubstackStatus'));
+        updateSrcCard('x',        document.getElementById('ppSrcXStatus'));
+      }
+
+      function updateSrcCard(type, statusEl) {
+        if (!statusEl) return;
+        const src  = connectedSources.find(s => s.source_type === type && s.status === 'connected');
+        const card = statusEl.closest('.pp-source-card');
+        const btn  = card ? card.querySelector('.pp-connect-btn') : null;
+        if (src) {
+          statusEl.textContent = 'Connected';
+          statusEl.className   = 'pp-source-status connected';
+          if (btn) { btn.textContent = 'Disconnect'; btn.classList.add('connected'); }
+        } else {
+          statusEl.textContent = 'Not connected';
+          statusEl.className   = 'pp-source-status';
+          if (btn) { btn.textContent = 'Connect'; btn.classList.remove('connected'); }
+        }
+      }
+
+      // ── Training status tab ────────────────────────────────────────────────
+      function renderStatus() {
+        if (!ppStatSources) return;
+        ppStatSources.textContent = connectedSources.length;
+        ppStatContent.textContent = '—';
+
+        ppStatusList.querySelectorAll('.pp-status-row').forEach(r => r.remove());
+
+        if (connectedSources.length === 0) {
+          ppStatusEmpty.style.display = '';
+          return;
+        }
+        ppStatusEmpty.style.display = 'none';
+
+        connectedSources.forEach(src => {
+          const meta  = SRC_META[src.source_type] || { name: src.source_type };
+          const label = (src.source_type === 'upload' && src.metadata && src.metadata.filename)
+            ? src.metadata.filename : meta.name;
+          const sync  = src.last_sync_at
+            ? new Date(src.last_sync_at).toLocaleDateString() : 'Never synced';
+
+          const row = document.createElement('div');
+          row.className = 'pp-status-row';
+          row.innerHTML =
+            '<div class="pp-status-source">' +
+              '<div class="pp-status-dot ' + (src.status === 'connected' ? 'connected' : '') + '"></div>' +
+              escapeHtml(label) +
+            '</div>' +
+            '<div style="display:flex;align-items:center;gap:10px">' +
+              '<div class="pp-status-meta">' + escapeHtml(sync) + '</div>' +
+              '<button type="button" class="pp-status-remove" data-id="' + escapeHtml(src.id) + '">Remove</button>' +
+            '</div>';
+          row.querySelector('.pp-status-remove').addEventListener('click', () => removeSource(src.id));
+          ppStatusList.insertBefore(row, ppStatusEmpty);
+        });
+      }
+
+      async function removeSource(id) {
+        if (!currentUserId) return;
+        try {
+          await fetch(
+            SB_URL + '/rest/v1/user_connected_sources?id=eq.' + id + '&user_id=eq.' + currentUserId,
+            { method: 'DELETE', headers: SB_HEADERS }
+          );
+          connectedSources = connectedSources.filter(s => s.id !== id);
+          renderSourceStatuses();
+          renderUploadedFiles();
+          renderStatus();
+        } catch (e) { console.error('[profile] remove source failed', e); }
+      }
+
+      // ── File upload (metadata only) ────────────────────────────────────────
+      function renderUploadedFiles() {
+        if (!ppUploadedList) return;
+        const uploads = connectedSources.filter(s => s.source_type === 'upload');
+        ppUploadedList.innerHTML = uploads.map(s => {
+          const fn = (s.metadata && s.metadata.filename) ? s.metadata.filename : 'file';
+          const sz = (s.metadata && s.metadata.size) ? fmtBytes(s.metadata.size) : '';
+          return '<div class="pp-file-item">' +
+            '<span class="pp-file-name">' + escapeHtml(fn) + (sz ? ' <span class="pp-file-size">· ' + sz + '</span>' : '') + '</span>' +
+            '<button type="button" class="pp-status-remove" data-id="' + escapeHtml(s.id) + '">Remove</button>' +
+            '</div>';
+        }).join('');
+        ppUploadedList.querySelectorAll('.pp-status-remove').forEach(btn => {
+          btn.addEventListener('click', () => removeSource(btn.dataset.id));
+        });
+      }
+
+      async function handleFiles(files) {
+        if (!files || !files.length || !currentUserId) return;
+        for (const file of Array.from(files)) {
+          try {
+            const res = await fetch(SB_URL + '/rest/v1/user_connected_sources', {
+              method: 'POST',
+              headers: { ...SB_HEADERS, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+              body: JSON.stringify({
+                user_id:     currentUserId,
+                source_type: 'upload',
+                status:      'connected',
+                metadata:    { filename: file.name, size: file.size, uploaded_at: new Date().toISOString() },
+              }),
+            });
+            const rows = await res.json();
+            if (rows && rows[0]) connectedSources.push(rows[0]);
+          } catch (e) { console.error('[profile] file record failed', e); }
+        }
+        renderSourceStatuses();
+        renderUploadedFiles();
+      }
+
+      function fmtBytes(b) {
+        if (b < 1024) return b + ' B';
+        if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
+        return (b / (1024 * 1024)).toFixed(1) + ' MB';
+      }
+
+      // ── Source modal ───────────────────────────────────────────────────────
+      let pendingSrcType = null;
+
+      function openSrcModal(type) {
+        const info = SRC_META[type] || { name: type, desc: 'Coming soon.' };
+        pendingSrcType = type;
+        if (ppModalTitle) ppModalTitle.textContent = 'Connect ' + info.name;
+        if (ppModalDesc)  ppModalDesc.textContent  = info.desc;
+        if (ppModalBd)    ppModalBd.classList.add('open');
+      }
+
+      function closeSrcModal() {
+        if (ppModalBd) ppModalBd.classList.remove('open');
+        pendingSrcType = null;
+      }
+
+      async function confirmSrcModal() {
+        if (!pendingSrcType || !currentUserId) { closeSrcModal(); return; }
+        try {
+          const res = await fetch(SB_URL + '/rest/v1/user_connected_sources', {
+            method: 'POST',
+            headers: { ...SB_HEADERS, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+            body: JSON.stringify({
+              user_id:     currentUserId,
+              source_type: pendingSrcType,
+              status:      'pending',
+              metadata:    {},
+            }),
+          });
+          const rows = await res.json();
+          if (rows && rows[0]) connectedSources.push(rows[0]);
+        } catch (e) { console.error('[profile] source insert failed', e); }
+        renderSourceStatuses();
+        closeSrcModal();
+      }
+
+      // ── Event wiring ───────────────────────────────────────────────────────
+      if (ppBtnOpen)    ppBtnOpen.addEventListener('click', () => { if (userPopoverEl) userPopoverEl.classList.remove('open'); openPanel(); });
+      if (ppBtnClose)   ppBtnClose.addEventListener('click', closePanel);
+      if (ppBackdrop)   ppBackdrop.addEventListener('click', closePanel);
+
+      ppTabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+
+      if (ppIntentGroup) {
+        ppIntentGroup.addEventListener('click', e => {
+          const btn = e.target.closest('.pp-intent-btn');
+          if (!btn) return;
+          document.querySelectorAll('.pp-intent-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          profileSettings.intent = btn.dataset.intent;
+        });
+      }
+
+      if (ppLangAddBtn) ppLangAddBtn.addEventListener('click', e => { e.stopPropagation(); openLangDD(); });
+      document.addEventListener('click', e => {
+        if (ppLangDD && ppLangDD.style.display !== 'none' &&
+            ppLangWrap && !ppLangWrap.contains(e.target) && !ppLangDD.contains(e.target)) {
+          closeLangDD();
+        }
+      });
+
+      if (ppSaveBtn)     ppSaveBtn.addEventListener('click', saveIdentity);
+      if (ppToggleNotes) ppToggleNotes.addEventListener('change', e => saveToggle(e.target.checked));
+
+      document.querySelectorAll('.pp-connect-btn').forEach(btn => {
+        btn.addEventListener('click', () => openSrcModal(btn.dataset.source));
+      });
+
+      if (ppModalCancel)  ppModalCancel.addEventListener('click', closeSrcModal);
+      if (ppModalConfirm) ppModalConfirm.addEventListener('click', confirmSrcModal);
+      if (ppModalBd)      ppModalBd.addEventListener('click', e => { if (e.target === ppModalBd) closeSrcModal(); });
+
+      if (ppUploadArea) {
+        ppUploadArea.addEventListener('click', () => ppFileInput && ppFileInput.click());
+        ppUploadArea.addEventListener('dragover',  e => { e.preventDefault(); ppUploadArea.style.borderColor = 'rgba(0,0,0,0.32)'; });
+        ppUploadArea.addEventListener('dragleave', () => { ppUploadArea.style.borderColor = ''; });
+        ppUploadArea.addEventListener('drop', e => { e.preventDefault(); ppUploadArea.style.borderColor = ''; handleFiles(e.dataTransfer.files); });
+      }
+      if (ppFileInput) ppFileInput.addEventListener('change', e => handleFiles(e.target.files));
+
+      document.addEventListener('keydown', e => {
+        if (e.key !== 'Escape') return;
+        if (ppModalBd && ppModalBd.classList.contains('open'))  { closeSrcModal(); return; }
+        if (ppPanel  && ppPanel.classList.contains('open'))     { closePanel();    return; }
+      });
+
+      // ── Public API (consumed by fetchAlts) ─────────────────────────────────
+      window.getProfileSettings = () => ({ ...profileSettings });
+
+    })(); // end profilePanelModule
+
   </script>
+
+  <!-- ═══════════════════════════════════════════════
+       PROFILE & AI TRAINING PANEL
+  ═══════════════════════════════════════════════ -->
+
+  <!-- Translucent backdrop -->
+  <div class="profile-panel-backdrop" id="profilePanelBackdrop"></div>
+
+  <!-- Slide-in panel -->
+  <div class="profile-panel" id="profilePanel" role="dialog" aria-modal="true" aria-label="Profile &amp; AI Training">
+
+    <div class="pp-header">
+      <span class="pp-title">Profile &amp; AI Training</span>
+      <button type="button" class="pp-close" id="btnCloseProfilePanel" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="pp-tabs" role="tablist">
+      <button class="pp-tab active" data-tab="identity" role="tab" aria-selected="true">Writing Identity</button>
+      <button class="pp-tab" data-tab="sources" role="tab" aria-selected="false">Connected Sources</button>
+      <button class="pp-tab" data-tab="knowledge" role="tab" aria-selected="false">Knowledge Usage</button>
+      <button class="pp-tab" data-tab="status" role="tab" aria-selected="false">Training Status</button>
+    </div>
+
+    <div class="pp-body">
+
+      <!-- TAB 1: Writing Identity -->
+      <div class="pp-section active" id="ppSectionIdentity" data-section="identity">
+
+        <div class="pp-field">
+          <label class="pp-label" for="ppTone">Tone</label>
+          <div class="pp-select-wrap">
+            <select class="pp-select" id="ppTone">
+              <option value="Professional">Professional</option>
+              <option value="Direct">Direct</option>
+              <option value="Analytical">Analytical</option>
+              <option value="Friendly">Friendly</option>
+              <option value="Founder-style">Founder-style</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pp-field">
+          <label class="pp-label">Default Language</label>
+          <div class="pp-lang-wrap" id="ppLangWrap">
+            <button type="button" class="pp-lang-add" id="ppLangAddBtn">+ Add language</button>
+          </div>
+          <div class="pp-lang-dropdown" id="ppLangDropdown" style="display:none;position:fixed;"></div>
+        </div>
+
+        <div class="pp-field">
+          <label class="pp-label" for="ppAudience">Target Audience</label>
+          <input type="text" class="pp-input" id="ppAudience" placeholder="e.g. startup founders, developers, general public…">
+        </div>
+
+        <div class="pp-field">
+          <label class="pp-label">Writing Intent</label>
+          <div class="pp-intent-group" id="ppIntentGroup">
+            <button type="button" class="pp-intent-btn" data-intent="Persuade">Persuade</button>
+            <button type="button" class="pp-intent-btn" data-intent="Explain">Explain</button>
+            <button type="button" class="pp-intent-btn" data-intent="Reflect">Reflect</button>
+            <button type="button" class="pp-intent-btn" data-intent="Sell">Sell</button>
+          </div>
+        </div>
+
+        <div class="pp-field">
+          <label class="pp-label" for="ppStyleNotes">Style Notes</label>
+          <textarea class="pp-textarea" id="ppStyleNotes" rows="4" placeholder="Describe how you write — preferred patterns, things to avoid, quirks…"></textarea>
+        </div>
+
+        <button type="button" class="pp-save-btn" id="ppSaveIdentity">Save Identity</button>
+      </div>
+
+      <!-- TAB 2: Connected Sources -->
+      <div class="pp-section" id="ppSectionSources" data-section="sources">
+        <p class="pp-section-note">Connect your content sources. The AI will use them to understand your voice and context.</p>
+
+        <div class="pp-source-card">
+          <div class="pp-source-left">
+            <div class="pp-source-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            </div>
+            <div>
+              <div class="pp-source-name">Google Drive</div>
+              <div class="pp-source-status" id="ppSrcDriveStatus">Not connected</div>
+            </div>
+          </div>
+          <button type="button" class="pp-connect-btn" data-source="drive">Connect</button>
+        </div>
+
+        <div class="pp-source-card">
+          <div class="pp-source-left">
+            <div class="pp-source-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="3" fill="#FF6719" opacity=".15"/><path d="M4 7h16v2H4V7zm0 4h16v2H4v-2zm0 4h10v2H4v-2z" fill="#FF6719"/></svg>
+            </div>
+            <div>
+              <div class="pp-source-name">Substack</div>
+              <div class="pp-source-status" id="ppSrcSubstackStatus">Not connected</div>
+            </div>
+          </div>
+          <button type="button" class="pp-connect-btn" data-source="substack">Connect</button>
+        </div>
+
+        <div class="pp-source-card">
+          <div class="pp-source-left">
+            <div class="pp-source-icon" style="color:rgba(0,0,0,0.5)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+            </div>
+            <div>
+              <div class="pp-source-name">X (Twitter)</div>
+              <div class="pp-source-status" id="ppSrcXStatus">Not connected</div>
+            </div>
+          </div>
+          <button type="button" class="pp-connect-btn" data-source="x">Connect</button>
+        </div>
+
+        <div class="pp-divider"></div>
+
+        <div class="pp-field">
+          <label class="pp-label">Upload Documents</label>
+          <p class="pp-section-note" style="margin-top:0">PDF, DOCX, TXT, Markdown — max 10 MB. Metadata stored now; indexing comes later.</p>
+          <div class="pp-upload-area" id="ppUploadArea">
+            <input type="file" id="ppFileInput" style="display:none" multiple accept=".pdf,.doc,.docx,.txt,.md">
+            <div class="pp-upload-label"><strong>Click to browse</strong> or drag &amp; drop here</div>
+          </div>
+          <div id="ppUploadedList"></div>
+        </div>
+      </div>
+
+      <!-- TAB 3: Knowledge Usage -->
+      <div class="pp-section" id="ppSectionKnowledge" data-section="knowledge">
+        <div class="pp-toggle-row">
+          <div class="pp-toggle-info">
+            <div class="pp-toggle-label">Use my Notes as context</div>
+            <div class="pp-toggle-desc">When enabled, the AI includes your notes when building prompts — helping it match your voice and knowledge base.</div>
+          </div>
+          <label class="pp-toggle">
+            <input type="checkbox" id="ppToggleNotes">
+            <span class="pp-toggle-track"></span>
+          </label>
+        </div>
+        <p class="pp-section-note" style="margin-top:18px">More context options — connected sources, writing samples — will be available once your sources are indexed.</p>
+      </div>
+
+      <!-- TAB 4: Training Status -->
+      <div class="pp-section" id="ppSectionStatus" data-section="status">
+        <div class="pp-stat-row">
+          <div class="pp-stat-card">
+            <div class="pp-stat-value" id="ppStatSources">0</div>
+            <div class="pp-stat-label">Connected sources</div>
+          </div>
+          <div class="pp-stat-card">
+            <div class="pp-stat-value" id="ppStatContent">—</div>
+            <div class="pp-stat-label">Indexed items</div>
+          </div>
+        </div>
+        <div id="ppStatusList">
+          <div class="pp-empty" id="ppStatusEmpty">No sources connected yet.</div>
+        </div>
+      </div>
+
+    </div><!-- /.pp-body -->
+  </div><!-- /.profile-panel -->
+
+  <!-- Source connection stub modal -->
+  <div class="pp-modal-backdrop" id="ppModalBackdrop">
+    <div class="pp-modal">
+      <div class="pp-modal-title" id="ppModalTitle">Connect Source</div>
+      <div class="pp-modal-desc" id="ppModalDesc">OAuth integration coming soon. Your content will be indexed privately and used only to improve your AI writing assistance.</div>
+      <div class="pp-modal-actions">
+        <button type="button" class="pp-modal-cancel" id="ppModalCancel">Cancel</button>
+        <button type="button" class="pp-modal-confirm" id="ppModalConfirm">Got it</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
