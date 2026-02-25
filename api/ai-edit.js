@@ -31,7 +31,7 @@ export const config = { runtime: 'edge' };
 
 // ── Model ────────────────────────────────────────────────────────────────────
 // Use Sonnet class (better quality than Haiku for editing tasks).
-const MODEL = 'claude-sonnet-4-5-20251001';
+const MODEL = 'claude-sonnet-4-6';
 
 // ── JSON schema hint appended to every system prompt ────────────────────────
 const SCHEMA_3 =
@@ -62,6 +62,23 @@ Rules:
 • Do NOT introduce new facts not already present in the note or selection.
 • Keep the same language as the selection (unless the action changes tone/style).
 • Keep roughly the same length unless the action calls for expansion/condensation.`;
+
+// ── Build author profile context block ──────────────────────────────────────
+function buildProfileContext(userProfile) {
+  if (!userProfile) return '';
+  const lines = [];
+  if (userProfile.tone)       lines.push(`• Preferred tone: ${userProfile.tone}`);
+  if (userProfile.audience)   lines.push(`• Target audience: ${userProfile.audience}`);
+  if (userProfile.intent)     lines.push(`• Writing intent: ${userProfile.intent}`);
+  if (userProfile.languages && userProfile.languages.length > 0) {
+    lines.push(`• Languages: ${userProfile.languages.join(', ')}`);
+  }
+  if (userProfile.style_notes && userProfile.style_notes.trim()) {
+    lines.push(`• Style notes: ${userProfile.style_notes.trim()}`);
+  }
+  if (!lines.length) return '';
+  return '\n\nAUTHOR PROFILE (adapt your output to match these preferences):\n' + lines.join('\n');
+}
 
 // ── Action → instruction mapping ─────────────────────────────────────────────
 // Each value is appended to BASE_SYSTEM to form the final system prompt.
@@ -100,10 +117,12 @@ const ACTION_INSTRUCTIONS = {
     'unverifiable facts. If that is impossible, improve clarity instead.\n' + SCHEMA_3,
 };
 
-function buildSystemPrompt(action, tone) {
+function buildSystemPrompt(action, tone, userProfile) {
+  const profileCtx = buildProfileContext(userProfile);
   if (action === 'tone' && tone) {
     return (
       BASE_SYSTEM +
+      profileCtx +
       '\n\n' +
       `ACTION — Tone (${tone}): rewrite to match this tone: ${tone}. ` +
       'Keep meaning identical. Do not add new facts.\n' +
@@ -111,7 +130,7 @@ function buildSystemPrompt(action, tone) {
     );
   }
   const instruction = ACTION_INSTRUCTIONS[action] || ACTION_INSTRUCTIONS.rewrite;
-  return BASE_SYSTEM + '\n\n' + instruction;
+  return BASE_SYSTEM + profileCtx + '\n\n' + instruction;
 }
 
 // ── User message builder ─────────────────────────────────────────────────────
@@ -195,6 +214,7 @@ export default async function handler(req) {
     selectedText,
     selectionContext = {},
     languageHint = null,
+    userProfile  = null,
   } = body;
 
   // ── Validate ─────────────────────────────────────────────────────────
@@ -215,7 +235,7 @@ export default async function handler(req) {
   }
 
   // ── Build prompts ─────────────────────────────────────────────────────
-  const systemPrompt = buildSystemPrompt(action, tone);
+  const systemPrompt = buildSystemPrompt(action, tone, userProfile);
   const userMessage  = buildUserMessage({
     noteTitle,
     noteContent,

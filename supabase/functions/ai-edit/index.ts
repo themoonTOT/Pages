@@ -39,7 +39,7 @@ const corsHeaders = {
 };
 
 // ── Model ─────────────────────────────────────────────────────────────────────
-const MODEL = "claude-sonnet-4-5-20251001";
+const MODEL = "claude-sonnet-4-6";
 
 // ── JSON schema hints ─────────────────────────────────────────────────────────
 const SCHEMA_3 = `\
@@ -63,6 +63,32 @@ Rules:
 • Do NOT introduce new facts not already present in the note or selection.
 • Keep the same language as the selection (unless the action explicitly changes tone/style).
 • Keep roughly the same length unless the action calls for expansion or condensation.`;
+
+// ── Author profile context builder ────────────────────────────────────────────
+interface UserProfile {
+  tone?: string;
+  audience?: string;
+  intent?: string;
+  languages?: string[];
+  style_notes?: string;
+  use_notes_as_context?: boolean;
+}
+
+function buildProfileContext(userProfile: UserProfile | null): string {
+  if (!userProfile) return "";
+  const lines: string[] = [];
+  if (userProfile.tone)     lines.push(`• Preferred tone: ${userProfile.tone}`);
+  if (userProfile.audience) lines.push(`• Target audience: ${userProfile.audience}`);
+  if (userProfile.intent)   lines.push(`• Writing intent: ${userProfile.intent}`);
+  if (userProfile.languages && userProfile.languages.length > 0) {
+    lines.push(`• Languages: ${userProfile.languages.join(", ")}`);
+  }
+  if (userProfile.style_notes && userProfile.style_notes.trim()) {
+    lines.push(`• Style notes: ${userProfile.style_notes.trim()}`);
+  }
+  if (!lines.length) return "";
+  return "\n\nAUTHOR PROFILE (adapt your output to match these preferences):\n" + lines.join("\n");
+}
 
 // ── Action → instruction mapping ──────────────────────────────────────────────
 const ACTION_INSTRUCTIONS: Record<string, string> = {
@@ -96,17 +122,19 @@ const ACTION_INSTRUCTIONS: Record<string, string> = {
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function buildSystemPrompt(action: string, tone: string | null): string {
+function buildSystemPrompt(action: string, tone: string | null, userProfile: UserProfile | null): string {
+  const profileCtx = buildProfileContext(userProfile);
   if (action === "tone" && tone) {
     return (
       BASE_SYSTEM +
+      profileCtx +
       `\n\nACTION — Tone (${tone}): rewrite to match this tone: ${tone}. ` +
       `Keep meaning identical. Do not add new facts.\n${SCHEMA_3}`
     );
   }
   const instruction =
     ACTION_INSTRUCTIONS[action] ?? ACTION_INSTRUCTIONS["rewrite"];
-  return `${BASE_SYSTEM}\n\n${instruction}`;
+  return `${BASE_SYSTEM}${profileCtx}\n\n${instruction}`;
 }
 
 function buildUserMessage(params: {
@@ -217,6 +245,7 @@ Deno.serve(async (req: Request) => {
       selectedText,
       before = "",
       after = "",
+      userProfile = null,
       // languageHint accepted but unused: model preserves source language naturally
     } = body as {
       action: string;
@@ -227,6 +256,7 @@ Deno.serve(async (req: Request) => {
       before?: string;
       after?: string;
       languageHint?: string | null;
+      userProfile?: UserProfile | null;
     };
 
     // ── Validate ─────────────────────────────────────────────────────────
@@ -254,7 +284,7 @@ Deno.serve(async (req: Request) => {
     }
 
     // ── Build prompts ────────────────────────────────────────────────────
-    const systemPrompt = buildSystemPrompt(action, tone as string | null);
+    const systemPrompt = buildSystemPrompt(action, tone as string | null, userProfile as UserProfile | null);
     const userMessage = buildUserMessage({
       noteTitle:    String(noteTitle   || ""),
       noteContent:  String(noteContent || ""),
