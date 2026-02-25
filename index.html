@@ -3032,6 +3032,57 @@
     [data-theme="dark"] .pp-modal-cancel:hover { background: rgba(255,255,255,0.07); }
     [data-theme="dark"] .pp-modal-confirm { background: rgba(230,230,230,0.90); color: #1a1a1a; }
     [data-theme="dark"] .pp-modal-confirm:hover { background: #E6E6E6; }
+
+    /* ── Substack import modal ── */
+    .pp-substk-input-wrap { position: relative; }
+    .pp-substk-prefix {
+      position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+      font-size: 12.5px; color: rgba(0,0,0,0.32); pointer-events: none; user-select: none;
+    }
+    .pp-substk-input { padding-left: 64px !important; }
+    .pp-substk-err {
+      font-size: 12px; color: #d0393a; margin-top: 7px;
+      display: none; line-height: 1.45;
+    }
+    .pp-substk-loading {
+      display: none; align-items: center; justify-content: center;
+      gap: 10px; padding: 28px 0;
+      font-size: 13px; color: rgba(0,0,0,0.42);
+    }
+    .pp-substk-loading.on { display: flex; }
+    .pp-spinner {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid rgba(0,0,0,0.10); border-top-color: rgba(0,0,0,0.48);
+      animation: pp-spin 0.72s linear infinite; flex-shrink: 0;
+    }
+    @keyframes pp-spin { to { transform: rotate(360deg); } }
+    .pp-substk-success { display: none; }
+    .pp-substk-success.on { display: block; }
+    .pp-substk-success-head { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+    .pp-substk-success-title { font-size: 14px; font-weight: 600; color: #2a7a44; }
+    .pp-substk-success-msg { font-size: 13px; color: rgba(0,0,0,0.48); line-height: 1.5; margin-bottom: 18px; }
+    .pp-oauth-steps {
+      list-style: decimal; padding-left: 18px;
+      font-size: 12px; color: rgba(0,0,0,0.52); line-height: 1.85; margin: 12px 0;
+    }
+    .pp-oauth-steps li { padding-left: 2px; }
+    .pp-oauth-code {
+      display: inline-block; font-family: monospace; font-size: 11px;
+      background: rgba(0,0,0,0.055); padding: 2px 6px;
+      border-radius: 4px; word-break: break-all;
+    }
+    .pp-oauth-note { font-size: 11.5px; color: rgba(0,0,0,0.36); margin-top: 10px; line-height: 1.5; }
+
+    /* Dark mode — Substack modal */
+    [data-theme="dark"] .pp-substk-prefix { color: rgba(255,255,255,0.28); }
+    [data-theme="dark"] .pp-substk-err { color: #ff6b6b; }
+    [data-theme="dark"] .pp-substk-loading { color: rgba(255,255,255,0.38); }
+    [data-theme="dark"] .pp-spinner { border-color: rgba(255,255,255,0.10); border-top-color: rgba(255,255,255,0.52); }
+    [data-theme="dark"] .pp-substk-success-title { color: #4ade80; }
+    [data-theme="dark"] .pp-substk-success-msg { color: rgba(255,255,255,0.40); }
+    [data-theme="dark"] .pp-oauth-steps { color: rgba(255,255,255,0.45); }
+    [data-theme="dark"] .pp-oauth-code { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.72); }
+    [data-theme="dark"] .pp-oauth-note { color: rgba(255,255,255,0.28); }
   </style>
 </head>
 <body>
@@ -4490,8 +4541,50 @@
     });
 
     // Social share listeners (need getCurrentDoc defined above)
-    document.getElementById('shareSubstack').addEventListener('click', () => {
-      showToast('Opening Substack…');
+    document.getElementById('shareSubstack').addEventListener('click', async () => {
+      const doc = getCurrentDoc();
+
+      // Build plain-text content (title + body)
+      const title = doc ? (doc.title || '').trim() : '';
+      let bodyText = '';
+      if (doc && doc.body) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = doc.body;
+        bodyText = (tmp.innerText || tmp.textContent || '').trim();
+      }
+      const fullText = title ? (title + '\n\n' + bodyText) : bodyText;
+
+      // Copy to clipboard
+      try {
+        await navigator.clipboard.writeText(fullText);
+      } catch (_) {
+        // fallback: execCommand
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = fullText;
+          ta.style.position = 'fixed'; ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        } catch (_2) { /* ignore */ }
+      }
+
+      // Try to get user's connected Substack URL
+      let substackBase = 'https://substack.com';
+      try {
+        if (typeof connectedSources !== 'undefined') {
+          const src = connectedSources.find(s => s.source_type === 'substack');
+          if (src && src.metadata && src.metadata.url) {
+            // e.g. "username.substack.com" → construct new-post URL
+            let u = src.metadata.url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+            substackBase = 'https://' + u;
+          }
+        }
+      } catch (_) { /* non-fatal */ }
+
+      window.open(substackBase + '/publish/post/new', '_blank');
+      showToast('Contenido copiado — pegalo en tu borrador de Substack ✓');
     });
     document.getElementById('shareTwitter').addEventListener('click', () => {
       const doc = getCurrentDoc();
@@ -5666,8 +5759,9 @@
 
     // ═══════════════════════════════════════════════
     // PROFILE & AI TRAINING PANEL — module
+    // (DOMContentLoaded so panel HTML below is parsed first)
     // ═══════════════════════════════════════════════
-    (function profilePanelModule() {
+    document.addEventListener('DOMContentLoaded', function profilePanelModule() {
       'use strict';
 
       // ── State ──────────────────────────────────────────────────────────────
@@ -5715,6 +5809,18 @@
       const ppStatusList   = document.getElementById('ppStatusList');
       const ppStatusEmpty  = document.getElementById('ppStatusEmpty');
 
+      // Substack modal
+      const ppSubstackModalBd  = document.getElementById('ppSubstackModalBd');
+      const ppSubstackForm     = document.getElementById('ppSubstackForm');
+      const ppSubstackLoading  = document.getElementById('ppSubstackLoading');
+      const ppSubstackSuccess  = document.getElementById('ppSubstackSuccess');
+      const ppSubstackUrl      = document.getElementById('ppSubstackUrl');
+      const ppSubstackErr      = document.getElementById('ppSubstackErr');
+      const ppSubstackImportBtn = document.getElementById('ppSubstackImportBtn');
+      const ppSubstackCancel   = document.getElementById('ppSubstackCancel');
+      const ppSubstackDoneBtn  = document.getElementById('ppSubstackDoneBtn');
+      const ppSubstackSuccessMsg = document.getElementById('ppSubstackSuccessMsg');
+
       // ── Language catalogue ─────────────────────────────────────────────────
       const LANGS = [
         { code: 'en', label: 'English' },
@@ -5730,10 +5836,34 @@
       ];
 
       // ── Source display info ────────────────────────────────────────────────
+      // descHtml is rendered as innerHTML in the info modal for Drive/X.
       const SRC_META = {
-        drive:    { name: 'Google Drive', desc: 'OAuth integration coming soon. Your Drive content will be indexed privately and used only for AI writing assistance.' },
-        substack: { name: 'Substack',     desc: 'Enter your Substack URL to import posts. Integration coming soon.' },
-        x:        { name: 'X (Twitter)',  desc: 'Connect your X account to import tweets and threads as writing samples.' },
+        drive: {
+          name: 'Google Drive',
+          descHtml: `<p style="margin-bottom:10px;font-size:13px;color:rgba(0,0,0,0.5)">Requiere credenciales OAuth de Google Cloud Console.</p>
+            <ol class="pp-oauth-steps">
+              <li>Ir a <strong>console.cloud.google.com</strong></li>
+              <li>Crear proyecto → habilitar <em>Google Drive API</em></li>
+              <li>Crear credencial → <em>OAuth 2.0 Client ID</em> (tipo: Web app)</li>
+              <li>Agregar Authorized Redirect URI:<br>
+                <code class="pp-oauth-code">https://TUDOMINIO/api/auth/google/callback</code></li>
+              <li>Copiar Client ID + Secret a <code class="pp-oauth-code">.env.local</code></li>
+            </ol>
+            <p class="pp-oauth-note">Con las credenciales listas, el flujo completo tarda ~30 min en implementarse.</p>`,
+        },
+        substack: { name: 'Substack', descHtml: '' }, // handled by its own dedicated modal
+        x: {
+          name: 'X (Twitter)',
+          descHtml: `<p style="margin-bottom:10px;font-size:13px;color:rgba(0,0,0,0.5)">Requiere una app OAuth en X Developer Portal.</p>
+            <ol class="pp-oauth-steps">
+              <li>Ir a <strong>developer.x.com</strong> → Apps</li>
+              <li>Crear app → habilitar <em>OAuth 2.0</em> (con permisos de lectura)</li>
+              <li>Agregar Callback URI:<br>
+                <code class="pp-oauth-code">https://TUDOMINIO/api/auth/x/callback</code></li>
+              <li>Copiar Client ID + Secret a <code class="pp-oauth-code">.env.local</code></li>
+            </ol>
+            <p class="pp-oauth-note">Con las credenciales listas, el flujo completo tarda ~30 min en implementarse.</p>`,
+        },
       };
 
       // ── Open / Close ───────────────────────────────────────────────────────
@@ -5932,9 +6062,16 @@
         const card = statusEl.closest('.pp-source-card');
         const btn  = card ? card.querySelector('.pp-connect-btn') : null;
         if (src) {
-          statusEl.textContent = 'Connected';
+          let statusText = 'Connected';
+          if (type === 'substack' && src.metadata && src.metadata.post_count) {
+            statusText = 'Connected · ' + src.metadata.post_count + ' posts';
+          }
+          statusEl.textContent = statusText;
           statusEl.className   = 'pp-source-status connected';
-          if (btn) { btn.textContent = 'Disconnect'; btn.classList.add('connected'); }
+          if (btn) {
+            btn.textContent = type === 'substack' ? 'Sync' : 'Disconnect';
+            btn.classList.add('connected');
+          }
         } else {
           statusEl.textContent = 'Not connected';
           statusEl.className   = 'pp-source-status';
@@ -5946,7 +6083,11 @@
       function renderStatus() {
         if (!ppStatSources) return;
         ppStatSources.textContent = connectedSources.length;
-        ppStatContent.textContent = '—';
+        // Sum known post counts from source metadata (Substack, etc.)
+        const totalKnown = connectedSources.reduce((sum, s) => {
+          return sum + ((s.metadata && s.metadata.post_count) ? Number(s.metadata.post_count) : 0);
+        }, 0);
+        ppStatContent.textContent = totalKnown > 0 ? totalKnown : '—';
 
         ppStatusList.querySelectorAll('.pp-status-row').forEach(r => r.remove());
 
@@ -6042,11 +6183,12 @@
       let pendingSrcType = null;
 
       function openSrcModal(type) {
-        const info = SRC_META[type] || { name: type, desc: 'Coming soon.' };
+        const info = SRC_META[type] || { name: type, descHtml: '<p>Coming soon.</p>' };
         pendingSrcType = type;
-        if (ppModalTitle) ppModalTitle.textContent = 'Connect ' + info.name;
-        if (ppModalDesc)  ppModalDesc.textContent  = info.desc;
-        if (ppModalBd)    ppModalBd.classList.add('open');
+        if (ppModalTitle)   ppModalTitle.textContent = info.name;
+        if (ppModalDesc)    ppModalDesc.innerHTML    = info.descHtml || '';
+        if (ppModalConfirm) ppModalConfirm.textContent = 'Entendido';
+        if (ppModalBd)      ppModalBd.classList.add('open');
       }
 
       function closeSrcModal() {
@@ -6054,23 +6196,158 @@
         pendingSrcType = null;
       }
 
-      async function confirmSrcModal() {
-        if (!pendingSrcType || !currentUserId) { closeSrcModal(); return; }
+      // ── Substack dedicated modal ────────────────────────────────────────────
+      function openSubstackModal() {
+        // Pre-fill URL if the source is already connected
+        const existing = connectedSources.find(s => s.source_type === 'substack');
+        if (ppSubstackUrl) {
+          ppSubstackUrl.value = (existing && existing.metadata && existing.metadata.url)
+            ? existing.metadata.url.replace('https://', '')
+            : '';
+        }
+        if (ppSubstackErr)     { ppSubstackErr.textContent = ''; ppSubstackErr.style.display = 'none'; }
+        if (ppSubstackForm)    ppSubstackForm.style.display    = '';
+        if (ppSubstackLoading) ppSubstackLoading.style.display = 'none';
+        if (ppSubstackSuccess) ppSubstackSuccess.style.display = 'none';
+        if (ppSubstackModalBd) ppSubstackModalBd.classList.add('open');
+        if (ppSubstackUrl)     ppSubstackUrl.focus();
+      }
+
+      function closeSubstackModal() {
+        if (ppSubstackModalBd) ppSubstackModalBd.classList.remove('open');
+      }
+
+      function showSubstackErr(msg) {
+        if (ppSubstackErr) {
+          ppSubstackErr.textContent   = msg;
+          ppSubstackErr.style.display = 'block';
+        }
+        if (ppSubstackForm)    ppSubstackForm.style.display    = '';
+        if (ppSubstackLoading) ppSubstackLoading.style.display = 'none';
+        if (ppSubstackImportBtn) ppSubstackImportBtn.disabled  = false;
+      }
+
+      async function doSubstackImport() {
+        if (!currentUserId) return;
+        const rawUrl = ppSubstackUrl ? ppSubstackUrl.value.trim() : '';
+        if (!rawUrl) { showSubstackErr('Ingresá la URL o nombre de usuario de Substack.'); return; }
+
+        // Show spinner
+        if (ppSubstackErr)      { ppSubstackErr.textContent = ''; ppSubstackErr.style.display = 'none'; }
+        if (ppSubstackForm)     ppSubstackForm.style.display    = 'none';
+        if (ppSubstackLoading)  ppSubstackLoading.style.display = '';
+        if (ppSubstackImportBtn) ppSubstackImportBtn.disabled   = true;
+
+        let data;
         try {
-          const res = await fetch(SB_URL + '/rest/v1/user_connected_sources', {
-            method: 'POST',
-            headers: { ...SB_HEADERS, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
-            body: JSON.stringify({
-              user_id:     currentUserId,
-              source_type: pendingSrcType,
-              status:      'pending',
-              metadata:    {},
-            }),
+          const res = await fetch('/api/substack-import', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ url: rawUrl }),
           });
-          const rows = await res.json();
-          if (rows && rows[0]) connectedSources.push(rows[0]);
-        } catch (e) { console.error('[profile] source insert failed', e); }
+          data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Error ' + res.status);
+        } catch (e) {
+          showSubstackErr(e.message || 'No se pudo conectar con Substack.');
+          return;
+        }
+
+        const { publication, posts } = data;
+
+        // Upsert the connected source row
+        let sourceId = null;
+        try {
+          const existing = connectedSources.find(s => s.source_type === 'substack');
+          const payload  = {
+            user_id:      currentUserId,
+            source_type:  'substack',
+            status:       'connected',
+            last_sync_at: new Date().toISOString(),
+            metadata: {
+              url:        publication.url,
+              name:       publication.name,
+              post_count: posts.length,
+            },
+          };
+
+          if (existing) {
+            // PATCH existing row
+            const patchRes = await fetch(
+              SB_URL + '/rest/v1/user_connected_sources?id=eq.' + encodeURIComponent(existing.id),
+              {
+                method:  'PATCH',
+                headers: { ...SB_HEADERS, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+                body:    JSON.stringify(payload),
+              }
+            );
+            const rows = await patchRes.json();
+            if (rows && rows[0]) {
+              const idx = connectedSources.findIndex(s => s.id === existing.id);
+              if (idx !== -1) connectedSources[idx] = rows[0];
+              sourceId = rows[0].id;
+            }
+          } else {
+            // INSERT new row
+            const postRes = await fetch(SB_URL + '/rest/v1/user_connected_sources', {
+              method:  'POST',
+              headers: { ...SB_HEADERS, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+              body:    JSON.stringify(payload),
+            });
+            const rows = await postRes.json();
+            if (rows && rows[0]) {
+              connectedSources.push(rows[0]);
+              sourceId = rows[0].id;
+            }
+          }
+        } catch (e) {
+          showSubstackErr('No se pudo guardar la fuente: ' + e.message);
+          return;
+        }
+
+        // Batch-insert content items (ignore duplicates via unique index)
+        if (sourceId && posts.length > 0) {
+          try {
+            const items = posts.map(p => ({
+              user_id:      currentUserId,
+              source_id:    sourceId,
+              source_type:  'substack',
+              title:        p.title   || null,
+              url:          p.url     || null,
+              guid:         p.guid    || p.url || null,
+              excerpt:      p.excerpt || null,
+              published_at: p.published_at || null,
+              metadata:     {},
+            }));
+            await fetch(SB_URL + '/rest/v1/user_content_items', {
+              method:  'POST',
+              headers: {
+                ...SB_HEADERS,
+                'Content-Type': 'application/json',
+                'Prefer': 'resolution=ignore-duplicates,return=minimal',
+              },
+              body: JSON.stringify(items),
+            });
+          } catch (e) {
+            console.error('[substack] content items insert failed', e);
+            // Non-fatal — source row was saved; just log it
+          }
+        }
+
+        // Show success state
+        if (ppSubstackSuccessMsg) {
+          ppSubstackSuccessMsg.textContent =
+            posts.length + (posts.length === 1 ? ' post importado' : ' posts importados') +
+            ' de ' + (publication.name || 'Substack') + '.';
+        }
+        if (ppSubstackLoading) ppSubstackLoading.style.display = 'none';
+        if (ppSubstackSuccess) ppSubstackSuccess.style.display = '';
+
         renderSourceStatuses();
+        renderUploadedFiles();
+      }
+
+      function confirmSrcModal() {
+        // Drive / X modals are informational only — no DB row until real OAuth is wired.
         closeSrcModal();
       }
 
@@ -6103,7 +6380,13 @@
       if (ppToggleNotes) ppToggleNotes.addEventListener('change', e => saveToggle(e.target.checked));
 
       document.querySelectorAll('.pp-connect-btn').forEach(btn => {
-        btn.addEventListener('click', () => openSrcModal(btn.dataset.source));
+        btn.addEventListener('click', () => {
+          if (btn.dataset.source === 'substack') {
+            openSubstackModal();
+          } else {
+            openSrcModal(btn.dataset.source);
+          }
+        });
       });
 
       if (ppModalCancel)  ppModalCancel.addEventListener('click', closeSrcModal);
@@ -6120,14 +6403,26 @@
 
       document.addEventListener('keydown', e => {
         if (e.key !== 'Escape') return;
-        if (ppModalBd && ppModalBd.classList.contains('open'))  { closeSrcModal(); return; }
-        if (ppPanel  && ppPanel.classList.contains('open'))     { closePanel();    return; }
+        if (ppSubstackModalBd && ppSubstackModalBd.classList.contains('open')) { closeSubstackModal(); return; }
+        if (ppModalBd         && ppModalBd.classList.contains('open'))         { closeSrcModal();      return; }
+        if (ppPanel           && ppPanel.classList.contains('open'))           { closePanel();         return; }
+      });
+
+      // ── Substack modal event wiring ─────────────────────────────────────────
+      if (ppSubstackCancel)  ppSubstackCancel.addEventListener('click', closeSubstackModal);
+      if (ppSubstackDoneBtn) ppSubstackDoneBtn.addEventListener('click', closeSubstackModal);
+      if (ppSubstackImportBtn) ppSubstackImportBtn.addEventListener('click', doSubstackImport);
+      if (ppSubstackModalBd) ppSubstackModalBd.addEventListener('click', e => {
+        if (e.target === ppSubstackModalBd) closeSubstackModal();
+      });
+      if (ppSubstackUrl) ppSubstackUrl.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); doSubstackImport(); }
       });
 
       // ── Public API (consumed by fetchAlts) ─────────────────────────────────
       window.getProfileSettings = () => ({ ...profileSettings });
 
-    })(); // end profilePanelModule
+    }); // end profilePanelModule (DOMContentLoaded)
 
   </script>
 
@@ -6302,8 +6597,53 @@
       <div class="pp-modal-desc" id="ppModalDesc">OAuth integration coming soon. Your content will be indexed privately and used only to improve your AI writing assistance.</div>
       <div class="pp-modal-actions">
         <button type="button" class="pp-modal-cancel" id="ppModalCancel">Cancel</button>
-        <button type="button" class="pp-modal-confirm" id="ppModalConfirm">Got it</button>
+        <button type="button" class="pp-modal-confirm" id="ppModalConfirm">Entendido</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ── Substack import modal ── -->
+  <div class="pp-modal-backdrop" id="ppSubstackModalBd">
+    <div class="pp-modal" style="width:400px;max-width:92vw">
+
+      <!-- Form state -->
+      <div id="ppSubstackForm">
+        <div class="pp-modal-title">Connect Substack</div>
+        <div class="pp-modal-desc" style="margin-bottom:14px">
+          Importamos tus posts vía RSS — sin login, sin OAuth.
+        </div>
+        <label class="pp-label" for="ppSubstackUrl">URL de tu publicación</label>
+        <div class="pp-substk-input-wrap">
+          <span class="pp-substk-prefix">https://</span>
+          <input type="text" class="pp-input pp-substk-input" id="ppSubstackUrl"
+                 placeholder="username.substack.com"
+                 autocomplete="off" spellcheck="false" autocapitalize="off">
+        </div>
+        <div class="pp-substk-err" id="ppSubstackErr"></div>
+        <div class="pp-modal-actions" style="margin-top:20px">
+          <button type="button" class="pp-modal-cancel" id="ppSubstackCancel">Cancelar</button>
+          <button type="button" class="pp-modal-confirm" id="ppSubstackImportBtn">Importar posts →</button>
+        </div>
+      </div>
+
+      <!-- Loading state -->
+      <div class="pp-substk-loading" id="ppSubstackLoading">
+        <div class="pp-spinner"></div>
+        <span>Buscando posts…</span>
+      </div>
+
+      <!-- Success state -->
+      <div class="pp-substk-success" id="ppSubstackSuccess">
+        <div class="pp-substk-success-head">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2a7a44" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span class="pp-substk-success-title">¡Conectado!</span>
+        </div>
+        <div class="pp-substk-success-msg" id="ppSubstackSuccessMsg"></div>
+        <div class="pp-modal-actions">
+          <button type="button" class="pp-modal-confirm" id="ppSubstackDoneBtn">Listo</button>
+        </div>
+      </div>
+
     </div>
   </div>
 </body>
