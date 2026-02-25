@@ -24,10 +24,14 @@
  *
  * Secrets required:
  *   ANTHROPIC_API_KEY  — set via `supabase secrets set ANTHROPIC_API_KEY=sk-ant-...`
+ *
+ * Deploy with:
+ *   supabase functions deploy ai-edit --no-verify-jwt
  */
 
 // ── CORS ─────────────────────────────────────────────────────────────────────
-const CORS = {
+// Must be on EVERY response, including errors and the OPTIONS preflight.
+const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
@@ -141,10 +145,11 @@ function getTemperature(action: string): number {
     : 0.2;
 }
 
-function jsonResponse(data: unknown, status = 200): Response {
+// Wraps every JSON response with CORS headers — used for ALL paths.
+function jsonRes(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...CORS, "Content-Type": "application/json" },
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
 
@@ -173,147 +178,164 @@ function parseAlternatives(raw: string): ParsedResult {
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 Deno.serve(async (req: Request) => {
-  // ── CORS preflight ─────────────────────────────────────────────────────
+
+  // ✅ OPTIONS preflight — must return 200 immediately, no auth, no body parsing.
+  // Browsers send this before every cross-origin POST; if it fails the real
+  // request is never sent and the user sees a CORS error.
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: CORS });
+    return new Response("ok", { status: 200, headers: corsHeaders });
   }
 
-  if (req.method !== "POST") {
-    return jsonResponse({ error: "Method not allowed" }, 405);
-  }
-
-  // ── API key ────────────────────────────────────────────────────────────
-  const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
-  if (!apiKey) {
-    console.error("[ai-edit] ANTHROPIC_API_KEY secret not set");
-    return jsonResponse({ error: "API key not configured" }, 500);
-  }
-
-  // ── Parse body ─────────────────────────────────────────────────────────
-  let body: Record<string, unknown>;
+  // All remaining logic is inside try/catch so that every error path —
+  // including unexpected throws — still returns CORS headers.
   try {
-    body = await req.json();
-  } catch {
-    return jsonResponse({ error: "Invalid JSON body" }, 400);
-  }
 
-  const {
-    action,
-    tone = null,
-    noteTitle = "",
-    noteContent = "",
-    selectedText,
-    before = "",
-    after = "",
-    // languageHint is accepted but not used: model keeps source language naturally
-  } = body as {
-    action: string;
-    tone?: string | null;
-    noteTitle?: string;
-    noteContent?: string;
-    selectedText: string;
-    before?: string;
-    after?: string;
-    languageHint?: string | null;
-  };
+    if (req.method !== "POST") {
+      return jsonRes({ error: "Method not allowed" }, 405);
+    }
 
-  // ── Validate ───────────────────────────────────────────────────────────
-  if (!action || typeof action !== "string") {
-    return jsonResponse({ error: 'Missing or invalid "action"' }, 400);
-  }
+    // ── API key ──────────────────────────────────────────────────────────
+    const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!apiKey) {
+      console.error("[ai-edit] ANTHROPIC_API_KEY secret not set");
+      return jsonRes({ error: "API key not configured" }, 500);
+    }
 
-  const selectedTrimmed = String(selectedText ?? "").trim();
-  if (!selectedTrimmed) {
-    return jsonResponse({ error: 'Missing or empty "selectedText"' }, 400);
-  }
+    // ── Parse body ───────────────────────────────────────────────────────
+    let body: Record<string, unknown>;
+    try {
+      body = await req.json();
+    } catch {
+      return jsonRes({ error: "Invalid JSON body" }, 400);
+    }
 
-  const validActions = [
-    "rewrite", "shorter", "clearer", "fix",
-    "tone", "expand", "bullets", "example",
-  ];
-  if (!validActions.includes(action)) {
-    return jsonResponse({ error: `Unknown action: ${action}` }, 400);
-  }
-  if (action === "tone" && !tone) {
-    return jsonResponse(
-      { error: '"tone" value is required when action is "tone"' },
-      400,
-    );
-  }
+    const {
+      action,
+      tone = null,
+      noteTitle = "",
+      noteContent = "",
+      selectedText,
+      before = "",
+      after = "",
+      // languageHint accepted but unused: model preserves source language naturally
+    } = body as {
+      action: string;
+      tone?: string | null;
+      noteTitle?: string;
+      noteContent?: string;
+      selectedText: string;
+      before?: string;
+      after?: string;
+      languageHint?: string | null;
+    };
 
-  // ── Build prompts ──────────────────────────────────────────────────────
-  const systemPrompt = buildSystemPrompt(action, tone as string | null);
-  const userMessage = buildUserMessage({
-    noteTitle:    String(noteTitle  || ""),
-    noteContent:  String(noteContent || ""),
-    selectedText: selectedTrimmed,
-    before:       String(before || ""),
-    after:        String(after  || ""),
-    action,
-    tone: tone as string | null,
-  });
+    // ── Validate ─────────────────────────────────────────────────────────
+    if (!action || typeof action !== "string") {
+      return jsonRes({ error: 'Missing or invalid "action"' }, 400);
+    }
 
-  // ── Call Anthropic ─────────────────────────────────────────────────────
-  let anthropicRes: Response;
-  try {
-    anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key":         apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type":      "application/json",
-      },
-      body: JSON.stringify({
-        model:       MODEL,
-        max_tokens:  2000,
-        temperature: getTemperature(action),
-        system:      systemPrompt,
-        messages:    [{ role: "user", content: userMessage }],
-      }),
+    const selectedTrimmed = String(selectedText ?? "").trim();
+    if (!selectedTrimmed) {
+      return jsonRes({ error: 'Missing or empty "selectedText"' }, 400);
+    }
+
+    const validActions = [
+      "rewrite", "shorter", "clearer", "fix",
+      "tone", "expand", "bullets", "example",
+    ];
+    if (!validActions.includes(action)) {
+      return jsonRes({ error: `Unknown action: ${action}` }, 400);
+    }
+    if (action === "tone" && !tone) {
+      return jsonRes(
+        { error: '"tone" value is required when action is "tone"' },
+        400,
+      );
+    }
+
+    // ── Build prompts ────────────────────────────────────────────────────
+    const systemPrompt = buildSystemPrompt(action, tone as string | null);
+    const userMessage = buildUserMessage({
+      noteTitle:    String(noteTitle   || ""),
+      noteContent:  String(noteContent || ""),
+      selectedText: selectedTrimmed,
+      before:       String(before || ""),
+      after:        String(after  || ""),
+      action,
+      tone: tone as string | null,
     });
+
+    // ── Call Anthropic ───────────────────────────────────────────────────
+    let anthropicRes: Response;
+    try {
+      anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key":         apiKey,
+          "anthropic-version": "2023-06-01",
+          "content-type":      "application/json",
+        },
+        body: JSON.stringify({
+          model:       MODEL,
+          max_tokens:  2000,
+          temperature: getTemperature(action),
+          system:      systemPrompt,
+          messages:    [{ role: "user", content: userMessage }],
+        }),
+      });
+    } catch (err) {
+      console.error("[ai-edit] Anthropic network error:", err);
+      return jsonRes({ error: "Network error reaching AI" }, 502);
+    }
+
+    if (!anthropicRes.ok) {
+      const errBody = await anthropicRes.text().catch(() => "");
+      console.error(
+        "[ai-edit] Anthropic API error:",
+        anthropicRes.status,
+        errBody,
+      );
+      return jsonRes({ error: `AI API error: ${anthropicRes.status}` }, 502);
+    }
+
+    // ── Parse response ───────────────────────────────────────────────────
+    const responseData = await anthropicRes.json();
+    const raw: string = responseData.content?.[0]?.text ?? "";
+
+    let parsed: ParsedResult;
+    try {
+      parsed = parseAlternatives(raw);
+    } catch (parseErr) {
+      console.error("[ai-edit] JSON parse failed. Raw:", raw, parseErr);
+      return jsonRes({ error: "parse_failed", raw }, 200);
+    }
+
+    if (!parsed.alternatives || !Array.isArray(parsed.alternatives)) {
+      console.error("[ai-edit] bad_schema. Parsed:", parsed);
+      return jsonRes({ error: "bad_schema" }, 200);
+    }
+
+    // Normalise + filter empty options
+    const alternatives: Alternative[] = parsed.alternatives
+      .map((alt, i) => ({
+        label: String(alt.label ?? `Option ${i + 1}`),
+        text:  String(alt.text  ?? ""),
+      }))
+      .filter((alt) => alt.text.trim().length > 0);
+
+    if (alternatives.length === 0) {
+      return jsonRes({ error: "empty_alternatives" }, 200);
+    }
+
+    return jsonRes({ alternatives });
+
   } catch (err) {
-    console.error("[ai-edit] Anthropic network error:", err);
-    return jsonResponse({ error: "Network error reaching AI" }, 502);
+    // Last-resort catch: any unhandled throw still gets CORS headers so the
+    // browser receives a readable error instead of an opaque network failure.
+    console.error("[ai-edit] Unhandled error:", err);
+    return new Response(JSON.stringify({ error: String(err) }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
-
-  if (!anthropicRes.ok) {
-    const errBody = await anthropicRes.text().catch(() => "");
-    console.error(
-      "[ai-edit] Anthropic API error:",
-      anthropicRes.status,
-      errBody,
-    );
-    return jsonResponse({ error: `AI API error: ${anthropicRes.status}` }, 502);
-  }
-
-  // ── Parse response ─────────────────────────────────────────────────────
-  const responseData = await anthropicRes.json();
-  const raw: string = responseData.content?.[0]?.text ?? "";
-
-  let parsed: ParsedResult;
-  try {
-    parsed = parseAlternatives(raw);
-  } catch (parseErr) {
-    console.error("[ai-edit] JSON parse failed. Raw:", raw, parseErr);
-    return jsonResponse({ error: "parse_failed", raw }, 200);
-  }
-
-  if (!parsed.alternatives || !Array.isArray(parsed.alternatives)) {
-    console.error("[ai-edit] bad_schema. Parsed:", parsed);
-    return jsonResponse({ error: "bad_schema" }, 200);
-  }
-
-  // Normalise + filter empty options
-  const alternatives: Alternative[] = parsed.alternatives
-    .map((alt, i) => ({
-      label: String(alt.label ?? `Option ${i + 1}`),
-      text:  String(alt.text  ?? ""),
-    }))
-    .filter((alt) => alt.text.trim().length > 0);
-
-  if (alternatives.length === 0) {
-    return jsonResponse({ error: "empty_alternatives" }, 200);
-  }
-
-  return jsonResponse({ alternatives });
 });
