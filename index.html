@@ -6,7 +6,7 @@
   <title>Pages</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300&family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <script>/* Theme init — runs synchronously before first paint to prevent flash */
     (function(){try{var t=localStorage.getItem('pages-theme'),s=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(t===null&&s))document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
   </script>
@@ -228,6 +228,28 @@
       opacity: 1;
       visibility: visible;
     }
+
+    /* ── App wordmark ─────────────────────────────────────────────── */
+    /* ── Sidebar header: logo + toggle inline ─────────────────────── */
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0 16px 0;
+    }
+
+    .app-wordmark {
+      font-family: 'Cormorant Garamond', 'Lora', Georgia, serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 18px;
+      letter-spacing: 0.015em;
+      color: #1a1a1a;
+      user-select: none;
+      pointer-events: none;
+      line-height: 1;
+    }
+    [data-theme="dark"] .app-wordmark { color: #f0efeb; }
 
     .window-chrome {
       display: flex;
@@ -3083,6 +3105,345 @@
     [data-theme="dark"] .pp-oauth-steps { color: rgba(255,255,255,0.45); }
     [data-theme="dark"] .pp-oauth-code { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.72); }
     [data-theme="dark"] .pp-oauth-note { color: rgba(255,255,255,0.28); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       Writing DNA — complete component styles
+       ═══════════════════════════════════════════════════════════════ */
+
+    /* ── Zone wrapper ─────────────────────────────────────────────── */
+    .dna-zone { display: flex; flex-direction: column; gap: 0; }
+
+    /* ── STATE A: empty ──────────────────────────────────────────── */
+    .dna-empty { display: flex; flex-direction: column; align-items: center;
+                 padding: 28px 16px 20px; }
+    .dna-drop-area {
+      width: 100%; border: 1.5px dashed rgba(0,0,0,0.14);
+      border-radius: 12px; padding: 28px 20px 22px;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 6px; cursor: pointer; transition: border-color .18s, background .18s;
+      background: rgba(0,0,0,0.015);
+    }
+    .dna-drop-area:hover, .dna-drop-area.drag-over {
+      border-color: rgba(0,0,0,0.28); background: rgba(0,0,0,0.03);
+    }
+    .dna-drop-icon { font-size: 28px; line-height: 1; margin-bottom: 4px;
+                     opacity: .55; }
+    .dna-drop-title { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+    .dna-drop-sub   { font-size: 11.5px; color: rgba(0,0,0,0.40); margin-top: 2px; }
+
+    .dna-actions {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 6px 14px; padding: 14px 4px 0;
+    }
+    .dna-action-btn {
+      font-size: 12px; color: rgba(0,0,0,0.52); background: none;
+      border: none; cursor: pointer; padding: 2px 0;
+      display: flex; align-items: center; gap: 4px;
+      transition: color .15s;
+    }
+    .dna-action-btn:hover { color: #1a1a1a; }
+    .dna-action-btn .dna-act-icon { font-size: 13px; }
+    .dna-action-btn.coming { opacity: .4; cursor: default; }
+    .dna-action-btn.coming:hover { color: rgba(0,0,0,0.52); }
+
+    .dna-hint {
+      font-size: 11px; color: rgba(0,0,0,0.30); text-align: center;
+      padding: 10px 0 0; letter-spacing: .01em;
+    }
+
+    /* ── STATE A-paste: text area ─────────────────────────────────── */
+    .dna-paste-wrap { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .dna-paste-header { display: flex; align-items: center; justify-content: space-between; }
+    .dna-paste-label  { font-size: 12px; font-weight: 600; color: rgba(0,0,0,0.55); }
+    .dna-paste-cancel { font-size: 11.5px; color: rgba(0,0,0,0.35); background: none;
+                        border: none; cursor: pointer; padding: 0; }
+    .dna-paste-cancel:hover { color: rgba(0,0,0,0.65); }
+    .dna-paste-ta {
+      width: 100%; min-height: 130px; resize: vertical;
+      font-size: 12.5px; line-height: 1.6; color: #1a1a1a;
+      border: 1.5px solid rgba(0,0,0,0.12); border-radius: 8px;
+      padding: 10px 12px; background: transparent; box-sizing: border-box;
+      font-family: inherit; transition: border-color .15s;
+    }
+    .dna-paste-ta:focus { outline: none; border-color: rgba(0,0,0,0.30); }
+    .dna-paste-ta::placeholder { color: rgba(0,0,0,0.28); }
+    .dna-paste-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .dna-paste-count { font-size: 11px; color: rgba(0,0,0,0.30); }
+    .dna-paste-submit {
+      font-size: 12px; font-weight: 600; color: #fff; background: #1a1a1a;
+      border: none; border-radius: 6px; padding: 7px 16px;
+      cursor: pointer; transition: background .15s;
+    }
+    .dna-paste-submit:hover { background: #333; }
+    .dna-paste-submit:disabled { opacity: .45; cursor: default; }
+
+    /* ── STATE B: loading skeleton ────────────────────────────────── */
+    .dna-loading { padding: 20px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .dna-skel {
+      background: linear-gradient(90deg,
+        rgba(0,0,0,0.06) 25%, rgba(0,0,0,0.10) 50%, rgba(0,0,0,0.06) 75%);
+      background-size: 200% 100%;
+      animation: dna-shimmer 1.4s infinite linear;
+      border-radius: 6px;
+    }
+    .dna-skel-label { height: 10px; width: 80px; border-radius: 4px; margin-bottom: 4px; }
+    .dna-skel-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .dna-skel-chip  { height: 24px; width: 76px; border-radius: 20px; }
+    .dna-skel-line  { height: 10px; border-radius: 4px; }
+    .dna-skel-line.w80 { width: 80%; }
+    .dna-skel-line.w60 { width: 60%; }
+    .dna-loading-msg { font-size: 11.5px; color: rgba(0,0,0,0.35);
+                       text-align: center; margin-top: 6px; }
+    @keyframes dna-shimmer {
+      0%   { background-position:  200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── STATE B: profile card ────────────────────────────────────── */
+    .dna-profile { display: flex; flex-direction: column; gap: 0; }
+
+    /* Chips */
+    .dna-chips-section { padding: 16px 16px 0; }
+    .dna-section-label {
+      font-size: 10.5px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: rgba(0,0,0,0.35); margin-bottom: 10px;
+    }
+    .dna-chips {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .dna-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(0,0,0,0.05); border-radius: 20px;
+      padding: 4px 10px; font-size: 11.5px; color: #1a1a1a;
+    }
+    .dna-chip-label {
+      font-weight: 600; color: rgba(0,0,0,0.42); font-size: 10.5px;
+    }
+    .dna-chip-value { color: #1a1a1a; }
+
+    /* Learned text */
+    .dna-learned-section { padding: 14px 16px 0; }
+    .dna-learned-text {
+      font-size: 12.5px; line-height: 1.65; color: rgba(0,0,0,0.65);
+      margin: 0;
+    }
+
+    /* Try-it section */
+    .dna-try-section { padding: 16px; margin-top: 4px; border-top: 1px solid rgba(0,0,0,0.06); }
+    .dna-try-ta {
+      width: 100%; min-height: 80px; resize: vertical;
+      font-size: 12.5px; line-height: 1.6; color: #1a1a1a;
+      border: 1.5px solid rgba(0,0,0,0.11); border-radius: 8px;
+      padding: 9px 11px; background: transparent; box-sizing: border-box;
+      font-family: inherit; transition: border-color .15s; margin-bottom: 10px;
+    }
+    .dna-try-ta:focus { outline: none; border-color: rgba(0,0,0,0.28); }
+    .dna-try-ta::placeholder { color: rgba(0,0,0,0.28); }
+    .dna-try-btns { display: flex; gap: 8px; }
+    .dna-try-btn {
+      flex: 1; font-size: 12px; font-weight: 600; border: none; border-radius: 7px;
+      padding: 8px 10px; cursor: pointer; transition: background .14s, opacity .14s;
+    }
+    .dna-try-btn.primary   { background: #1a1a1a; color: #fff; }
+    .dna-try-btn.secondary { background: rgba(0,0,0,0.07); color: #1a1a1a; }
+    .dna-try-btn.primary:hover   { background: #333; }
+    .dna-try-btn.secondary:hover { background: rgba(0,0,0,0.11); }
+    .dna-try-btn:disabled { opacity: .42; cursor: default; }
+
+    /* Rewrite alternatives */
+    .dna-alts { display: flex; flex-direction: column; gap: 10px;
+                margin-top: 12px; }
+    .dna-alt {
+      border: 1.5px solid rgba(0,0,0,0.09); border-radius: 8px;
+      padding: 11px 13px; transition: border-color .15s;
+    }
+    .dna-alt:hover { border-color: rgba(0,0,0,0.20); }
+    .dna-alt-title {
+      font-size: 10.5px; font-weight: 700; letter-spacing: .05em;
+      text-transform: uppercase; color: rgba(0,0,0,0.38); margin-bottom: 6px;
+    }
+    .dna-alt-text {
+      font-size: 13px; line-height: 1.65; color: #1a1a1a; margin: 0;
+    }
+    .dna-alt-copy {
+      font-size: 11px; color: rgba(0,0,0,0.38); background: none; border: none;
+      cursor: pointer; padding: 4px 0 0; display: block; margin-top: 4px;
+    }
+    .dna-alt-copy:hover { color: rgba(0,0,0,0.72); }
+
+    /* Sample list */
+    .dna-samples-section { padding: 14px 16px 0; border-top: 1px solid rgba(0,0,0,0.06); margin-top: 14px; }
+    .dna-sample-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+    .dna-sample-item {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(0,0,0,0.03); border-radius: 7px; padding: 7px 10px;
+    }
+    .dna-sample-icon { font-size: 13px; flex-shrink: 0; }
+    .dna-sample-meta { flex: 1; min-width: 0; }
+    .dna-sample-title {
+      font-size: 12px; font-weight: 500; color: #1a1a1a;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .dna-sample-sub   { font-size: 11px; color: rgba(0,0,0,0.38); margin-top: 1px; }
+    .dna-sample-remove {
+      font-size: 16px; line-height: 1; color: rgba(0,0,0,0.28);
+      background: none; border: none; cursor: pointer; padding: 0; flex-shrink: 0;
+    }
+    .dna-sample-remove:hover { color: rgba(0,0,0,0.65); }
+
+    .dna-add-btn {
+      margin: 12px 16px 0; font-size: 12px; font-weight: 600;
+      color: rgba(0,0,0,0.55); background: none; border: 1.5px dashed rgba(0,0,0,0.14);
+      border-radius: 7px; padding: 8px 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: border-color .15s, color .15s; width: calc(100% - 32px);
+    }
+    .dna-add-btn:hover { border-color: rgba(0,0,0,0.28); color: #1a1a1a; }
+
+    /* STATE C: sliders */
+    .dna-refine-toggle {
+      font-size: 11.5px; color: rgba(0,0,0,0.40); background: none; border: none;
+      cursor: pointer; padding: 12px 16px 4px; display: flex; align-items: center;
+      gap: 5px; transition: color .15s;
+    }
+    .dna-refine-toggle:hover { color: rgba(0,0,0,0.72); }
+    .dna-refine-toggle .dna-caret { display: inline-block; transition: transform .2s; font-style: normal; }
+    .dna-refine-toggle.open .dna-caret { transform: rotate(90deg); }
+
+    .dna-sliders {
+      padding: 10px 16px 16px;
+      display: none; flex-direction: column; gap: 16px;
+    }
+    .dna-sliders.open { display: flex; }
+
+    .dna-slider-row { display: flex; flex-direction: column; gap: 6px; }
+    .dna-slider-labels {
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: rgba(0,0,0,0.42);
+    }
+    .dna-slider-labels span:last-child { text-align: right; }
+    .dna-slider-input {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 4px; border-radius: 2px; outline: none;
+      background: linear-gradient(to right, #1a1a1a 0%, #1a1a1a var(--val, 50%),
+                                  rgba(0,0,0,0.12) var(--val, 50%), rgba(0,0,0,0.12) 100%);
+      cursor: pointer;
+    }
+    .dna-slider-input::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+      background: #1a1a1a; cursor: pointer; border: 2px solid #fff;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.20);
+    }
+    .dna-slider-input::-moz-range-thumb {
+      width: 14px; height: 14px; border-radius: 50%; background: #1a1a1a;
+      cursor: pointer; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.20);
+    }
+    .dna-sliders-save {
+      font-size: 12px; font-weight: 600; color: #fff; background: #1a1a1a;
+      border: none; border-radius: 7px; padding: 8px 16px;
+      cursor: pointer; align-self: flex-end; transition: background .14s;
+    }
+    .dna-sliders-save:hover { background: #333; }
+
+    /* Error banner */
+    .dna-error {
+      margin: 12px 16px 0; padding: 10px 13px; background: rgba(220,38,38,0.07);
+      border: 1px solid rgba(220,38,38,0.18); border-radius: 8px;
+      font-size: 12px; color: #c53030; line-height: 1.5;
+    }
+
+    /* ── DNA dark mode ────────────────────────────────────────────── */
+    [data-theme="dark"] .dna-drop-area {
+      border-color: rgba(255,255,255,0.10); background: rgba(255,255,255,0.02);
+    }
+    [data-theme="dark"] .dna-drop-area:hover,
+    [data-theme="dark"] .dna-drop-area.drag-over {
+      border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.04);
+    }
+    [data-theme="dark"] .dna-drop-title   { color: #E6E6E6; }
+    [data-theme="dark"] .dna-drop-sub     { color: rgba(255,255,255,0.35); }
+    [data-theme="dark"] .dna-action-btn   { color: rgba(255,255,255,0.42); }
+    [data-theme="dark"] .dna-action-btn:hover { color: rgba(255,255,255,0.82); }
+    [data-theme="dark"] .dna-hint         { color: rgba(255,255,255,0.22); }
+
+    [data-theme="dark"] .dna-paste-label  { color: rgba(255,255,255,0.45); }
+    [data-theme="dark"] .dna-paste-cancel { color: rgba(255,255,255,0.30); }
+    [data-theme="dark"] .dna-paste-cancel:hover { color: rgba(255,255,255,0.68); }
+    [data-theme="dark"] .dna-paste-ta {
+      color: #E6E6E6; border-color: rgba(255,255,255,0.10);
+    }
+    [data-theme="dark"] .dna-paste-ta:focus { border-color: rgba(255,255,255,0.25); }
+    [data-theme="dark"] .dna-paste-ta::placeholder { color: rgba(255,255,255,0.22); }
+    [data-theme="dark"] .dna-paste-count  { color: rgba(255,255,255,0.28); }
+    [data-theme="dark"] .dna-paste-submit { background: rgba(255,255,255,0.92); color: #1a1a1a; }
+    [data-theme="dark"] .dna-paste-submit:hover { background: #fff; }
+
+    [data-theme="dark"] .dna-skel {
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.06) 75%);
+      background-size: 200% 100%; animation: dna-shimmer 1.4s infinite linear;
+    }
+    [data-theme="dark"] .dna-loading-msg  { color: rgba(255,255,255,0.30); }
+    [data-theme="dark"] .dna-section-label { color: rgba(255,255,255,0.32); }
+
+    [data-theme="dark"] .dna-chip         { background: rgba(255,255,255,0.08); }
+    [data-theme="dark"] .dna-chip-label   { color: rgba(255,255,255,0.38); }
+    [data-theme="dark"] .dna-chip-value   { color: #E6E6E6; }
+    [data-theme="dark"] .dna-learned-text { color: rgba(255,255,255,0.58); }
+
+    [data-theme="dark"] .dna-try-section  { border-top-color: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .dna-try-ta {
+      color: #E6E6E6; border-color: rgba(255,255,255,0.10);
+    }
+    [data-theme="dark"] .dna-try-ta:focus { border-color: rgba(255,255,255,0.24); }
+    [data-theme="dark"] .dna-try-ta::placeholder { color: rgba(255,255,255,0.22); }
+    [data-theme="dark"] .dna-try-btn.primary   { background: rgba(255,255,255,0.92); color: #1a1a1a; }
+    [data-theme="dark"] .dna-try-btn.primary:hover { background: #fff; }
+    [data-theme="dark"] .dna-try-btn.secondary { background: rgba(255,255,255,0.08); color: #E6E6E6; }
+    [data-theme="dark"] .dna-try-btn.secondary:hover { background: rgba(255,255,255,0.12); }
+
+    [data-theme="dark"] .dna-alt          { border-color: rgba(255,255,255,0.08); }
+    [data-theme="dark"] .dna-alt:hover    { border-color: rgba(255,255,255,0.18); }
+    [data-theme="dark"] .dna-alt-title    { color: rgba(255,255,255,0.32); }
+    [data-theme="dark"] .dna-alt-text     { color: #E6E6E6; }
+    [data-theme="dark"] .dna-alt-copy     { color: rgba(255,255,255,0.32); }
+    [data-theme="dark"] .dna-alt-copy:hover { color: rgba(255,255,255,0.70); }
+
+    [data-theme="dark"] .dna-samples-section { border-top-color: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .dna-sample-item  { background: rgba(255,255,255,0.04); }
+    [data-theme="dark"] .dna-sample-title { color: #E6E6E6; }
+    [data-theme="dark"] .dna-sample-sub   { color: rgba(255,255,255,0.32); }
+    [data-theme="dark"] .dna-sample-remove { color: rgba(255,255,255,0.22); }
+    [data-theme="dark"] .dna-sample-remove:hover { color: rgba(255,255,255,0.65); }
+
+    [data-theme="dark"] .dna-add-btn {
+      border-color: rgba(255,255,255,0.10); color: rgba(255,255,255,0.42);
+    }
+    [data-theme="dark"] .dna-add-btn:hover {
+      border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.80);
+    }
+
+    [data-theme="dark"] .dna-refine-toggle { color: rgba(255,255,255,0.35); }
+    [data-theme="dark"] .dna-refine-toggle:hover { color: rgba(255,255,255,0.72); }
+
+    [data-theme="dark"] .dna-slider-labels { color: rgba(255,255,255,0.38); }
+    [data-theme="dark"] .dna-slider-input {
+      background: linear-gradient(to right,
+        rgba(255,255,255,0.80) 0%, rgba(255,255,255,0.80) var(--val, 50%),
+        rgba(255,255,255,0.12) var(--val, 50%), rgba(255,255,255,0.12) 100%);
+    }
+    [data-theme="dark"] .dna-slider-input::-webkit-slider-thumb {
+      background: #E6E6E6; border-color: #2a2a2a;
+    }
+    [data-theme="dark"] .dna-slider-input::-moz-range-thumb {
+      background: #E6E6E6; border-color: #2a2a2a;
+    }
+    [data-theme="dark"] .dna-sliders-save { background: rgba(255,255,255,0.90); color: #1a1a1a; }
+    [data-theme="dark"] .dna-sliders-save:hover { background: #fff; }
+
+    [data-theme="dark"] .dna-error {
+      background: rgba(239,68,68,0.10); border-color: rgba(239,68,68,0.22); color: #f87171;
+    }
   </style>
 </head>
 <body>
@@ -3109,12 +3470,8 @@
   </header>
 
   <aside class="sidebar">
-    <div class="window-chrome">
-      <div class="window-dots">
-        <span class="window-dot red"></span>
-        <span class="window-dot yellow"></span>
-        <span class="window-dot green"></span>
-      </div>
+    <div class="sidebar-header">
+      <span class="app-wordmark" aria-label="thegoodkind">thegoodkind.</span>
       <button type="button" class="btn-toggle-sidebar" id="btnToggleSidebar" title="Ocultar sidebar">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
       </button>
@@ -3157,8 +3514,6 @@
         </div>
       </div>
 
-      <!-- User email shown at the bottom of sidebar -->
-      <div class="sidebar-email" id="sidebarEmail"></div>
     </div>
   </aside>
 
@@ -3469,6 +3824,18 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <!-- PDF.js — client-side PDF text extraction for voice samples -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.9.155/build/pdf.min.mjs" type="module"></script>
+  <script>
+    // Load PDF.js worker via CDN (non-module global shim)
+    window._pdfJsReady = import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.9.155/build/pdf.min.mjs').then(m => {
+      const pdfjsLib = m;
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.9.155/build/pdf.worker.min.mjs';
+      window.pdfjsLib = pdfjsLib;
+      return pdfjsLib;
+    }).catch(() => null);
+  </script>
   <script>
     // ——— Share panel ———
     const shareBackdrop = document.getElementById('shareBackdrop');
@@ -3554,13 +3921,24 @@
       : null;
 
     async function sbFetch(path, options = {}) {
+      // Always use the live session JWT so RLS (auth.uid()) works
+      let authHeader = 'Bearer ' + SB_KEY;
+      try {
+        const { data: { session } } = await sbClient.auth.getSession();
+        if (session?.access_token) authHeader = 'Bearer ' + session.access_token;
+      } catch (_) {}
       const res = await fetch(SB_URL + path, {
         ...options,
-        headers: { ...SB_HEADERS, ...(options.headers || {}) }
+        headers: {
+          'apikey':        SB_KEY,
+          'Authorization': authHeader,
+          'Content-Type':  'application/json',
+          ...(options.headers || {}),
+        },
       });
       if (!res.ok) {
-        const err = await res.text();
-        throw new Error(err);
+        const errText = await res.text();
+        throw new Error(errText);
       }
       const text = await res.text();
       return text ? JSON.parse(text) : null;
@@ -5765,17 +6143,15 @@
       'use strict';
 
       // ── State ──────────────────────────────────────────────────────────────
-      let profileSettings = {
-        tone:                 'Professional',
-        languages:            ['en'],
-        audience:             '',
-        intent:               'Explain',
-        style_notes:          '',
-        use_notes_as_context: false,
-      };
+      let voiceSamples  = [];   // [{id,source,title,content,word_count}]
+      let voiceProfile  = null; // {chips,learned_text,sliders}
+      let voiceSliders  = { formal: 50, concise: 50, opinionated: 50 };
       let connectedSources = [];
+      let dnaState      = 'empty'; // 'empty'|'paste'|'loading'|'profile'
+      // keep_notes_as_context for Knowledge Usage tab
+      let _useNotesCtx  = false;
 
-      // ── DOM refs ───────────────────────────────────────────────────────────
+      // ── DOM refs — panel scaffold ──────────────────────────────────────────
       const ppBackdrop     = document.getElementById('profilePanelBackdrop');
       const ppPanel        = document.getElementById('profilePanel');
       const ppBtnClose     = document.getElementById('btnCloseProfilePanel');
@@ -5787,16 +6163,6 @@
       const ppModalDesc    = document.getElementById('ppModalDesc');
       const ppModalCancel  = document.getElementById('ppModalCancel');
       const ppModalConfirm = document.getElementById('ppModalConfirm');
-
-      const ppToneEl       = document.getElementById('ppTone');
-      const ppAudienceEl   = document.getElementById('ppAudience');
-      const ppStyleEl      = document.getElementById('ppStyleNotes');
-      const ppIntentGroup  = document.getElementById('ppIntentGroup');
-      const ppSaveBtn      = document.getElementById('ppSaveIdentity');
-
-      const ppLangWrap     = document.getElementById('ppLangWrap');
-      const ppLangAddBtn   = document.getElementById('ppLangAddBtn');
-      const ppLangDD       = document.getElementById('ppLangDropdown');
 
       const ppToggleNotes  = document.getElementById('ppToggleNotes');
 
@@ -5810,30 +6176,46 @@
       const ppStatusEmpty  = document.getElementById('ppStatusEmpty');
 
       // Substack modal
-      const ppSubstackModalBd  = document.getElementById('ppSubstackModalBd');
-      const ppSubstackForm     = document.getElementById('ppSubstackForm');
-      const ppSubstackLoading  = document.getElementById('ppSubstackLoading');
-      const ppSubstackSuccess  = document.getElementById('ppSubstackSuccess');
-      const ppSubstackUrl      = document.getElementById('ppSubstackUrl');
-      const ppSubstackErr      = document.getElementById('ppSubstackErr');
-      const ppSubstackImportBtn = document.getElementById('ppSubstackImportBtn');
-      const ppSubstackCancel   = document.getElementById('ppSubstackCancel');
-      const ppSubstackDoneBtn  = document.getElementById('ppSubstackDoneBtn');
+      const ppSubstackModalBd    = document.getElementById('ppSubstackModalBd');
+      const ppSubstackForm       = document.getElementById('ppSubstackForm');
+      const ppSubstackLoading    = document.getElementById('ppSubstackLoading');
+      const ppSubstackSuccess    = document.getElementById('ppSubstackSuccess');
+      const ppSubstackUrl        = document.getElementById('ppSubstackUrl');
+      const ppSubstackErr        = document.getElementById('ppSubstackErr');
+      const ppSubstackImportBtn  = document.getElementById('ppSubstackImportBtn');
+      const ppSubstackCancel     = document.getElementById('ppSubstackCancel');
+      const ppSubstackDoneBtn    = document.getElementById('ppSubstackDoneBtn');
       const ppSubstackSuccessMsg = document.getElementById('ppSubstackSuccessMsg');
 
-      // ── Language catalogue ─────────────────────────────────────────────────
-      const LANGS = [
-        { code: 'en', label: 'English' },
-        { code: 'es', label: 'Spanish' },
-        { code: 'fr', label: 'French' },
-        { code: 'de', label: 'German' },
-        { code: 'pt', label: 'Portuguese' },
-        { code: 'it', label: 'Italian' },
-        { code: 'nl', label: 'Dutch' },
-        { code: 'ja', label: 'Japanese' },
-        { code: 'zh', label: 'Chinese' },
-        { code: 'ar', label: 'Arabic' },
-      ];
+      // ── DOM refs — DNA zone ────────────────────────────────────────────────
+      const dnaEmpty         = document.getElementById('dnaEmpty');
+      const dnaDropArea      = document.getElementById('dnaDropArea');
+      const dnaPasteBtn      = document.getElementById('dnaPasteBtn');
+      const dnaFileBtn       = document.getElementById('dnaFileBtn');
+      const dnaPasteWrap     = document.getElementById('dnaPasteWrap');
+      const dnaPasteCancel   = document.getElementById('dnaPasteCancel');
+      const dnaPasteTa       = document.getElementById('dnaPasteTa');
+      const dnaPasteCount    = document.getElementById('dnaPasteCount');
+      const dnaPasteSubmit   = document.getElementById('dnaPasteSubmit');
+      const dnaFileInput     = document.getElementById('dnaFileInput');
+      const dnaLoading       = document.getElementById('dnaLoading');
+      const dnaProfile       = document.getElementById('dnaProfile');
+      const dnaChips         = document.getElementById('dnaChips');
+      const dnaLearnedText   = document.getElementById('dnaLearnedText');
+      const dnaTryTa         = document.getElementById('dnaTryTa');
+      const dnaRewriteBtn    = document.getElementById('dnaRewriteBtn');
+      const dnaShorterBtn    = document.getElementById('dnaShorterBtn');
+      const dnaAlts          = document.getElementById('dnaAlts');
+      const dnaSampleList    = document.getElementById('dnaSampleList');
+      const dnaAddAnotherBtn = document.getElementById('dnaAddAnotherBtn');
+      const dnaError         = document.getElementById('dnaError');
+      const dnaErrorEmpty    = document.getElementById('dnaErrorEmpty');
+      const dnaRefineToggle  = document.getElementById('dnaRefineToggle');
+      const dnaSlidersEl     = document.getElementById('dnaSliders');
+      const dnaSliderFormal      = document.getElementById('dnaSliderFormal');
+      const dnaSliderConcise     = document.getElementById('dnaSliderConcise');
+      const dnaSliderOpinionated = document.getElementById('dnaSliderOpinionated');
+      const dnaSlidersave    = document.getElementById('dnaSlidersave');
 
       // ── Source display info ────────────────────────────────────────────────
       // descHtml is rendered as innerHTML in the info modal for Drive/X.
@@ -5870,14 +6252,13 @@
       function openPanel() {
         ppPanel.classList.add('open');
         ppBackdrop.classList.add('open');
-        loadSettings();
+        loadDNA();
         loadSources();
       }
 
       function closePanel() {
         ppPanel.classList.remove('open');
         ppBackdrop.classList.remove('open');
-        closeLangDD();
       }
 
       // ── Tab switching ──────────────────────────────────────────────────────
@@ -5890,148 +6271,320 @@
         if (name === 'status') renderStatus();
       }
 
-      // ── Load settings ──────────────────────────────────────────────────────
-      async function loadSettings() {
-        if (!currentUserId) return;
+      // ── DNA state machine ─────────────────────────────────────────────────
+      function showState(state) {
+        dnaState = state;
+        if (dnaEmpty)     dnaEmpty.style.display     = (state === 'empty')   ? '' : 'none';
+        if (dnaPasteWrap) dnaPasteWrap.style.display = (state === 'paste')   ? '' : 'none';
+        if (dnaLoading)   dnaLoading.style.display   = (state === 'loading') ? '' : 'none';
+        if (dnaProfile)   dnaProfile.style.display   = (state === 'profile') ? '' : 'none';
+      }
+
+      // ── Load DNA from Supabase ────────────────────────────────────────────
+      async function loadDNA() {
+        if (!currentUserId) { showState('empty'); return; }
         try {
-          const rows = await sbFetch(
-            '/rest/v1/user_profile_settings?user_id=eq.' +
-            encodeURIComponent(currentUserId) + '&select=*&limit=1'
-          );
-          if (rows && rows.length > 0) {
-            const r = rows[0];
-            profileSettings = {
-              tone:                 r.tone                 || 'Professional',
-              languages:            r.languages            || ['en'],
-              audience:             r.audience             || '',
-              intent:               r.intent               || 'Explain',
-              style_notes:          r.style_notes          || '',
-              use_notes_as_context: r.use_notes_as_context || false,
+          const [sampRows, profRows] = await Promise.all([
+            sbFetch('/rest/v1/voice_samples?user_id=eq.' + encodeURIComponent(currentUserId) +
+                    '&select=id,source,title,content,word_count,created_at&order=created_at.asc'),
+            sbFetch('/rest/v1/voice_profile?user_id=eq.' + encodeURIComponent(currentUserId) +
+                    '&select=*&limit=1'),
+          ]);
+          voiceSamples = sampRows || [];
+          if (profRows && profRows.length > 0) {
+            const r = profRows[0];
+            voiceProfile = {
+              chips:        (r.summary && r.summary.chips) ? r.summary.chips : [],
+              learned_text: r.learned_text || '',
+              sliders:      r.sliders || { formal: 50, concise: 50, opinionated: 50 },
             };
+            voiceSliders = voiceProfile.sliders;
+          } else {
+            voiceProfile = null;
+          }
+          // also load use_notes_as_context for Knowledge tab
+          const settRows = await sbFetch('/rest/v1/user_profile_settings?user_id=eq.' +
+            encodeURIComponent(currentUserId) + '&select=use_notes_as_context&limit=1');
+          if (settRows && settRows[0]) {
+            _useNotesCtx = !!settRows[0].use_notes_as_context;
+            if (ppToggleNotes) ppToggleNotes.checked = _useNotesCtx;
           }
         } catch (e) {
-          // Table may not exist yet — silently ignore
+          voiceSamples = []; voiceProfile = null;
         }
-        applyToUI();
+        if (voiceProfile && voiceSamples.length > 0) {
+          renderVoiceCard();
+          renderSampleList();
+          showState('profile');
+        } else {
+          showState('empty');
+        }
       }
 
-      function applyToUI() {
-        if (ppToneEl)    ppToneEl.value    = profileSettings.tone;
-        if (ppAudienceEl) ppAudienceEl.value = profileSettings.audience;
-        if (ppStyleEl)   ppStyleEl.value   = profileSettings.style_notes;
-        if (ppToggleNotes) ppToggleNotes.checked = profileSettings.use_notes_as_context;
-        document.querySelectorAll('.pp-intent-btn').forEach(b =>
-          b.classList.toggle('active', b.dataset.intent === profileSettings.intent)
-        );
-        renderLangTags();
+      // ── Render helpers ────────────────────────────────────────────────────
+      function renderVoiceCard() {
+        if (!dnaChips || !voiceProfile) return;
+        dnaChips.innerHTML = (voiceProfile.chips || []).map(c =>
+          '<div class="dna-chip">' +
+            '<span class="dna-chip-label">' + escapeHtml(c.label) + '</span>' +
+            '<span class="dna-chip-value">' + escapeHtml(c.value) + '</span>' +
+          '</div>'
+        ).join('');
+        if (dnaLearnedText) dnaLearnedText.textContent = voiceProfile.learned_text || '';
+        // Sync sliders to saved values
+        _syncSliderUI();
       }
 
-      // ── Save identity ──────────────────────────────────────────────────────
-      async function saveIdentity() {
-        if (!currentUserId) return;
-        ppSaveBtn.disabled = true;
-        ppSaveBtn.textContent = 'Saving…';
+      function _syncSliderUI() {
+        const s = voiceSliders;
+        if (dnaSliderFormal)      { dnaSliderFormal.value      = s.formal;      dnaSliderFormal.style.setProperty('--val',      s.formal      + '%'); }
+        if (dnaSliderConcise)     { dnaSliderConcise.value     = s.concise;     dnaSliderConcise.style.setProperty('--val',     s.concise     + '%'); }
+        if (dnaSliderOpinionated) { dnaSliderOpinionated.value = s.opinionated; dnaSliderOpinionated.style.setProperty('--val', s.opinionated + '%'); }
+      }
 
-        profileSettings.tone        = ppToneEl    ? ppToneEl.value    : profileSettings.tone;
-        profileSettings.audience    = ppAudienceEl ? ppAudienceEl.value : profileSettings.audience;
-        profileSettings.style_notes = ppStyleEl   ? ppStyleEl.value   : profileSettings.style_notes;
+      function renderSampleList() {
+        if (!dnaSampleList) return;
+        if (voiceSamples.length === 0) {
+          dnaSampleList.innerHTML = '<div style="font-size:11.5px;color:rgba(0,0,0,0.35);padding:4px 0;">No samples yet.</div>';
+          return;
+        }
+        dnaSampleList.innerHTML = voiceSamples.map(s => {
+          const icon  = s.source === 'upload' ? '📄' : '✏️';
+          const words = s.word_count ? s.word_count + ' words' : '';
+          const title = s.title || ('Sample (' + (s.source || 'paste') + ')');
+          return '<div class="dna-sample-item">' +
+            '<span class="dna-sample-icon">' + icon + '</span>' +
+            '<div class="dna-sample-meta">' +
+              '<div class="dna-sample-title">' + escapeHtml(title) + '</div>' +
+              (words ? '<div class="dna-sample-sub">' + escapeHtml(words) + '</div>' : '') +
+            '</div>' +
+            '<button type="button" class="dna-sample-remove" data-id="' + escapeHtml(String(s.id)) + '" title="Remove">×</button>' +
+          '</div>';
+        }).join('');
+        dnaSampleList.querySelectorAll('.dna-sample-remove').forEach(btn => {
+          btn.addEventListener('click', () => removeSample(btn.dataset.id));
+        });
+      }
 
+      function showDnaError(msg) {
+        const el = (dnaState === 'profile') ? dnaError : dnaErrorEmpty;
+        if (!el) return;
+        el.textContent  = msg;
+        el.style.display = '';
+        setTimeout(() => { el.style.display = 'none'; }, 7000);
+      }
+
+      // ── Add samples ───────────────────────────────────────────────────────
+      async function addSampleFromPaste() {
+        const text = dnaPasteTa ? dnaPasteTa.value.trim() : '';
+        if (!text || text.length < 20) { showDnaError('Please paste at least a sentence or two.'); return; }
+        const words = text.split(/\s+/).filter(Boolean).length;
+        const title = text.split(/[\n.!?]/)[0].slice(0, 60) || 'Pasted sample';
+        if (dnaPasteTa) dnaPasteTa.value = '';
+        if (dnaPasteCount) dnaPasteCount.textContent = '0 words';
+        if (dnaPasteSubmit) dnaPasteSubmit.disabled = true;
+        await persistSample({ source: 'paste', title, content: text, word_count: words });
+      }
+
+      // ── PDF text extraction ───────────────────────────────────────────────
+      async function extractPdfText(file) {
+        const lib = window.pdfjsLib || await window._pdfJsReady;
+        if (!lib) throw new Error('PDF.js no disponible');
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await lib.getDocument({ data: arrayBuffer }).promise;
+        let text = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page    = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          text += content.items.map(item => item.str).join(' ') + '\n';
+        }
+        return text.trim();
+      }
+
+      async function addSampleFromFile(files) {
+        for (const file of Array.from(files || [])) {
+          const ext = (file.name.split('.').pop() || '').toLowerCase();
+          if (!['txt', 'md', 'pdf'].includes(ext)) {
+            showDnaError('Formatos soportados: .txt, .md, .pdf');
+            continue;
+          }
+          try {
+            let text;
+            if (ext === 'pdf') {
+              showDnaError(''); // clear previous error
+              text = await extractPdfText(file);
+            } else {
+              text = await file.text();
+            }
+            if (!text || text.trim().length < 20) {
+              showDnaError('No se pudo extraer texto de ' + file.name);
+              continue;
+            }
+            const words = text.split(/\s+/).filter(Boolean).length;
+            await persistSample({ source: 'upload', title: file.name, content: text.slice(0, 25000), word_count: words });
+          } catch (e) { showDnaError('No se pudo leer ' + file.name + ': ' + (e.message || '')); }
+        }
+      }
+
+      async function persistSample(data) {
+        showState('loading');
+        let sample = { id: 'local-' + Date.now(), ...data };
+        if (currentUserId) {
+          try {
+            const rows = await sbFetch('/rest/v1/voice_samples', {
+              method:  'POST',
+              headers: { 'Prefer': 'return=representation' },
+              body:    JSON.stringify({ user_id: currentUserId, ...data }),
+            });
+            if (rows && rows[0]) sample = rows[0];
+          } catch (e) { console.warn('[voice] persist failed, using local copy', e.message); }
+        }
+        voiceSamples.push(sample);
+        await analyzeSamples();
+      }
+
+      // ── Remove sample ─────────────────────────────────────────────────────
+      async function removeSample(id) {
+        if (currentUserId && !String(id).startsWith('local-')) {
+          try {
+            await sbFetch(
+              '/rest/v1/voice_samples?id=eq.' + encodeURIComponent(id) +
+              '&user_id=eq.' + encodeURIComponent(currentUserId),
+              { method: 'DELETE' }
+            );
+          } catch (e) { /* non-fatal */ }
+        }
+        voiceSamples = voiceSamples.filter(s => String(s.id) !== String(id));
+        if (voiceSamples.length === 0) {
+          voiceProfile = null;
+          if (dnaSlidersEl) dnaSlidersEl.classList.remove('open');
+          if (dnaRefineToggle) dnaRefineToggle.classList.remove('open');
+          showState('empty');
+        } else {
+          await analyzeSamples();
+        }
+      }
+
+      // ── Analyze ───────────────────────────────────────────────────────────
+      async function analyzeSamples() {
+        if (voiceSamples.length === 0) { showState('empty'); return; }
+        showState('loading');
         try {
-          await fetch(SB_URL + '/rest/v1/user_profile_settings', {
-            method: 'POST',
-            headers: { ...SB_HEADERS, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
-            body: JSON.stringify({
-              user_id:              currentUserId,
-              tone:                 profileSettings.tone,
-              languages:            profileSettings.languages,
-              audience:             profileSettings.audience,
-              intent:               profileSettings.intent,
-              style_notes:          profileSettings.style_notes,
-              use_notes_as_context: profileSettings.use_notes_as_context,
-              updated_at:           new Date().toISOString(),
+          const res  = await fetch('/api/voice/analyze', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({
+              samples: voiceSamples.map(s => ({ source: s.source || 'paste', content: s.content || '' })),
+              sliders: voiceSliders,
             }),
           });
-          ppSaveBtn.textContent = 'Saved!';
-          ppSaveBtn.classList.add('saved');
-          setTimeout(() => {
-            ppSaveBtn.textContent = 'Save Identity';
-            ppSaveBtn.classList.remove('saved');
-            ppSaveBtn.disabled = false;
-          }, 2000);
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Analysis failed');
+          voiceProfile = {
+            chips:        data.chips        || [],
+            learned_text: data.learned_text || '',
+            sliders:      data.sliders      || voiceSliders,
+          };
+          voiceSliders = voiceProfile.sliders;
+          if (currentUserId) {
+            sbFetch('/rest/v1/voice_profile', {
+              method:  'POST',
+              headers: { 'Prefer': 'resolution=merge-duplicates' },
+              body:    JSON.stringify({
+                user_id:      currentUserId,
+                summary:      { chips: voiceProfile.chips },
+                learned_text: voiceProfile.learned_text,
+                sliders:      voiceSliders,
+                updated_at:   new Date().toISOString(),
+              }),
+            }).catch(() => {});
+          }
+          renderVoiceCard();
+          renderSampleList();
+          if (dnaAlts) { dnaAlts.style.display = 'none'; dnaAlts.innerHTML = ''; }
+          showState('profile');
         } catch (e) {
-          console.error('[profile] save failed', e);
-          ppSaveBtn.textContent = 'Save Identity';
-          ppSaveBtn.disabled = false;
+          showDnaError(e.message || 'Analysis failed. Please try again.');
+          showState(voiceProfile ? 'profile' : 'empty');
         }
+      }
+
+      // ── Rewrite ───────────────────────────────────────────────────────────
+      async function runRewrite(shorter) {
+        const text = dnaTryTa ? dnaTryTa.value.trim() : '';
+        if (!text || text.length < 5) return;
+        if (dnaRewriteBtn) dnaRewriteBtn.disabled = true;
+        if (dnaShorterBtn) dnaShorterBtn.disabled = true;
+        if (dnaAlts) { dnaAlts.style.display = ''; dnaAlts.innerHTML = '<div class="dna-loading-msg">Rewriting…</div>'; }
+        try {
+          const body = { text, voice_profile: voiceProfile, sliders: voiceSliders };
+          if (shorter) body.text = 'Make this shorter and tighter:\n\n' + text;
+          const res  = await fetch('/api/voice/rewrite', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify(body),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Rewrite failed');
+          const alts = shorter
+            ? [data.alternatives?.[2] || data.alternatives?.[0]].filter(Boolean)
+            : (data.alternatives || []);
+          renderRewriteResults(alts);
+        } catch (e) {
+          if (dnaAlts) dnaAlts.innerHTML = '<div class="dna-error">' + escapeHtml(e.message || 'Rewrite failed') + '</div>';
+        } finally {
+          if (dnaRewriteBtn) dnaRewriteBtn.disabled = false;
+          if (dnaShorterBtn) dnaShorterBtn.disabled = false;
+        }
+      }
+
+      function renderRewriteResults(alts) {
+        if (!dnaAlts || !alts) return;
+        dnaAlts.style.display = '';
+        dnaAlts.innerHTML = alts.map(a =>
+          '<div class="dna-alt">' +
+            '<div class="dna-alt-title">' + escapeHtml(a.title || '') + '</div>' +
+            '<p class="dna-alt-text">' + escapeHtml(a.text || '') + '</p>' +
+            '<button type="button" class="dna-alt-copy" data-text="' + escapeHtml(a.text || '') + '">Copy</button>' +
+          '</div>'
+        ).join('');
+        dnaAlts.querySelectorAll('.dna-alt-copy').forEach(btn => {
+          btn.addEventListener('click', () => {
+            navigator.clipboard.writeText(btn.dataset.text).catch(() => {});
+            btn.textContent = 'Copied!';
+            setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+          });
+        });
+      }
+
+      // ── Sliders save ──────────────────────────────────────────────────────
+      async function saveSliders() {
+        voiceSliders = {
+          formal:      parseInt(dnaSliderFormal      ? dnaSliderFormal.value      : 50, 10),
+          concise:     parseInt(dnaSliderConcise     ? dnaSliderConcise.value     : 50, 10),
+          opinionated: parseInt(dnaSliderOpinionated ? dnaSliderOpinionated.value : 50, 10),
+        };
+        if (currentUserId) {
+          sbFetch('/rest/v1/voice_profile', {
+            method:  'POST',
+            headers: { 'Prefer': 'resolution=merge-duplicates' },
+            body:    JSON.stringify({ user_id: currentUserId, sliders: voiceSliders, updated_at: new Date().toISOString() }),
+          }).catch(() => {});
+        }
+        if (voiceSamples.length > 0) await analyzeSamples();
       }
 
       // ── Auto-save knowledge toggle ─────────────────────────────────────────
       async function saveToggle(val) {
-        profileSettings.use_notes_as_context = val;
+        _useNotesCtx = val;
         if (!currentUserId) return;
         try {
-          await fetch(SB_URL + '/rest/v1/user_profile_settings', {
-            method: 'POST',
-            headers: { ...SB_HEADERS, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
-            body: JSON.stringify({
-              user_id:              currentUserId,
-              use_notes_as_context: val,
-              updated_at:           new Date().toISOString(),
-            }),
+          await sbFetch('/rest/v1/user_profile_settings', {
+            method:  'POST',
+            headers: { 'Prefer': 'resolution=merge-duplicates' },
+            body:    JSON.stringify({ user_id: currentUserId, use_notes_as_context: val, updated_at: new Date().toISOString() }),
           });
         } catch (e) { /* non-fatal */ }
-      }
-
-      // ── Language multi-select ──────────────────────────────────────────────
-      function renderLangTags() {
-        if (!ppLangWrap) return;
-        ppLangWrap.querySelectorAll('.pp-lang-tag').forEach(t => t.remove());
-        profileSettings.languages.forEach(code => {
-          const lang = LANGS.find(l => l.code === code);
-          if (!lang) return;
-          const tag = document.createElement('span');
-          tag.className = 'pp-lang-tag';
-          tag.innerHTML =
-            escapeHtml(lang.label) +
-            '<button type="button" title="Remove" aria-label="Remove ' + escapeHtml(lang.label) + '" data-code="' + code + '">×</button>';
-          tag.querySelector('button').addEventListener('click', () => {
-            profileSettings.languages = profileSettings.languages.filter(c => c !== code);
-            renderLangTags();
-          });
-          ppLangWrap.insertBefore(tag, ppLangAddBtn);
-        });
-      }
-
-      function openLangDD() {
-        if (!ppLangDD) return;
-        ppLangDD.innerHTML = '';
-        const available = LANGS.filter(l => !profileSettings.languages.includes(l.code));
-        if (available.length === 0) {
-          ppLangDD.innerHTML = '<div class="pp-lang-opt" style="opacity:.45;cursor:default">All languages added</div>';
-        } else {
-          available.forEach(lang => {
-            const opt = document.createElement('div');
-            opt.className = 'pp-lang-opt';
-            opt.textContent = lang.label;
-            opt.addEventListener('click', () => {
-              profileSettings.languages.push(lang.code);
-              renderLangTags();
-              closeLangDD();
-            });
-            ppLangDD.appendChild(opt);
-          });
-        }
-        const rect = ppLangWrap.getBoundingClientRect();
-        Object.assign(ppLangDD.style, {
-          display: 'block',
-          top:     (rect.bottom + 4) + 'px',
-          left:    rect.left + 'px',
-          width:   rect.width + 'px',
-        });
-      }
-
-      function closeLangDD() {
-        if (ppLangDD) ppLangDD.style.display = 'none';
       }
 
       // ── Load sources ───────────────────────────────────────────────────────
@@ -6123,9 +6676,9 @@
       async function removeSource(id) {
         if (!currentUserId) return;
         try {
-          await fetch(
-            SB_URL + '/rest/v1/user_connected_sources?id=eq.' + id + '&user_id=eq.' + currentUserId,
-            { method: 'DELETE', headers: SB_HEADERS }
+          await sbFetch(
+            '/rest/v1/user_connected_sources?id=eq.' + id + '&user_id=eq.' + currentUserId,
+            { method: 'DELETE' }
           );
           connectedSources = connectedSources.filter(s => s.id !== id);
           renderSourceStatuses();
@@ -6155,9 +6708,9 @@
         if (!files || !files.length || !currentUserId) return;
         for (const file of Array.from(files)) {
           try {
-            const res = await fetch(SB_URL + '/rest/v1/user_connected_sources', {
+            const rows = await sbFetch('/rest/v1/user_connected_sources', {
               method: 'POST',
-              headers: { ...SB_HEADERS, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+              headers: { 'Prefer': 'return=representation' },
               body: JSON.stringify({
                 user_id:     currentUserId,
                 source_type: 'upload',
@@ -6165,7 +6718,6 @@
                 metadata:    { filename: file.name, size: file.size, uploaded_at: new Date().toISOString() },
               }),
             });
-            const rows = await res.json();
             if (rows && rows[0]) connectedSources.push(rows[0]);
           } catch (e) { console.error('[profile] file record failed', e); }
         }
@@ -6272,15 +6824,10 @@
 
           if (existing) {
             // PATCH existing row
-            const patchRes = await fetch(
-              SB_URL + '/rest/v1/user_connected_sources?id=eq.' + encodeURIComponent(existing.id),
-              {
-                method:  'PATCH',
-                headers: { ...SB_HEADERS, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
-                body:    JSON.stringify(payload),
-              }
+            const rows = await sbFetch(
+              '/rest/v1/user_connected_sources?id=eq.' + encodeURIComponent(existing.id),
+              { method: 'PATCH', headers: { 'Prefer': 'return=representation' }, body: JSON.stringify(payload) }
             );
-            const rows = await patchRes.json();
             if (rows && rows[0]) {
               const idx = connectedSources.findIndex(s => s.id === existing.id);
               if (idx !== -1) connectedSources[idx] = rows[0];
@@ -6288,12 +6835,11 @@
             }
           } else {
             // INSERT new row
-            const postRes = await fetch(SB_URL + '/rest/v1/user_connected_sources', {
-              method:  'POST',
-              headers: { ...SB_HEADERS, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
-              body:    JSON.stringify(payload),
+            const rows = await sbFetch('/rest/v1/user_connected_sources', {
+              method: 'POST',
+              headers: { 'Prefer': 'return=representation' },
+              body: JSON.stringify(payload),
             });
-            const rows = await postRes.json();
             if (rows && rows[0]) {
               connectedSources.push(rows[0]);
               sourceId = rows[0].id;
@@ -6318,13 +6864,9 @@
               published_at: p.published_at || null,
               metadata:     {},
             }));
-            await fetch(SB_URL + '/rest/v1/user_content_items', {
+            await sbFetch('/rest/v1/user_content_items', {
               method:  'POST',
-              headers: {
-                ...SB_HEADERS,
-                'Content-Type': 'application/json',
-                'Prefer': 'resolution=ignore-duplicates,return=minimal',
-              },
+              headers: { 'Prefer': 'resolution=ignore-duplicates,return=minimal' },
               body: JSON.stringify(items),
             });
           } catch (e) {
@@ -6358,26 +6900,71 @@
 
       ppTabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
 
-      if (ppIntentGroup) {
-        ppIntentGroup.addEventListener('click', e => {
-          const btn = e.target.closest('.pp-intent-btn');
-          if (!btn) return;
-          document.querySelectorAll('.pp-intent-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          profileSettings.intent = btn.dataset.intent;
+      if (ppToggleNotes) ppToggleNotes.addEventListener('change', e => saveToggle(e.target.checked));
+
+      // ── DNA event wiring ───────────────────────────────────────────────────
+
+      // Paste flow
+      if (dnaPasteBtn)    dnaPasteBtn.addEventListener('click', () => showState('paste'));
+      if (dnaPasteCancel) dnaPasteCancel.addEventListener('click', () => showState(voiceProfile && voiceSamples.length ? 'profile' : 'empty'));
+      if (dnaPasteTa) {
+        dnaPasteTa.addEventListener('input', () => {
+          const words = dnaPasteTa.value.trim().split(/\s+/).filter(Boolean).length;
+          if (dnaPasteCount) dnaPasteCount.textContent = words + ' word' + (words !== 1 ? 's' : '');
+          if (dnaPasteSubmit) dnaPasteSubmit.disabled = dnaPasteTa.value.trim().length < 20;
+        });
+      }
+      if (dnaPasteSubmit) dnaPasteSubmit.addEventListener('click', addSampleFromPaste);
+
+      // File flow
+      if (dnaFileBtn)  dnaFileBtn.addEventListener('click', () => dnaFileInput && dnaFileInput.click());
+      if (dnaFileInput) dnaFileInput.addEventListener('change', e => { addSampleFromFile(e.target.files); dnaFileInput.value = ''; });
+
+      // Drop area drag-and-drop
+      if (dnaDropArea) {
+        dnaDropArea.addEventListener('dragover', e => { e.preventDefault(); dnaDropArea.classList.add('drag-over'); });
+        dnaDropArea.addEventListener('dragleave', () => dnaDropArea.classList.remove('drag-over'));
+        dnaDropArea.addEventListener('drop', e => {
+          e.preventDefault();
+          dnaDropArea.classList.remove('drag-over');
+          const files = e.dataTransfer.files;
+          if (files && files.length) {
+            addSampleFromFile(files);
+          } else {
+            const text = e.dataTransfer.getData('text');
+            if (text && text.trim().length >= 20) {
+              if (dnaPasteTa) {
+                dnaPasteTa.value = text;
+                showState('paste');
+                dnaPasteSubmit && (dnaPasteSubmit.disabled = false);
+              }
+            }
+          }
         });
       }
 
-      if (ppLangAddBtn) ppLangAddBtn.addEventListener('click', e => { e.stopPropagation(); openLangDD(); });
-      document.addEventListener('click', e => {
-        if (ppLangDD && ppLangDD.style.display !== 'none' &&
-            ppLangWrap && !ppLangWrap.contains(e.target) && !ppLangDD.contains(e.target)) {
-          closeLangDD();
-        }
+      // Add another sample (back to empty to pick a source)
+      if (dnaAddAnotherBtn) dnaAddAnotherBtn.addEventListener('click', () => showState('empty'));
+
+      // Rewrite
+      if (dnaRewriteBtn) dnaRewriteBtn.addEventListener('click', () => runRewrite(false));
+      if (dnaShorterBtn) dnaShorterBtn.addEventListener('click', () => runRewrite(true));
+
+      // Refine toggle
+      if (dnaRefineToggle) {
+        dnaRefineToggle.addEventListener('click', () => {
+          const open = dnaSlidersEl && dnaSlidersEl.classList.toggle('open');
+          dnaRefineToggle.classList.toggle('open', !!open);
+        });
+      }
+
+      // Live slider CSS var update
+      [dnaSliderFormal, dnaSliderConcise, dnaSliderOpinionated].forEach(sl => {
+        if (!sl) return;
+        sl.addEventListener('input', () => sl.style.setProperty('--val', sl.value + '%'));
       });
 
-      if (ppSaveBtn)     ppSaveBtn.addEventListener('click', saveIdentity);
-      if (ppToggleNotes) ppToggleNotes.addEventListener('change', e => saveToggle(e.target.checked));
+      if (dnaSlidersave) dnaSlidersave.addEventListener('click', saveSliders);
 
       document.querySelectorAll('.pp-connect-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -6419,8 +7006,29 @@
         if (e.key === 'Enter') { e.preventDefault(); doSubstackImport(); }
       });
 
-      // ── Public API (consumed by fetchAlts) ─────────────────────────────────
-      window.getProfileSettings = () => ({ ...profileSettings });
+      // ── Public API (consumed by fetchAlts / buildProfileContext) ──────────
+      window.getProfileSettings = () => {
+        if (!voiceProfile) {
+          return {
+            tone: 'Professional', languages: ['en'], audience: '', intent: 'Explain',
+            style_notes: '', use_notes_as_context: _useNotesCtx,
+            voice_profile: null, sliders: voiceSliders,
+          };
+        }
+        // Map voice profile chips to legacy buildProfileContext fields
+        const chipsMap = {};
+        (voiceProfile.chips || []).forEach(c => { chipsMap[c.label] = c.value; });
+        return {
+          tone:                 chipsMap['Tone']     || 'Professional',
+          languages:            chipsMap['Language'] ? chipsMap['Language'].split('/').map(l => l.trim()) : ['en'],
+          audience:             '',
+          intent:               'Explain',
+          style_notes:          voiceProfile.learned_text || '',
+          use_notes_as_context: _useNotesCtx,
+          voice_profile:        voiceProfile,
+          sliders:              voiceSliders,
+        };
+      };
 
     }); // end profilePanelModule (DOMContentLoaded)
 
@@ -6444,7 +7052,7 @@
     </div>
 
     <div class="pp-tabs" role="tablist">
-      <button class="pp-tab active" data-tab="identity" role="tab" aria-selected="true">Writing Identity</button>
+      <button class="pp-tab active" data-tab="identity" role="tab" aria-selected="true">Writing DNA</button>
       <button class="pp-tab" data-tab="sources" role="tab" aria-selected="false">Connected Sources</button>
       <button class="pp-tab" data-tab="knowledge" role="tab" aria-selected="false">Knowledge Usage</button>
       <button class="pp-tab" data-tab="status" role="tab" aria-selected="false">Training Status</button>
@@ -6452,51 +7060,147 @@
 
     <div class="pp-body">
 
-      <!-- TAB 1: Writing Identity -->
+      <!-- TAB 1: Writing DNA -->
       <div class="pp-section active" id="ppSectionIdentity" data-section="identity">
+        <div class="dna-zone" id="dnaZone">
 
-        <div class="pp-field">
-          <label class="pp-label" for="ppTone">Tone</label>
-          <div class="pp-select-wrap">
-            <select class="pp-select" id="ppTone">
-              <option value="Professional">Professional</option>
-              <option value="Direct">Direct</option>
-              <option value="Analytical">Analytical</option>
-              <option value="Friendly">Friendly</option>
-              <option value="Founder-style">Founder-style</option>
-            </select>
+          <!-- STATE A: empty dropzone -->
+          <div class="dna-empty" id="dnaEmpty">
+            <div class="dna-drop-area" id="dnaDropArea">
+              <div class="dna-drop-icon">✦</div>
+              <div class="dna-drop-title">Drop a writing sample here</div>
+              <div class="dna-drop-sub">or choose a source below</div>
+            </div>
+            <div class="dna-actions">
+              <button type="button" class="dna-action-btn" id="dnaPasteBtn">
+                <span class="dna-act-icon">✏️</span> Paste text
+              </button>
+              <button type="button" class="dna-action-btn" id="dnaFileBtn">
+                <span class="dna-act-icon">📄</span> Upload file
+              </button>
+              <button type="button" class="dna-action-btn coming" title="Coming soon">
+                <span class="dna-act-icon">📁</span> Google Docs
+              </button>
+              <button type="button" class="dna-action-btn coming" title="Coming soon">
+                <span class="dna-act-icon">📰</span> Substack
+              </button>
+              <button type="button" class="dna-action-btn coming" title="Coming soon">
+                <span class="dna-act-icon">📓</span> Notion
+              </button>
+              <button type="button" class="dna-action-btn coming" title="Coming soon">
+                <span class="dna-act-icon">𝕏</span> X / Twitter
+              </button>
+            </div>
+            <p class="dna-hint">2–3 samples give the best results</p>
           </div>
-        </div>
 
-        <div class="pp-field">
-          <label class="pp-label">Default Language</label>
-          <div class="pp-lang-wrap" id="ppLangWrap">
-            <button type="button" class="pp-lang-add" id="ppLangAddBtn">+ Add language</button>
+          <!-- STATE A-paste: text area -->
+          <div class="dna-paste-wrap" id="dnaPasteWrap" style="display:none;">
+            <div class="dna-paste-header">
+              <span class="dna-paste-label">Paste a writing sample</span>
+              <button type="button" class="dna-paste-cancel" id="dnaPasteCancel">Cancel</button>
+            </div>
+            <textarea class="dna-paste-ta" id="dnaPasteTa"
+              placeholder="Paste any piece of your writing — a blog post, email, essay, thread…"></textarea>
+            <div class="dna-paste-footer">
+              <span class="dna-paste-count" id="dnaPasteCount">0 words</span>
+              <button type="button" class="dna-paste-submit" id="dnaPasteSubmit" disabled>Add sample</button>
+            </div>
           </div>
-          <div class="pp-lang-dropdown" id="ppLangDropdown" style="display:none;position:fixed;"></div>
-        </div>
 
-        <div class="pp-field">
-          <label class="pp-label" for="ppAudience">Target Audience</label>
-          <input type="text" class="pp-input" id="ppAudience" placeholder="e.g. startup founders, developers, general public…">
-        </div>
+          <!-- Hidden file input -->
+          <input type="file" id="dnaFileInput" accept=".txt,.md,.doc,.docx,.pdf" style="display:none;" multiple>
 
-        <div class="pp-field">
-          <label class="pp-label">Writing Intent</label>
-          <div class="pp-intent-group" id="ppIntentGroup">
-            <button type="button" class="pp-intent-btn" data-intent="Persuade">Persuade</button>
-            <button type="button" class="pp-intent-btn" data-intent="Explain">Explain</button>
-            <button type="button" class="pp-intent-btn" data-intent="Reflect">Reflect</button>
-            <button type="button" class="pp-intent-btn" data-intent="Sell">Sell</button>
+          <!-- STATE B: skeleton loader -->
+          <div class="dna-loading" id="dnaLoading" style="display:none;">
+            <div class="dna-skel dna-skel-label"></div>
+            <div class="dna-skel-chips">
+              <div class="dna-skel dna-skel-chip"></div>
+              <div class="dna-skel dna-skel-chip"></div>
+              <div class="dna-skel dna-skel-chip"></div>
+              <div class="dna-skel dna-skel-chip"></div>
+            </div>
+            <div class="dna-skel dna-skel-label" style="margin-top:10px;"></div>
+            <div class="dna-skel dna-skel-line w80"></div>
+            <div class="dna-skel dna-skel-line w60"></div>
+            <p class="dna-loading-msg">Analyzing your voice…</p>
           </div>
-        </div>
 
-        <div class="pp-field">
-          <label class="pp-label" for="ppStyleNotes">Style Notes</label>
-          <textarea class="pp-textarea" id="ppStyleNotes" rows="4" placeholder="Describe how you write — preferred patterns, things to avoid, quirks…"></textarea>
-        </div>
+          <!-- STATE B: profile card (chips + learned + try-it + samples) -->
+          <div class="dna-profile" id="dnaProfile" style="display:none;">
 
-        <button type="button" class="pp-save-btn" id="ppSaveIdentity">Save Identity</button>
+            <!-- Chips -->
+            <div class="dna-chips-section">
+              <div class="dna-section-label">Voice Profile</div>
+              <div class="dna-chips" id="dnaChips"><!-- rendered by JS --></div>
+            </div>
+
+            <!-- Learned text -->
+            <div class="dna-learned-section">
+              <p class="dna-learned-text" id="dnaLearnedText"></p>
+            </div>
+
+            <!-- Try it -->
+            <div class="dna-try-section">
+              <div class="dna-section-label" style="margin-bottom:8px;">Try it</div>
+              <textarea class="dna-try-ta" id="dnaTryTa"
+                placeholder="Paste a sentence or paragraph to see it rewritten in your voice…"></textarea>
+              <div class="dna-try-btns">
+                <button type="button" class="dna-try-btn primary" id="dnaRewriteBtn">Rewrite</button>
+                <button type="button" class="dna-try-btn secondary" id="dnaShorterBtn">Make it shorter</button>
+              </div>
+              <div class="dna-alts" id="dnaAlts" style="display:none;"><!-- rendered by JS --></div>
+            </div>
+
+            <!-- Sample list -->
+            <div class="dna-samples-section">
+              <div class="dna-section-label">Your samples</div>
+              <div class="dna-sample-list" id="dnaSampleList"><!-- rendered by JS --></div>
+            </div>
+
+            <!-- Add another -->
+            <button type="button" class="dna-add-btn" id="dnaAddAnotherBtn">
+              + Add another sample
+            </button>
+
+            <!-- Error banner -->
+            <div class="dna-error" id="dnaError" style="display:none;"></div>
+
+            <!-- STATE C: refine sliders -->
+            <button type="button" class="dna-refine-toggle" id="dnaRefineToggle">
+              <i class="dna-caret">▶</i> Refine profile
+            </button>
+            <div class="dna-sliders" id="dnaSliders">
+              <div class="dna-slider-row">
+                <div class="dna-slider-labels">
+                  <span>Formal</span><span>Conversational</span>
+                </div>
+                <input type="range" class="dna-slider-input" id="dnaSliderFormal"
+                  min="0" max="100" value="50" style="--val:50%">
+              </div>
+              <div class="dna-slider-row">
+                <div class="dna-slider-labels">
+                  <span>Concise</span><span>Expressive</span>
+                </div>
+                <input type="range" class="dna-slider-input" id="dnaSliderConcise"
+                  min="0" max="100" value="50" style="--val:50%">
+              </div>
+              <div class="dna-slider-row">
+                <div class="dna-slider-labels">
+                  <span>Opinionated</span><span>Neutral</span>
+                </div>
+                <input type="range" class="dna-slider-input" id="dnaSliderOpinionated"
+                  min="0" max="100" value="50" style="--val:50%">
+              </div>
+              <button type="button" class="dna-sliders-save" id="dnaSlidersave">Save</button>
+            </div>
+
+          </div><!-- /dna-profile -->
+
+          <!-- Error banner (empty state) -->
+          <div class="dna-error" id="dnaErrorEmpty" style="display:none; margin: 8px 16px;"></div>
+
+        </div><!-- /dna-zone -->
       </div>
 
       <!-- TAB 2: Connected Sources -->
