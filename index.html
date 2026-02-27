@@ -3824,17 +3824,13 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <!-- PDF.js — client-side PDF text extraction for voice samples -->
-  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.9.155/build/pdf.min.mjs" type="module"></script>
+  <!-- PDF.js 3.11 UMD — reliable, no ESM/module/worker-redirect issues -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script>
-    // Load PDF.js worker via CDN (non-module global shim)
-    window._pdfJsReady = import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.9.155/build/pdf.min.mjs').then(m => {
-      const pdfjsLib = m;
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.9.155/build/pdf.worker.min.mjs';
-      window.pdfjsLib = pdfjsLib;
-      return pdfjsLib;
-    }).catch(() => null);
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+    }
   </script>
   <script>
     // ——— Share panel ———
@@ -6280,9 +6276,36 @@
         if (dnaProfile)   dnaProfile.style.display   = (state === 'profile') ? '' : 'none';
       }
 
-      // ── Load DNA from Supabase ────────────────────────────────────────────
+      // ── localStorage helpers (primary storage — works offline/without migration) ─
+      function lsKey(type) {
+        return 'pages_' + type + '_' + (currentUserId || 'anon');
+      }
+      function lsRead(type, fallback) {
+        try { const v = localStorage.getItem(lsKey(type)); return v !== null ? JSON.parse(v) : fallback; }
+        catch { return fallback; }
+      }
+      function lsWrite(type, val) {
+        try { localStorage.setItem(lsKey(type), JSON.stringify(val)); } catch {}
+      }
+
+      // ── Load DNA — localStorage primary, Supabase sync when available ─────
       async function loadDNA() {
-        if (!currentUserId) { showState('empty'); return; }
+        // Always load from localStorage first (instant, works even without DB)
+        voiceSamples = lsRead('voice_samples', []);
+        voiceProfile = lsRead('voice_profile', null);
+        if (voiceProfile) voiceSliders = voiceProfile.sliders || voiceSliders;
+
+        // Render immediately from localStorage
+        if (voiceSamples.length > 0) {
+          if (voiceProfile) renderVoiceCard();
+          renderSampleList();
+          showState('profile');
+        } else {
+          showState('empty');
+        }
+
+        // Then try to sync from Supabase in background (non-blocking)
+        if (!currentUserId) return;
         try {
           const [sampRows, profRows] = await Promise.all([
             sbFetch('/rest/v1/voice_samples?user_id=eq.' + encodeURIComponent(currentUserId) +
@@ -6290,7 +6313,11 @@
             sbFetch('/rest/v1/voice_profile?user_id=eq.' + encodeURIComponent(currentUserId) +
                     '&select=*&limit=1'),
           ]);
-          voiceSamples = sampRows || [];
+          // DB has data — use it and update local cache
+          if (sampRows && sampRows.length > 0) {
+            voiceSamples = sampRows;
+            lsWrite('voice_samples', voiceSamples);
+          }
           if (profRows && profRows.length > 0) {
             const r = profRows[0];
             voiceProfile = {
@@ -6299,25 +6326,24 @@
               sliders:      r.sliders || { formal: 50, concise: 50, opinionated: 50 },
             };
             voiceSliders = voiceProfile.sliders;
-          } else {
-            voiceProfile = null;
+            lsWrite('voice_profile', voiceProfile);
           }
-          // also load use_notes_as_context for Knowledge tab
+          // Re-render with fresh DB data
+          if (voiceSamples.length > 0) {
+            if (voiceProfile) renderVoiceCard();
+            renderSampleList();
+            showState('profile');
+          }
+          // Load knowledge toggle setting
           const settRows = await sbFetch('/rest/v1/user_profile_settings?user_id=eq.' +
             encodeURIComponent(currentUserId) + '&select=use_notes_as_context&limit=1');
           if (settRows && settRows[0]) {
             _useNotesCtx = !!settRows[0].use_notes_as_context;
             if (ppToggleNotes) ppToggleNotes.checked = _useNotesCtx;
           }
-        } catch (e) {
-          voiceSamples = []; voiceProfile = null;
-        }
-        if (voiceProfile && voiceSamples.length > 0) {
-          renderVoiceCard();
-          renderSampleList();
-          showState('profile');
-        } else {
-          showState('empty');
+        } catch (_) {
+          // Supabase unavailable (tables not created yet, network, etc.)
+          // silently continue — localStorage data is already rendered above
         }
       }
 
@@ -6386,10 +6412,10 @@
         await persistSample({ source: 'paste', title, content: text, word_count: words });
       }
 
-      // ── PDF text extraction ───────────────────────────────────────────────
+      // ── PDF text extraction (uses PDF.js 3.11 UMD loaded in <head>) ────────
       async function extractPdfText(file) {
-        const lib = window.pdfjsLib || await window._pdfJsReady;
-        if (!lib) throw new Error('PDF.js no disponible');
+        const lib = window.pdfjsLib;
+        if (!lib) throw new Error('PDF.js no cargó — reintentá en unos segundos');
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await lib.getDocument({ data: arrayBuffer }).promise;
         let text = '';
@@ -6427,36 +6453,54 @@
       }
 
       async function persistSample(data) {
-        showState('loading');
-        let sample = { id: 'local-' + Date.now(), ...data };
-        if (currentUserId) {
-          try {
-            const rows = await sbFetch('/rest/v1/voice_samples', {
-              method:  'POST',
-              headers: { 'Prefer': 'return=representation' },
-              body:    JSON.stringify({ user_id: currentUserId, ...data }),
-            });
-            if (rows && rows[0]) sample = rows[0];
-          } catch (e) { console.warn('[voice] persist failed, using local copy', e.message); }
-        }
+        // 1. Add to local array + localStorage immediately (works even without DB)
+        const localId = 'local-' + Date.now();
+        const sample  = { id: localId, created_at: new Date().toISOString(), ...data };
         voiceSamples.push(sample);
+        lsWrite('voice_samples', voiceSamples);
+
+        // Show sample list right away, then start loading for analysis
+        renderSampleList();
+        showState('loading');
+
+        // 2. Try to persist to Supabase in background (fire-and-forget)
+        if (currentUserId) {
+          sbFetch('/rest/v1/voice_samples', {
+            method:  'POST',
+            headers: { 'Prefer': 'return=representation' },
+            body:    JSON.stringify({ user_id: currentUserId, ...data }),
+          }).then(rows => {
+            if (rows && rows[0]) {
+              // Replace temp local-id with real DB uuid
+              const idx = voiceSamples.findIndex(s => s.id === localId);
+              if (idx !== -1) voiceSamples[idx] = rows[0];
+              lsWrite('voice_samples', voiceSamples);
+            }
+          }).catch(() => {}); // DB unavailable — localStorage copy is enough
+        }
+
+        // 3. Run AI analysis (requires Vercel URL — works when deployed)
         await analyzeSamples();
       }
 
       // ── Remove sample ─────────────────────────────────────────────────────
       async function removeSample(id) {
-        if (currentUserId && !String(id).startsWith('local-')) {
-          try {
-            await sbFetch(
-              '/rest/v1/voice_samples?id=eq.' + encodeURIComponent(id) +
-              '&user_id=eq.' + encodeURIComponent(currentUserId),
-              { method: 'DELETE' }
-            );
-          } catch (e) { /* non-fatal */ }
-        }
+        // Remove from local array + localStorage first
         voiceSamples = voiceSamples.filter(s => String(s.id) !== String(id));
+        lsWrite('voice_samples', voiceSamples);
+
+        // Also delete from Supabase in background
+        if (currentUserId && !String(id).startsWith('local-')) {
+          sbFetch(
+            '/rest/v1/voice_samples?id=eq.' + encodeURIComponent(id) +
+            '&user_id=eq.' + encodeURIComponent(currentUserId),
+            { method: 'DELETE' }
+          ).catch(() => {});
+        }
+
         if (voiceSamples.length === 0) {
           voiceProfile = null;
+          lsWrite('voice_profile', null);
           if (dnaSlidersEl) dnaSlidersEl.classList.remove('open');
           if (dnaRefineToggle) dnaRefineToggle.classList.remove('open');
           showState('empty');
@@ -6486,6 +6530,11 @@
             sliders:      data.sliders      || voiceSliders,
           };
           voiceSliders = voiceProfile.sliders;
+
+          // Save profile to localStorage immediately
+          lsWrite('voice_profile', voiceProfile);
+
+          // Also sync to Supabase in background
           if (currentUserId) {
             sbFetch('/rest/v1/voice_profile', {
               method:  'POST',
@@ -6504,8 +6553,11 @@
           if (dnaAlts) { dnaAlts.style.display = 'none'; dnaAlts.innerHTML = ''; }
           showState('profile');
         } catch (e) {
-          showDnaError(e.message || 'Analysis failed. Please try again.');
-          showState(voiceProfile ? 'profile' : 'empty');
+          // Analysis failed (e.g. on file:// or network issue)
+          // Still show the samples list so user sees their uploads
+          renderSampleList();
+          showState('profile');
+          showDnaError('Análisis pendiente — abrí la app desde pages-notes-app.vercel.app para completarlo.');
         }
       }
 
@@ -6564,6 +6616,12 @@
           concise:     parseInt(dnaSliderConcise     ? dnaSliderConcise.value     : 50, 10),
           opinionated: parseInt(dnaSliderOpinionated ? dnaSliderOpinionated.value : 50, 10),
         };
+        // Save sliders to localStorage
+        if (voiceProfile) {
+          voiceProfile.sliders = voiceSliders;
+          lsWrite('voice_profile', voiceProfile);
+        }
+        // Sync to Supabase in background
         if (currentUserId) {
           sbFetch('/rest/v1/voice_profile', {
             method:  'POST',
