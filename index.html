@@ -3107,6 +3107,306 @@
     [data-theme="dark"] .pp-oauth-note { color: rgba(255,255,255,0.28); }
 
     /* ═══════════════════════════════════════════════════════════════
+       URL Draft Modal
+       ═══════════════════════════════════════════════════════════════ */
+
+    .url-draft-bd {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.28);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      z-index: 1100;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.18s ease;
+    }
+    .url-draft-bd.open { opacity: 1; pointer-events: auto; }
+
+    .url-draft-modal {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 20px;
+      padding: 36px 36px 30px;
+      width: 100%; max-width: 510px;
+      box-shadow: 0 28px 70px rgba(0,0,0,0.14), 0 0 0 1px rgba(0,0,0,0.03);
+      transform: translateY(12px) scale(0.98);
+      transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .url-draft-bd.open .url-draft-modal { transform: translateY(0) scale(1); }
+
+    .url-draft-title {
+      font-size: 20px; font-weight: 600; color: #0f0f0f;
+      margin: 0 0 7px; letter-spacing: -0.025em; line-height: 1.2;
+    }
+    .url-draft-sub {
+      font-size: 13.5px; color: rgba(0,0,0,0.42);
+      margin: 0 0 26px; line-height: 1.5;
+    }
+
+    .url-draft-input {
+      width: 100%; height: 48px;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      border-radius: 11px;
+      padding: 0 16px;
+      font-size: 14px; font-family: inherit;
+      color: #111; background: transparent;
+      outline: none; box-sizing: border-box;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .url-draft-input:focus {
+      border-color: rgba(0,0,0,0.32);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+    }
+    .url-draft-input::placeholder { color: rgba(0,0,0,0.28); }
+    .url-draft-input:disabled    { opacity: 0.45; cursor: not-allowed; }
+
+    .url-draft-err {
+      font-size: 12px; color: #c53030;
+      margin-top: 9px; line-height: 1.4;
+    }
+
+    /* Paste-text fallback */
+    .url-paste-section { margin-top: 13px; }
+
+    .url-paste-toggle-btn {
+      background: none; border: none; padding: 0;
+      font-size: 12.5px; color: rgba(0,0,0,0.36);
+      cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+      font-family: inherit; line-height: 1;
+      transition: color 0.13s;
+    }
+    .url-paste-toggle-btn:hover { color: rgba(0,0,0,0.65); }
+    .url-paste-toggle-btn svg { flex-shrink: 0; transition: transform 0.15s; }
+    .url-paste-toggle-btn.open svg { transform: rotate(45deg); }
+
+    .url-paste-hint {
+      font-size: 11.5px; color: #b45309;
+      font-style: italic; margin-left: 4px;
+    }
+
+    .url-paste-textarea {
+      display: none;
+      margin-top: 9px; width: 100%;
+      min-height: 88px; max-height: 200px;
+      border: 1.5px solid rgba(0,0,0,0.12); border-radius: 10px;
+      padding: 10px 13px;
+      font-size: 13px; font-family: inherit; line-height: 1.5;
+      color: #0f0f0f; background: #fafafa;
+      resize: vertical; box-sizing: border-box;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .url-paste-textarea:focus {
+      outline: none;
+      border-color: rgba(0,0,0,0.32);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+    }
+    .url-paste-textarea::placeholder { color: rgba(0,0,0,0.28); }
+    .url-paste-textarea:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    [data-theme="dark"] .url-paste-toggle-btn { color: rgba(255,255,255,0.28); }
+    [data-theme="dark"] .url-paste-toggle-btn:hover { color: rgba(255,255,255,0.6); }
+    [data-theme="dark"] .url-paste-hint { color: #fbbf24; }
+    [data-theme="dark"] .url-paste-textarea {
+      color: #e8e8e8; background: rgba(255,255,255,0.04);
+      border-color: rgba(255,255,255,0.11);
+    }
+    [data-theme="dark"] .url-paste-textarea:focus {
+      border-color: rgba(255,255,255,0.28);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
+    }
+    [data-theme="dark"] .url-paste-textarea::placeholder { color: rgba(255,255,255,0.22); }
+
+    /* Chips */
+    .url-draft-chips {
+      display: flex; align-items: center;
+      gap: 7px; flex-wrap: wrap;
+      margin-top: 18px;
+    }
+    .url-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 13px 6px 10px;
+      border: 1.5px solid rgba(0,0,0,0.10);
+      border-radius: 99px;
+      font-size: 12.5px; font-weight: 500;
+      color: rgba(0,0,0,0.52); background: transparent;
+      cursor: pointer; font-family: inherit;
+      transition: border-color 0.13s, color 0.13s, background 0.13s;
+      white-space: nowrap;
+    }
+    .url-chip:hover { border-color: rgba(0,0,0,0.22); color: #111; }
+    .url-chip.active {
+      border-color: #111; color: #111;
+      background: rgba(0,0,0,0.05);
+    }
+    .url-chip svg { flex-shrink: 0; }
+
+    /* "+" more button */
+    .url-chip-more {
+      position: relative;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1.5px solid rgba(0,0,0,0.10);
+      font-size: 16px; line-height: 1; color: rgba(0,0,0,0.38);
+      background: transparent; cursor: default; font-family: inherit;
+      transition: border-color 0.13s, color 0.13s;
+    }
+    .url-chip-more:hover { border-color: rgba(0,0,0,0.22); color: #111; }
+    .url-chip-tooltip {
+      display: none; position: absolute;
+      bottom: calc(100% + 10px); left: 50%;
+      transform: translateX(-50%);
+      background: #111; color: rgba(255,255,255,0.90);
+      border-radius: 9px; padding: 9px 14px;
+      font-size: 11.5px; line-height: 1.75;
+      white-space: nowrap; pointer-events: none;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.22);
+      z-index: 10;
+    }
+    .url-chip-tooltip::after {
+      content: '';
+      position: absolute; top: 100%; left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #111;
+    }
+    .url-chip-more:hover .url-chip-tooltip { display: block; }
+
+    /* Footer */
+    .url-draft-footer {
+      display: flex; align-items: center;
+      justify-content: flex-end; gap: 10px;
+      margin-top: 28px;
+    }
+    .url-draft-cancel {
+      padding: 10px 20px;
+      border: 1.5px solid rgba(0,0,0,0.11); border-radius: 10px;
+      font-size: 13.5px; font-weight: 500;
+      color: rgba(0,0,0,0.52); background: transparent;
+      cursor: pointer; font-family: inherit;
+      transition: background 0.13s, color 0.13s;
+    }
+    .url-draft-cancel:hover { background: rgba(0,0,0,0.05); color: #111; }
+
+    .url-draft-submit {
+      padding: 10px 22px;
+      border: none; border-radius: 10px;
+      font-size: 13.5px; font-weight: 600;
+      color: #fff; background: #111;
+      cursor: pointer; font-family: inherit;
+      display: inline-flex; align-items: center; gap: 9px;
+      transition: background 0.13s, opacity 0.13s;
+    }
+    .url-draft-submit:hover:not(:disabled) { background: #2a2a2a; }
+    .url-draft-submit:disabled { opacity: 0.48; cursor: default; }
+
+    .url-draft-spinner {
+      display: none;
+      width: 13px; height: 13px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.28);
+      border-top-color: #fff;
+      animation: udSpin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    .url-draft-submit.loading .url-draft-spinner { display: block; }
+    @keyframes udSpin { to { transform: rotate(360deg); } }
+
+    /* ── Generation skeleton (inside editor-wrap) ─────────────────── */
+    .gen-skeleton {
+      padding: 30px 0 0;
+      display: flex; flex-direction: column; gap: 13px;
+    }
+    .gen-skel {
+      background: linear-gradient(90deg,
+        rgba(0,0,0,0.05) 25%, rgba(0,0,0,0.09) 50%, rgba(0,0,0,0.05) 75%);
+      background-size: 200% 100%;
+      animation: genShimmer 1.5s infinite linear;
+      border-radius: 6px;
+    }
+    .gen-skel-h   { height: 30px; width: 62%; margin-bottom: 6px; border-radius: 6px; }
+    .gen-skel-ln  { height: 11px; }
+    .gen-skel-ln.w92 { width: 92%; } .gen-skel-ln.w78 { width: 78%; }
+    .gen-skel-ln.w85 { width: 85%; } .gen-skel-ln.w64 { width: 64%; }
+    .gen-skel-ln.w50 { width: 50%; }
+    .gen-skeleton-msg {
+      font-size: 12px; color: rgba(0,0,0,0.30);
+      margin-top: 4px;
+    }
+    @keyframes genShimmer {
+      0%   { background-position:  200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── Generation error ─────────────────────────────────────────── */
+    .gen-error {
+      padding: 28px 0 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .gen-error-badge {
+      font-size: 11px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: #c53030;
+    }
+    .gen-error-msg {
+      font-size: 13.5px; color: rgba(0,0,0,0.52);
+      line-height: 1.55; margin: 0;
+    }
+    .gen-retry-btn {
+      align-self: flex-start;
+      font-size: 13px; font-weight: 600; color: #111;
+      background: none; border: 1.5px solid rgba(0,0,0,0.13);
+      border-radius: 8px; padding: 7px 16px;
+      cursor: pointer; font-family: inherit;
+      transition: background 0.13s, border-color 0.13s;
+    }
+    .gen-retry-btn:hover {
+      background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.26);
+    }
+
+    /* ── Dark mode ──────────────────────────────────────────────────── */
+    [data-theme="dark"] .url-draft-modal {
+      background: #1c1c1e;
+      border-color: rgba(255,255,255,0.07);
+      box-shadow: 0 28px 70px rgba(0,0,0,0.55);
+    }
+    [data-theme="dark"] .url-draft-title { color: #e8e8e8; }
+    [data-theme="dark"] .url-draft-sub   { color: rgba(255,255,255,0.36); }
+    [data-theme="dark"] .url-draft-input {
+      color: #e8e8e8; border-color: rgba(255,255,255,0.11);
+    }
+    [data-theme="dark"] .url-draft-input:focus {
+      border-color: rgba(255,255,255,0.28);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
+    }
+    [data-theme="dark"] .url-draft-input::placeholder { color: rgba(255,255,255,0.22); }
+    [data-theme="dark"] .url-draft-err  { color: #f87171; }
+    [data-theme="dark"] .url-chip       { border-color: rgba(255,255,255,0.10); color: rgba(255,255,255,0.45); }
+    [data-theme="dark"] .url-chip:hover { border-color: rgba(255,255,255,0.24); color: #e8e8e8; }
+    [data-theme="dark"] .url-chip.active {
+      border-color: rgba(255,255,255,0.65); color: #e8e8e8;
+      background: rgba(255,255,255,0.07);
+    }
+    [data-theme="dark"] .url-chip-more  { border-color: rgba(255,255,255,0.10); color: rgba(255,255,255,0.32); }
+    [data-theme="dark"] .url-chip-more:hover { border-color: rgba(255,255,255,0.24); color: #e8e8e8; }
+    [data-theme="dark"] .url-draft-cancel {
+      border-color: rgba(255,255,255,0.10); color: rgba(255,255,255,0.42);
+    }
+    [data-theme="dark"] .url-draft-cancel:hover { background: rgba(255,255,255,0.06); color: #e8e8e8; }
+    [data-theme="dark"] .url-draft-submit { background: rgba(255,255,255,0.88); color: #111; }
+    [data-theme="dark"] .url-draft-submit:hover:not(:disabled) { background: #fff; }
+    [data-theme="dark"] .url-draft-spinner {
+      border-color: rgba(0,0,0,0.2); border-top-color: #111;
+    }
+    [data-theme="dark"] .gen-skel {
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.05) 75%);
+      background-size: 200% 100%; animation: genShimmer 1.5s infinite linear;
+    }
+    [data-theme="dark"] .gen-skeleton-msg { color: rgba(255,255,255,0.26); }
+    [data-theme="dark"] .gen-error-badge  { color: #f87171; }
+    [data-theme="dark"] .gen-error-msg    { color: rgba(255,255,255,0.44); }
+    [data-theme="dark"] .gen-retry-btn    { color: #e8e8e8; border-color: rgba(255,255,255,0.11); }
+    [data-theme="dark"] .gen-retry-btn:hover { background: rgba(255,255,255,0.06); }
+
+    /* ═══════════════════════════════════════════════════════════════
        Writing DNA — complete component styles
        ═══════════════════════════════════════════════════════════════ */
 
@@ -3533,6 +3833,27 @@
       <span id="savedIndicator"></span>
       <div class="editor-body" id="editorBody" contenteditable="true" data-placeholder="Escribí algo…"></div>
 
+      <!-- Generation skeleton — shown while AI draft is being created -->
+      <div class="gen-skeleton" id="genSkeleton" style="display:none;" aria-live="polite" aria-label="Generating draft">
+        <div class="gen-skel gen-skel-h"></div>
+        <div class="gen-skel gen-skel-ln w92"></div>
+        <div class="gen-skel gen-skel-ln w78"></div>
+        <div class="gen-skel gen-skel-ln w85"></div>
+        <div class="gen-skel gen-skel-ln w64"></div>
+        <div style="height:8px"></div>
+        <div class="gen-skel gen-skel-ln w92"></div>
+        <div class="gen-skel gen-skel-ln w50"></div>
+        <div class="gen-skel gen-skel-ln w78"></div>
+        <p class="gen-skeleton-msg">Generating your draft…</p>
+      </div>
+
+      <!-- Generation error — shown on failure -->
+      <div class="gen-error" id="genError" style="display:none;">
+        <div class="gen-error-badge">Generation failed</div>
+        <p class="gen-error-msg" id="genErrorMsg"></p>
+        <button type="button" class="gen-retry-btn" id="genRetryBtn">Try again →</button>
+      </div>
+
     </div>
   </main>
 
@@ -3929,6 +4250,8 @@
           'apikey':        SB_KEY,
           'Authorization': authHeader,
           'Content-Type':  'application/json',
+          // Always get the row back on POST/PATCH/DELETE (no empty-body 201)
+          'Prefer':        'return=representation',
           ...(options.headers || {}),
         },
       });
@@ -3961,10 +4284,15 @@
     // Convert Supabase row → local doc shape
     function rowToDoc(row) {
       return {
-        id: row.id,
-        title: row.title || '',
-        body: row.content || '<p></p>',
-        updatedAt: row.updated_at
+        id:               row.id,
+        title:            row.title            || '',
+        body:             row.content          || '<p></p>',
+        updatedAt:        row.updated_at,
+        // Generation fields
+        generationStatus: row.generation_status || 'idle',
+        generationError:  row.generation_error  || null,
+        sourceUrl:        row.source_url        || null,
+        destination:      row.destination       || null,
       };
     }
 
@@ -3986,6 +4314,23 @@
       try {
         const rows = await sbFetch('/rest/v1/notes?select=*&order=updated_at.desc');
         documents = (rows || []).map(rowToDoc);
+
+        // Resume or error-out any notes left stuck in 'generating' state
+        // (e.g. user refreshed mid-generation)
+        documents.forEach(d => {
+          if (d.generationStatus !== 'generating') return;
+          if (d.sourceUrl) {
+            // Restart generation transparently
+            generateDraft(d.id, d.sourceUrl, d.destination || 'linkedin');
+          } else {
+            d.generationStatus = 'error';
+            d.generationError  = 'La generación fue interrumpida. Intentalo de nuevo.';
+            sbFetch('/rest/v1/notes?id=eq.' + d.id, {
+              method: 'PATCH',
+              body: JSON.stringify({ generation_status: 'error', generation_error: d.generationError }),
+            }).catch(() => {});
+          }
+        });
         if (documents.length === 0) {
           // Create welcome note on first run
           await createDoc('Bienvenido', '<p>Este es tu espacio para escribir. Usá la barra lateral para crear nuevos documentos o cambiar entre ellos.</p><p>Todo se guarda automáticamente en la nube.</p>');
@@ -4013,7 +4358,9 @@
           method: 'POST',
           body: JSON.stringify(payload)
         });
-        const doc = rowToDoc(Array.isArray(rows) ? rows[0] : rows);
+        const raw = Array.isArray(rows) ? rows[0] : rows;
+        if (!raw || !raw.id) throw new Error('Supabase returned no row after INSERT — check DB connection');
+        const doc = rowToDoc(raw);
         documents.unshift(doc);
         currentId = doc.id;
         localStorage.setItem(ACTIVE_KEY, doc.id);
@@ -4029,6 +4376,8 @@
     async function saveCurrentDoc() {
       const doc = getCurrentDoc();
       if (!doc) return;
+      // Don't overwrite content while AI generation is in flight
+      if (doc.generationStatus === 'generating') return;
       doc.title = editorTitle.textContent.trim() || '';
       doc.body = editorBody.innerHTML;
       doc.updatedAt = new Date().toISOString();
@@ -4103,8 +4452,32 @@
     function showDoc(id) {
       const doc = documents.find(d => d.id === id);
       if (!doc) return;
-      editorTitle.textContent = doc.title || '';
-      editorBody.innerHTML = doc.body || '<p></p>';
+
+      const isGenerating = doc.generationStatus === 'generating';
+      const isError      = doc.generationStatus === 'error';
+
+      // Populate (or hide) editor fields
+      editorTitle.textContent     = isGenerating ? '' : (doc.title || '');
+      editorBody.innerHTML        = (isGenerating || isError) ? '' : (doc.body || '<p></p>');
+      editorTitle.contentEditable = isGenerating ? 'false' : 'true';
+      editorBody.contentEditable  = isGenerating ? 'false' : 'true';
+
+      // Toggle generation overlays
+      const skeletonEl = document.getElementById('genSkeleton');
+      const errorEl    = document.getElementById('genError');
+      const errMsgEl   = document.getElementById('genErrorMsg');
+      const retryBtn   = document.getElementById('genRetryBtn');
+
+      if (skeletonEl) skeletonEl.style.display = isGenerating ? '' : 'none';
+      if (errorEl)    errorEl.style.display    = isError      ? '' : 'none';
+
+      if (isError && errMsgEl) {
+        errMsgEl.textContent = doc.generationError || 'El borrador no se pudo generar.';
+      }
+      if (isError && retryBtn) {
+        retryBtn.onclick = () => openUrlDraftModal(doc.sourceUrl || '');
+      }
+
       updateWordCount();
       updateVersionsChip();
       updateEmptyState();
@@ -4984,12 +5357,272 @@
       aiHelperInput.style.height = '';
     }
 
-    async function openNewNote() {
-      // Immediately create blank note — editor appears at once, no modal
-      await createDoc('', '<p></p>');
-      // Show subtle AI helper at bottom (non-blocking)
-      showAiHelper();
+    function openNewNote() {
+      // Open the URL-draft modal instead of creating a blank note
+      openUrlDraftModal();
     }
+
+    // ── URL Draft Modal ───────────────────────────────────────────────────────
+
+    let selectedDest = 'linkedin'; // currently active destination chip
+
+    // DOM refs (modal is at end of body, resolved lazily)
+    function _udEl(id) { return document.getElementById(id); }
+
+    /** Open the modal; optionally prefill the URL (e.g. on "Try again") */
+    function openUrlDraftModal(prefillUrl = '') {
+      const bd        = _udEl('urlDraftBd');
+      const input     = _udEl('urlDraftInput');
+      const err       = _udEl('urlDraftErr');
+      const sub       = _udEl('urlDraftSubmit');
+      const txt       = _udEl('urlDraftSubmitTxt');
+      const pasteBtn  = _udEl('urlPasteToggleBtn');
+      const pasteArea = _udEl('urlPasteInput');
+      const pasteHint = _udEl('urlPasteHint');
+
+      if (input)     { input.value = prefillUrl; input.disabled = false; }
+      if (err)       { err.textContent = ''; err.style.display = 'none'; }
+      if (sub)       { sub.disabled = false; sub.classList.remove('loading'); }
+      if (txt)       txt.textContent = 'Generate draft';
+
+      // Reset paste section
+      if (pasteBtn)  pasteBtn.classList.remove('open');
+      if (pasteArea) { pasteArea.style.display = 'none'; pasteArea.value = ''; pasteArea.disabled = false; }
+      if (pasteHint) pasteHint.textContent = '';
+
+      // If prefilling with a known blocked domain, auto-expand paste area with hint
+      if (prefillUrl) _udCheckBlockedDomain(prefillUrl);
+
+      // Reset chip selection to stored value
+      document.querySelectorAll('.url-chip').forEach(c => {
+        c.classList.toggle('active', c.dataset.dest === selectedDest);
+      });
+
+      if (bd) bd.classList.add('open');
+      // Focus input after transition
+      setTimeout(() => input && input.focus(), 180);
+    }
+
+    function closeUrlDraftModal() {
+      const bd = _udEl('urlDraftBd');
+      if (bd) bd.classList.remove('open');
+    }
+
+    function showUrlDraftErr(msg) {
+      const el = _udEl('urlDraftErr');
+      if (!el) return;
+      el.textContent    = msg;
+      el.style.display  = '';
+    }
+
+    /** Create note immediately, navigate, then generate in background */
+    async function submitUrlDraft() {
+      const input     = _udEl('urlDraftInput');
+      const sub       = _udEl('urlDraftSubmit');
+      const txt       = _udEl('urlDraftSubmitTxt');
+      const pasteArea = _udEl('urlPasteInput');
+      const url       = input ? input.value.trim() : '';
+      const articleText = pasteArea ? pasteArea.value.trim() : '';
+
+      // Basic validation
+      if (!url.match(/^https?:\/\//i)) {
+        showUrlDraftErr('Por favor ingresá una URL válida (debe empezar con https://).');
+        input && input.focus();
+        return;
+      }
+
+      // Set loading state
+      if (sub)       { sub.disabled = true; sub.classList.add('loading'); }
+      if (txt)       txt.textContent = 'Generando…';
+      if (input)     input.disabled  = true;
+      if (pasteArea) pasteArea.disabled = true;
+
+      try {
+        // 1. Create the note immediately with 'generating' status
+        // Try full payload first (requires migration); fall back to minimal if DB lacks new columns
+        const fullPayload = {
+          title:             'Generando borrador…',
+          content:           '<p></p>',
+          source_url:        url,
+          destination:       selectedDest,
+          generation_status: 'generating',
+        };
+        if (currentUserId) fullPayload.user_id = currentUserId;
+
+        let rows;
+        try {
+          rows = await sbFetch('/rest/v1/notes', { method: 'POST', body: JSON.stringify(fullPayload) });
+        } catch (_colErr) {
+          // Columns may not exist yet (migration pending) — fall back to minimal insert
+          const minPayload = { title: 'Generando borrador…', content: '<p></p>' };
+          if (currentUserId) minPayload.user_id = currentUserId;
+          rows = await sbFetch('/rest/v1/notes', { method: 'POST', body: JSON.stringify(minPayload) });
+        }
+        const raw = Array.isArray(rows) ? rows[0] : rows;
+        if (!raw || !raw.id) throw new Error('Supabase returned no row after INSERT');
+        const doc = rowToDoc(raw);
+
+        documents.unshift(doc);
+        currentId = doc.id;
+        localStorage.setItem(ACTIVE_KEY, doc.id);
+
+        // 2. Close modal, navigate to the new note (shows skeleton)
+        closeUrlDraftModal();
+        showDoc(doc.id);
+        renderDocList();
+
+        // 3. Kick off generation (non-blocking — user can interact with app)
+        generateDraft(doc.id, url, selectedDest, articleText);
+
+      } catch (err) {
+        console.error('[draft] create note failed:', err);
+        showUrlDraftErr('No se pudo crear la nota. Revisá tu conexión.');
+        if (sub)       { sub.disabled = false; sub.classList.remove('loading'); }
+        if (txt)       txt.textContent = 'Generate draft';
+        if (input)     input.disabled  = false;
+        if (pasteArea) pasteArea.disabled = false;
+      }
+    }
+
+    /** Call the API, then patch the note with the result */
+    async function generateDraft(noteId, url, destination, articleText = '') {
+      try {
+        const reqBody = { url, destination };
+        if (articleText && articleText.length >= 80) reqBody.articleText = articleText;
+
+        const res  = await fetch('/api/generate-draft', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(reqBody),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error ' + res.status);
+
+        // Patch note in DB
+        await sbFetch('/rest/v1/notes?id=eq.' + noteId, {
+          method: 'PATCH',
+          body:   JSON.stringify({
+            title:             data.title   || '',
+            content:           data.content || '<p></p>',
+            generation_status: 'ready',
+            updated_at:        new Date().toISOString(),
+          }),
+        });
+
+        // Update in-memory doc
+        const doc = documents.find(d => d.id === noteId);
+        if (doc) {
+          doc.title            = data.title   || '';
+          doc.body             = data.content || '<p></p>';
+          doc.generationStatus = 'ready';
+        }
+
+        // Live-update the editor if still on this note
+        if (currentId === noteId) {
+          showDoc(noteId);
+          renderDocList();
+        }
+
+      } catch (e) {
+        console.error('[draft] generation failed:', e);
+        const errMsg = e.message || 'Error desconocido';
+
+        // Mark note as error in DB
+        sbFetch('/rest/v1/notes?id=eq.' + noteId, {
+          method: 'PATCH',
+          body:   JSON.stringify({
+            generation_status: 'error',
+            generation_error:  errMsg,
+          }),
+        }).catch(() => {});
+
+        // Update in-memory doc
+        const doc = documents.find(d => d.id === noteId);
+        if (doc) {
+          doc.generationStatus = 'error';
+          doc.generationError  = errMsg;
+        }
+
+        // Show error in editor if still viewing this note
+        if (currentId === noteId) {
+          showDoc(noteId);
+          renderDocList();
+        }
+      }
+    }
+
+    // ── Modal event wiring ────────────────────────────────────────────────────
+
+    /** Domains that typically block automated fetching */
+    const UD_BLOCKED_DOMAINS = ['linkedin.com', 'instagram.com', 'facebook.com', 'twitter.com', 'x.com'];
+
+    /** Show/hide the paste hint for known blocked domains */
+    function _udCheckBlockedDomain(urlVal) {
+      const lower   = (urlVal || '').toLowerCase();
+      const hint    = document.getElementById('urlPasteHint');
+      const btn     = document.getElementById('urlPasteToggleBtn');
+      const area    = document.getElementById('urlPasteInput');
+      const matched = UD_BLOCKED_DOMAINS.find(d => lower.includes(d));
+
+      if (matched) {
+        if (hint) hint.textContent = '— recomendado para ' + matched;
+        // Auto-expand if not already open
+        if (btn && !btn.classList.contains('open')) {
+          btn.classList.add('open');
+          if (area) area.style.display = '';
+        }
+      } else {
+        if (hint) hint.textContent = '';
+      }
+    }
+
+    // Paste-text toggle button
+    document.getElementById('urlPasteToggleBtn').addEventListener('click', () => {
+      const btn  = document.getElementById('urlPasteToggleBtn');
+      const area = document.getElementById('urlPasteInput');
+      const open = btn.classList.toggle('open');
+      if (area) area.style.display = open ? '' : 'none';
+      if (!open && area) area.value = '';
+    });
+
+    // Auto-expand paste area for known blocked domains as user types
+    document.getElementById('urlDraftInput').addEventListener('input', e => {
+      _udCheckBlockedDomain(e.target.value);
+    });
+
+    // Backdrop click → close
+    document.getElementById('urlDraftBd').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeUrlDraftModal();
+    });
+
+    // Cancel button
+    document.getElementById('urlDraftCancel').addEventListener('click', closeUrlDraftModal);
+
+    // Submit button
+    document.getElementById('urlDraftSubmit').addEventListener('click', submitUrlDraft);
+
+    // Enter key on input → submit
+    document.getElementById('urlDraftInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); submitUrlDraft(); }
+    });
+
+    // ESC → close (added to existing keydown handler via separate listener)
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        const bd = document.getElementById('urlDraftBd');
+        if (bd && bd.classList.contains('open')) { closeUrlDraftModal(); }
+      }
+    });
+
+    // Chip selection (single-select)
+    document.getElementById('urlDraftChips').addEventListener('click', e => {
+      const chip = e.target.closest('.url-chip[data-dest]');
+      if (!chip) return;
+      selectedDest = chip.dataset.dest;
+      document.querySelectorAll('.url-chip[data-dest]').forEach(c => {
+        c.classList.toggle('active', c === chip);
+      });
+    });
 
     // Auto-resize textarea
     aiHelperInput.addEventListener('input', () => {
@@ -7408,5 +8041,99 @@
 
     </div>
   </div>
+
+  <!-- ═══════════════════════════════════════════════
+       URL → Draft Modal
+  ═══════════════════════════════════════════════ -->
+  <div class="url-draft-bd" id="urlDraftBd" role="dialog" aria-modal="true" aria-label="Generate draft from URL">
+    <div class="url-draft-modal">
+
+      <h2 class="url-draft-title">Paste a URL</h2>
+      <p class="url-draft-sub">We'll generate a first draft in your voice.</p>
+
+      <input
+        type="url"
+        class="url-draft-input"
+        id="urlDraftInput"
+        placeholder="https://…"
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <div class="url-draft-err" id="urlDraftErr" style="display:none;"></div>
+
+      <!-- Paste-text fallback (for paywalled / bot-blocked articles like LinkedIn) -->
+      <div class="url-paste-section" id="urlPasteSection">
+        <button type="button" class="url-paste-toggle-btn" id="urlPasteToggleBtn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          Pegá el texto del artículo
+          <span class="url-paste-hint" id="urlPasteHint"></span>
+        </button>
+        <textarea
+          class="url-paste-textarea"
+          id="urlPasteInput"
+          placeholder="Pegá el texto del artículo acá (para sitios con paywall o que bloquean acceso automático)…"
+        ></textarea>
+      </div>
+
+      <!-- Mood / destination chips -->
+      <div class="url-draft-chips" id="urlDraftChips">
+
+        <!-- LinkedIn -->
+        <button type="button" class="url-chip active" data-dest="linkedin">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+            <rect x="2" y="9" width="4" height="12"/>
+            <circle cx="4" cy="4" r="2"/>
+          </svg>
+          LinkedIn
+        </button>
+
+        <!-- Substack -->
+        <button type="button" class="url-chip" data-dest="substack">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/>
+          </svg>
+          Substack
+        </button>
+
+        <!-- X -->
+        <button type="button" class="url-chip" data-dest="x">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/>
+          </svg>
+          X
+        </button>
+
+        <!-- Company / Blog -->
+        <button type="button" class="url-chip" data-dest="company">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="7" width="20" height="14" rx="2"/>
+            <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+          </svg>
+          Company
+        </button>
+
+        <!-- "+" — shows tooltip on hover listing all destinations -->
+        <button type="button" class="url-chip-more" tabindex="-1" aria-hidden="true">
+          +
+          <div class="url-chip-tooltip">
+            LinkedIn · Substack · X · Company<br>
+            <span style="opacity:.5;font-size:11px">More destinations coming soon</span>
+          </div>
+        </button>
+
+      </div><!-- /chips -->
+
+      <div class="url-draft-footer">
+        <button type="button" class="url-draft-cancel" id="urlDraftCancel">Cancel</button>
+        <button type="button" class="url-draft-submit" id="urlDraftSubmit">
+          <span id="urlDraftSubmitTxt">Generate draft</span>
+          <div class="url-draft-spinner"></div>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
 </body>
 </html>
